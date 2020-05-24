@@ -28,7 +28,7 @@ func krkstopsUsage() {
 
 func main() {
 	w := tabwriter.NewWriter(os.Stdout, 1, 2, 2, ' ', 0)
-	var endpoint string = "localhost"
+	var endpoint string = "krk-stops.pl"
 	depsCmd := flag.NewFlagSet("deps", flag.ExitOnError)
 	// stopsCmd := flag.NewFlagSet("stops", flag.ExitOnError)
 	airlyCmd := flag.NewFlagSet("airly", flag.ExitOnError)
@@ -36,7 +36,11 @@ func main() {
 	var depShortName = depsCmd.String("id", "610", "shortName of stop to query")
 	flag.Usage = krkstopsUsage
 	flag.Parse()
-	endpoint = os.Getenv("ENDPOINT")
+	endpointEnv := os.Getenv("ENDPOINT")
+	if endpointEnv != "" {
+		endpoint = endpointEnv
+	}
+	fmt.Println(endpoint)
 	conn, err := grpc.Dial(fmt.Sprintf("%s:8080", endpoint), grpc.WithInsecure())
 	defer conn.Close()
 	if err != nil {

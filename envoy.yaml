@@ -2,7 +2,6 @@ admin:
   access_log_path: /tmp/admin_access.log
   address:
     socket_address: { address: 0.0.0.0, port_value: 9901 }
-
 static_resources:
   listeners:
   - name: listener_0
@@ -19,6 +18,7 @@ static_resources:
             virtual_hosts:
             - name: local_service
               domains: ["*"]
+              # domains: ["krk-stops.pl"]
               routes:
               - match: { prefix: "/" }
                 route:
@@ -35,6 +35,13 @@ static_resources:
           - name: envoy.grpc_web
           - name: envoy.cors
           - name: envoy.router
+      tls_context:
+        common_tls_context:
+          tls_certificates:
+            - certificate_chain:
+                filename: "/etc/pki/fullchain.pem"
+              private_key:
+                filename: "/etc/pki/privkey.pem"
   clusters:
   - name: echo_service
     connect_timeout: 0.25s
