@@ -1,3 +1,4 @@
+set -ex
 cont=$(buildah from gcr.io/distroless/base-debian10)
 buildah copy $cont main/krkstops /bin
 buildah config --entrypoint '["/bin/krkstops"]' --port 8080 $cont
