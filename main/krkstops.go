@@ -49,7 +49,11 @@ func (s *krkStopsServer) SearchStops(search *pb.StopSearch, stream pb.KrkStops_S
 		return err
 	}
 	for _, stop := range stops {
-		if err := stream.Send(&pb.Stop{Name: stop.Term, ShortName: stop.Payload}); err != nil {
+		name, err := s.app.RedisClient.Get(stop.Payload).Result()
+		if err != nil {
+			return err
+		}
+		if err := stream.Send(&pb.Stop{Name: name, ShortName: stop.Payload}); err != nil {
 			return err
 		}
 	}
