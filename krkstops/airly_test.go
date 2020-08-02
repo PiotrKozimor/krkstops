@@ -1,6 +1,7 @@
 package krkstops
 
 import (
+	"log"
 	"net/http"
 	"strings"
 	"testing"
@@ -24,4 +25,14 @@ func TestGetAirly(test *testing.T) {
 	if strings.Contains(airly.Color, "#") != true {
 		test.Errorf("Got improper color string: %s", airly.Color)
 	}
+}
+
+func TestGetAirlyInstallation(test *testing.T) {
+	app := App{}
+	app.HTTPClient = &http.Client{}
+	inst, err := app.GetAirlyInstallation(&krk_stops.Positon{Latitude: 50.0236288, Longitude: 19.942604799999998})
+	if err != nil {
+		test.Error(err)
+	}
+	log.Print(inst)
 }

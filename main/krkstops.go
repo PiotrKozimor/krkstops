@@ -60,6 +60,11 @@ func (s *krkStopsServer) SearchStops(search *pb.StopSearch, stream pb.KrkStops_S
 	return nil
 }
 
+func (s *krkStopsServer) GetAirlyInstallation(ctx context.Context, position *pb.Positon) (*pb.Installation, error) {
+	inst, err := s.app.GetAirlyInstallation(position)
+	return inst, err
+}
+
 func main() {
 	flag.Parse()
 	lis, err := net.Listen("tcp", ":8080")

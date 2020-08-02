@@ -33,12 +33,17 @@ type AirlyResp struct {
 	Current airlyParameters `json:"current"`
 }
 
-const airlyAipURL = "https://airapi.airly.eu/v2/measurements/installation"
+type installation struct {
+	ID int32
+}
+
+const airlyMeasurementsURL = "https://airapi.airly.eu/v2/measurements/installation"
+const airlyInstallationsURL = "https://airapi.airly.eu/v2/installations/nearest"
 
 // GetAirly queries external API and parses response
 func (app *App) GetAirly(installation *pb.Installation) (pb.Airly, error) {
 	airly := pb.Airly{}
-	req, err := http.NewRequest("GET", airlyAipURL, nil)
+	req, err := http.NewRequest("GET", airlyMeasurementsURL, nil)
 	if err != nil {
 		return airly, err
 	}
@@ -77,4 +82,31 @@ func (app *App) GetAirly(installation *pb.Installation) (pb.Airly, error) {
 		}
 	}
 	return airly, err
+}
+
+// GetAirlyInstallation queries Airly API for nearest installation
+func (app *App) GetAirlyInstallation(position *pb.Positon) (*pb.Installation, error) {
+	installation := make([]pb.Installation, 1)
+	req, err := http.NewRequest("GET", airlyInstallationsURL, nil)
+	if err != nil {
+		return &installation[0], err
+	}
+	req.Header.Add("apikey", os.Getenv("AIRLY_KEY"))
+	q := req.URL.Query()
+	q.Add("lat", fmt.Sprint(position.Latitude))
+	q.Add("lng", fmt.Sprint(position.Longitude))
+	req.URL.RawQuery = q.Encode()
+	resp, err := app.HTTPClient.Do(req)
+	if err != nil {
+		return &installation[0], err
+	}
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return &installation[0], err
+	}
+	if resp.StatusCode != 200 {
+		return &installation[0], errors.New(string(body))
+	}
+	err = json.Unmarshal(body, &installation)
+	return &installation[0], err
 }

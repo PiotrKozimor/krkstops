@@ -2,6 +2,7 @@ syntax = "proto3";
 
 service KrkStops {
     rpc GetAirly(Installation) returns (Airly) {}
+    rpc GetAirlyInstallation(Positon) returns (Installation) {}
     rpc GetDepartures(Stop) returns (stream Departure) {}
     rpc SearchStops(StopSearch) returns (stream Stop) {}
 }
@@ -15,6 +16,10 @@ message Airly {
     int32 humidity = 3;
     float temperature = 4;
 }
+message Positon {
+    float latitude = 1;
+    float longitude = 2;
+}
 
 message Departure {
     int32 relativeTime = 1;
@@ -24,12 +29,10 @@ message Departure {
     string color = 5;
     string relativeTimeParsed = 6;
 }
-
 message Stop {
     string shortName = 1;
     string name = 2;
 }
-
 message StopSearch {
     string query = 1;
 }
