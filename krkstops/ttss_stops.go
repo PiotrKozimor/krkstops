@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"io/ioutil"
+	"log"
 	"net/http"
+	"strings"
 
 	pb "github.com/PiotrKozimor/krk-stops-backend-golang/krkstops-grpc"
 	"github.com/RediSearch/redisearch-go/redisearch"
@@ -105,9 +107,16 @@ func (app *App) UpdateSuggestionsAndRedis(newStops StopsMap, oldStops StopsMap) 
 	pipe := app.RedisClient.TxPipeline()
 	for ShortName, name := range newStops {
 		pipe.SAdd("stops.new", ShortName)
-		err := app.RedisAutocompleter.AddTerms(redisearch.Suggestion{Term: name, Score: 1, Payload: ShortName})
-		if err != nil {
-			return err
+		pipe.Set(ShortName, name, -1)
+		splitted := strings.Split(name, " ")
+		for _, word := range splitted {
+			if word != "(nż)" {
+				log.Print(word, ShortName)
+				err := app.RedisAutocompleter.AddTerms(redisearch.Suggestion{Term: word, Score: 1, Payload: ShortName})
+				if err != nil {
+					return err
+				}
+			}
 		}
 	}
 	_, err := pipe.Exec()

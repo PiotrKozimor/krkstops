@@ -17,5 +17,5 @@ main/*
 !main/*.go
 *.pem
 ctl/*
-!ctl/*go
+!ctl/**.go
 AIRLY

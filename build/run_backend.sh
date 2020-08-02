@@ -1,5 +1,5 @@
 set -ex
-home=/home/Desktop
+home=/home/Desktop/krkstops
 podman pull docker.io/narciarz96/krkstops-envoy:latest
 podman pull docker.io/narciarz96/krkstops
 running_pod=$(podman pod ls | grep Running | awk '{print $1}')

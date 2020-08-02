@@ -6,3 +6,4 @@ buildah copy $cont build/privkey.pem /etc/pki/privkey.pem
 buildah commit --format docker $cont krkstops-envoy
 buildah tag krkstops-envoy docker.io/narciarz96/krkstops-envoy:latest
 buildah push docker.io/narciarz96/krkstops-envoy:latest
+buildah rm $cont

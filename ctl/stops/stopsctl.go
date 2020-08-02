@@ -16,7 +16,7 @@ import (
 
 func stopsUsage() {
 	fmt.Printf(`Manipulate stops in Redis and stops suggestions in Redisearch:
-	delete   delete all suggenstions
+	delete   delete all suggestions
 	update   fetch changes from TTSS API
 	score    score stops
 `)
