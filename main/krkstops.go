@@ -60,8 +60,8 @@ func (s *krkStopsServer) SearchStops(search *pb.StopSearch, stream pb.KrkStops_S
 	return nil
 }
 
-func (s *krkStopsServer) GetAirlyInstallation(ctx context.Context, position *pb.Positon) (*pb.Installation, error) {
-	inst, err := s.app.GetAirlyInstallation(position)
+func (s *krkStopsServer) GetAirlyInstallation(ctx context.Context, location *pb.InstallationLocation) (*pb.Installation, error) {
+	inst, err := s.app.GetAirlyInstallation(location)
 	return inst, err
 }
 

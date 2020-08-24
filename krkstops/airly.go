@@ -85,7 +85,7 @@ func (app *App) GetAirly(installation *pb.Installation) (pb.Airly, error) {
 }
 
 // GetAirlyInstallation queries Airly API for nearest installation
-func (app *App) GetAirlyInstallation(position *pb.Positon) (*pb.Installation, error) {
+func (app *App) GetAirlyInstallation(location *pb.InstallationLocation) (*pb.Installation, error) {
 	installation := make([]pb.Installation, 1)
 	req, err := http.NewRequest("GET", airlyInstallationsURL, nil)
 	if err != nil {
@@ -93,8 +93,8 @@ func (app *App) GetAirlyInstallation(position *pb.Positon) (*pb.Installation, er
 	}
 	req.Header.Add("apikey", os.Getenv("AIRLY_KEY"))
 	q := req.URL.Query()
-	q.Add("lat", fmt.Sprint(position.Latitude))
-	q.Add("lng", fmt.Sprint(position.Longitude))
+	q.Add("lat", fmt.Sprint(location.Latitude))
+	q.Add("lng", fmt.Sprint(location.Longitude))
 	req.URL.RawQuery = q.Encode()
 	resp, err := app.HTTPClient.Do(req)
 	if err != nil {

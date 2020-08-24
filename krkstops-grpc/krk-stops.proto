@@ -2,7 +2,7 @@ syntax = "proto3";
 
 service KrkStops {
     rpc GetAirly(Installation) returns (Airly) {}
-    rpc GetAirlyInstallation(Positon) returns (Installation) {}
+    rpc GetAirlyInstallation(InstallationLocation) returns (Installation) {}
     rpc GetDepartures(Stop) returns (stream Departure) {}
     rpc SearchStops(StopSearch) returns (stream Stop) {}
 }
@@ -16,7 +16,7 @@ message Airly {
     int32 humidity = 3;
     float temperature = 4;
 }
-message Positon {
+message InstallationLocation {
     float latitude = 1;
     float longitude = 2;
 }
