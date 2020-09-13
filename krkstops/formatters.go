@@ -2,16 +2,25 @@ package krkstops
 
 import (
 	"fmt"
+	"os"
 	"text/tabwriter"
 
 	pb "github.com/PiotrKozimor/krk-stops-backend-golang/krkstops-grpc"
 )
 
+var airlyWriter *tabwriter.Writer
+var stopsWriter *tabwriter.Writer
+var departuresWriter *tabwriter.Writer
+
+func init() {
+	airlyWriter = tabwriter.NewWriter(os.Stdout, 1, 2, 2, ' ', 0)
+}
+
 // PrintAirly pretty with tabwriter
-func PrintAirly(w *tabwriter.Writer, airly *pb.Airly) {
-	fmt.Fprintf(w, "CAQI\tHUMIDITY[%%]\tTEMP [°C]\t\n")
-	fmt.Fprintf(w, "%d\t%d\t%2.1f\t\n", airly.Caqi, airly.Humidity, airly.Temperature)
-	w.Flush()
+func PrintAirly(airly *pb.Airly) {
+	fmt.Fprintf(airlyWriter, "CAQI\tHUMIDITY[%%]\tTEMP [°C]\t\n")
+	fmt.Fprintf(airlyWriter, "%d\t%d\t%2.1f\t\n", airly.Caqi, airly.Humidity, airly.Temperature)
+	airlyWriter.Flush()
 }
 
 // PrintStops pretty with tabwriter

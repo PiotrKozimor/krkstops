@@ -1,40 +1,37 @@
 package main
 
 import (
-	"flag"
-	"fmt"
 	"log"
 	"net/http"
-	"os"
-	"text/tabwriter"
 
 	"github.com/PiotrKozimor/krk-stops-backend-golang/krkstops"
 	pb "github.com/PiotrKozimor/krk-stops-backend-golang/krkstops-grpc"
+	"github.com/spf13/cobra"
 )
 
-func airlyUsage() {
-	fmt.Printf(`Query CAQI, temperature and humidity from airly installation. To find ID, please:
-	1. visit https://airly.eu/map/pl/.
-	2. Click on installation.
-	3. ID will appear in URL.
-Flags:
-`)
-	flag.PrintDefaults()
+var (
+	rootCmd = &cobra.Command{
+		Use:  "airlyctl",
+		Long: `airlyctl queries CAQI, temperature and humidity from given Airly installation. Please provide API key via AIRLY_KEY environmental variable.`,
+		Run: func(cmd *cobra.Command, args []string) {
+			app := krkstops.App{}
+			app.HTTPClient = &http.Client{}
+			inst := pb.Installation{}
+			inst.Id = id
+			airly, err := app.GetAirly(&inst)
+			if err != nil {
+				log.Fatal(err)
+			}
+			krkstops.PrintAirly(&airly)
+		},
+	}
+	id int32
+)
+
+func init() {
+	rootCmd.Flags().Int32Var(&id, "id", 9914, "id of installation to query. Find it from map on https://airly.eu/map/pl/")
 }
 
 func main() {
-	app := krkstops.App{}
-	app.HTTPClient = &http.Client{}
-	w := tabwriter.NewWriter(os.Stdout, 1, 2, 2, ' ', 0)
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	var id = flag.Int("id", 9914, "ID of Airly installation to query")
-	flag.Usage = airlyUsage
-	flag.Parse()
-	inst := pb.Installation{}
-	inst.Id = int32(*id)
-	airly, err := app.GetAirly(&inst)
-	if err != nil {
-		log.Fatal(err)
-	}
-	krkstops.PrintAirly(w, &airly)
+	rootCmd.Execute()
 }
