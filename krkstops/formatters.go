@@ -14,6 +14,8 @@ var departuresWriter *tabwriter.Writer
 
 func init() {
 	airlyWriter = tabwriter.NewWriter(os.Stdout, 1, 2, 2, ' ', 0)
+	stopsWriter = airlyWriter
+
 }
 
 // PrintAirly pretty with tabwriter
@@ -24,11 +26,11 @@ func PrintAirly(airly *pb.Airly) {
 }
 
 // PrintStops pretty with tabwriter
-func PrintStops(w *tabwriter.Writer, stops *StopsMap) {
+func PrintStops(stops *StopsMap) {
 	for shortName, name := range *stops {
-		fmt.Fprintf(w, "%s\t%s\t\n", shortName, name)
+		fmt.Fprintf(stopsWriter, "%s\t%s\t\n", shortName, name)
 	}
-	w.Flush()
+	stopsWriter.Flush()
 }
 
 // PrintDepartures pretty with tabwriter

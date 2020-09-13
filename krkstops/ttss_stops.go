@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"strings"
 
@@ -111,7 +110,6 @@ func (app *App) UpdateSuggestionsAndRedis(newStops StopsMap, oldStops StopsMap) 
 		splitted := strings.Split(name, " ")
 		for _, word := range splitted {
 			if word != "(nż)" {
-				log.Print(word, ShortName)
 				err := app.RedisAutocompleter.AddTerms(redisearch.Suggestion{Term: word, Score: 1, Payload: ShortName})
 				if err != nil {
 					return err
