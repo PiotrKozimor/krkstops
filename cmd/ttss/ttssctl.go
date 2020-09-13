@@ -14,11 +14,11 @@ var (
 	app     = krkstops.App{HTTPClient: &http.Client{}}
 	rootCmd = &cobra.Command{
 		Use:  "ttssctl",
-		Long: `ttss queries stops and departures from TTSS API of MPK in Cracow.`,
+		Long: `ttssctl queries stops and departures from TTSS API of MPK in Cracow.`,
 	}
 	depsCmd = &cobra.Command{
 		Use:   "deps",
-		Short: "Query departures from given STOP_ID",
+		Short: "Query departures from given stop",
 		Run: func(cmd *cobra.Command, args []string) {
 			stop := pb.Stop{}
 			stop.ShortName = fmt.Sprintf("%d", stopId)
@@ -50,32 +50,5 @@ func init() {
 }
 
 func main() {
-	// app := krkstops.App{}
-	// app.HTTPClient = &http.Client{}
-	// log.SetFlags(log.LstdFlags | log.Lshortfile)
-	// depsCmd := flag.NewFlagSet("deps", flag.ExitOnError)
-	// stopsCmd := flag.NewFlagSet("stops", flag.ExitOnError)
-	// var id = depsCmd.Int("id", 610, "shortName of stop to query")
-	// flag.Usage = ttssUsage
-	// flag.Parse()
-	// w := tabwriter.NewWriter(os.Stdout, 1, 2, 2, ' ', 0)
-	// switch os.Args[1] {
-	// case "deps":
-	// 	depsCmd.Parse(os.Args[2:])
-	// 	stop := pb.Stop{}
-	// 	stop.ShortName = fmt.Sprint(*id)
-	// 	deps, err := app.GetStopDepartures(&stop)
-	// 	if err != nil {
-	// 		log.Fatal(err)
-	// 	}
-	// 	krkstops.PrintDepartures(deps)
-	// case "stops":
-	// 	stopsCmd.Parse(os.Args[2:])
-	// 	stops, err := app.GetAllStops()
-	// 	if err != nil {
-	// 		log.Fatal(err)
-	// 	}
-	// 	krkstops.PrintStops(w, &stops)
-	// }
 	rootCmd.Execute()
 }
