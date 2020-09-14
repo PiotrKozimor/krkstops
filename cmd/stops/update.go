@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	nonInteractive = *updateCmd.Flags().BoolP("interactive-skip", "i", false, "do not ask before updating stops")
+	updateCmd.Flags().BoolVarP(&nonInteractive, "interactive-skip", "i", false, "do not ask before updating stops")
 }
 
 var (
