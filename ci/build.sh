@@ -6,8 +6,6 @@ do
     else
         cd $ctl
         echo $ctl
-        # echo $(pwd)
-
         go build -o ../${ctl}ctl .
         cd ..
     fi

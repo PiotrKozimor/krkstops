@@ -10,4 +10,3 @@ podman create --pod $new_pod docker.io/redislabs/redisearch
 podman pod stop $running_pod
 podman pod start $new_pod
 podman pod rm -f $running_pod
-$home/stopsctl update -i >> /dev/null

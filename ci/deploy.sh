@@ -1,6 +1,6 @@
 set -e
-rsync ctl/* azure:krkstops
+rsync cmd/* azure:krkstops
 scp build/run_backend.sh azure:krkstops
 scp AIRLY azure:krkstops
-ssh azure sudo bash krkstops/run_backend.sh
-ssh azure ./krkstops/stopsctl update
+ssh azure sudo bash /home/piotr/krkstops/run_backend.sh
+ssh azure /home/piotr/krkstops/stopsctl update -i >> /dev/null
