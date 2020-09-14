@@ -16,6 +16,6 @@
 main/*
 !main/*.go
 *.pem
-ctl/*
-!ctl/**.go
+cmd/*
+!cmd/**.go
 AIRLY
