@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -12,7 +11,7 @@ import (
 )
 
 func init() {
-	interactive = *updateCmd.Flags().BoolP("interactive", "i", true, "ask before updating stops")
+	nonInteractive = *updateCmd.Flags().BoolP("interactive-skip", "i", false, "do not ask before updating stops")
 }
 
 var (
@@ -33,12 +32,12 @@ var (
 			if err != nil {
 				log.Fatal(err)
 			}
-			fmt.Println("New stops:")
+			print("New stops:\n")
 			krkstops.PrintStops(&newStops)
-			fmt.Println("Old stops:")
+			print("Old stops:\n")
 			krkstops.PrintStops(&oldStops)
-			if interactive {
-				fmt.Println("Apply new changes?[y/N] ")
+			if !nonInteractive {
+				print("Apply new changes?[y/N]\n")
 				text, _ := reader.ReadString('\n')
 				if text != "y\n" {
 					os.Exit(0)
@@ -48,7 +47,9 @@ var (
 			if err != nil {
 				log.Fatal(err)
 			}
+			print("Stops updates sucessfully.\n")
+
 		},
 	}
-	interactive bool
+	nonInteractive bool
 )

@@ -14,5 +14,6 @@ var deleteCmd = &cobra.Command{
 		if err != nil {
 			log.Fatal(err)
 		}
+		print("Stops deleted.\n")
 	},
 }
