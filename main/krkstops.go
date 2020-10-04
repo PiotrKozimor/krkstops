@@ -6,12 +6,13 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"os"
 
 	"github.com/PiotrKozimor/krk-stops-backend-golang/krkstops"
 	pb "github.com/PiotrKozimor/krk-stops-backend-golang/krkstops-grpc"
 	"github.com/RediSearch/redisearch-go/redisearch"
 	"github.com/go-redis/redis/v7"
-	"github.com/grpc-ecosystem/go-grpc-prometheus"
+	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"google.golang.org/grpc"
 )
@@ -80,8 +81,8 @@ func main() {
 	server := krkStopsServer{
 		app: krkstops.App{
 			HTTPClient:         &http.Client{},
-			RedisAutocompleter: redisearch.NewAutocompleter("localhost:6379", "search-stops"),
-			RedisClient:        redis.NewClient(&redis.Options{Addr: "localhost:6379"})}}
+			RedisAutocompleter: redisearch.NewAutocompleter(os.Getenv("REDIS_ENDPOINT"), "search-stops"),
+			RedisClient:        redis.NewClient(&redis.Options{Addr: os.Getenv("REDIS_ENDPOINT")})}}
 	pb.RegisterKrkStopsServer(grpcServer, &server)
 	grpc_prometheus.Register(grpcServer)
 	handler := promhttp.Handler()

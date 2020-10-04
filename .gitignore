@@ -18,4 +18,4 @@ main/*
 *.pem
 cmd/*
 !cmd/**.go
-AIRLY
+KRKSTOPS
