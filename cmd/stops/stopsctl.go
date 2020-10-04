@@ -13,15 +13,16 @@ var (
 	}
 	redisClient      *redis.Client
 	redisearchClient *redisearch.Autocompleter
+	url              string
 )
 
+func initializeRedisClients() {
+	redisClient = redis.NewClient(&redis.Options{Addr: url})
+	redisearchClient = redisearch.NewAutocompleter(url, "search-stops")
+}
+
 func init() {
-	url := rootCmd.Flags().StringP("endpoint", "e", "localhost:6379", "redis url address to connect to")
-	redisClient = redis.NewClient(&redis.Options{Addr: *url})
-	redisearchClient = redisearch.NewAutocompleter(*url, "search-stops")
-	rootCmd.AddCommand(deleteCmd)
-	rootCmd.AddCommand(scoreCmd)
-	rootCmd.AddCommand(updateCmd)
+	rootCmd.PersistentFlags().StringVarP(&url, "endpoint", "e", "localhost:6379", "redis url address to connect to")
 }
 
 func main() {

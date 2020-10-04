@@ -12,6 +12,7 @@ import (
 
 func init() {
 	updateCmd.Flags().BoolVarP(&nonInteractive, "interactive-skip", "i", false, "do not ask before updating stops")
+	rootCmd.AddCommand(updateCmd)
 }
 
 var (
@@ -19,6 +20,7 @@ var (
 		Use:   "update",
 		Short: "Update stops in Redis and suggestions in Redisearch",
 		Run: func(cmd *cobra.Command, args []string) {
+			initializeRedisClients()
 			reader := bufio.NewReader(os.Stdin)
 			app := krkstops.App{}
 			app.HTTPClient = &http.Client{}
