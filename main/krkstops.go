@@ -11,6 +11,8 @@ import (
 	pb "github.com/PiotrKozimor/krk-stops-backend-golang/krkstops-grpc"
 	"github.com/RediSearch/redisearch-go/redisearch"
 	"github.com/go-redis/redis/v7"
+	"github.com/grpc-ecosystem/go-grpc-prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"google.golang.org/grpc"
 )
 
@@ -71,12 +73,24 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	grpcServer := grpc.NewServer()
+	grpcServer := grpc.NewServer(
+		grpc.StreamInterceptor(grpc_prometheus.StreamServerInterceptor),
+		grpc.UnaryInterceptor(grpc_prometheus.UnaryServerInterceptor),
+	)
 	server := krkStopsServer{
 		app: krkstops.App{
 			HTTPClient:         &http.Client{},
 			RedisAutocompleter: redisearch.NewAutocompleter("localhost:6379", "search-stops"),
 			RedisClient:        redis.NewClient(&redis.Options{Addr: "localhost:6379"})}}
 	pb.RegisterKrkStopsServer(grpcServer, &server)
-	grpcServer.Serve(lis)
+	grpc_prometheus.Register(grpcServer)
+	handler := promhttp.Handler()
+	http.Handle("/metrics", handler)
+	go func() {
+		err := http.ListenAndServe(":8040", nil)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
+	log.Fatal(grpcServer.Serve(lis))
 }
