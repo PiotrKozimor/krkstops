@@ -1,5 +1,5 @@
 bash ci/build_ctl.sh
-cd ../main
+cd main
 go build krkstops.go
 cd ..
 build/envoy.sh
