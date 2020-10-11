@@ -30,7 +30,7 @@ func TestCacheDepartures(t *testing.T) {
 			PlannedTime: "4:32",
 		},
 	}
-	_, err := client.Del(testStop.ShortName + "-cache").Result()
+	_, err := client.Del(getDeparturesKey(&testStop)).Result()
 	if err != nil {
 		t.Fatal(err)
 	}
