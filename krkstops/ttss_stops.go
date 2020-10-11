@@ -108,12 +108,17 @@ func (app *App) UpdateSuggestionsAndRedis(newStops StopsMap, oldStops StopsMap) 
 		pipe.SAdd("stops.new", ShortName)
 		pipe.Set(ShortName, name, -1)
 		splitted := strings.Split(name, " ")
-		for _, word := range splitted {
-			if word != "(nż)" {
-				err := app.RedisAutocompleter.AddTerms(redisearch.Suggestion{Term: word, Score: 1, Payload: ShortName})
-				if err != nil {
-					return err
-				}
+		for index, value := range splitted {
+			if value == "(nż)" {
+				splitted = append(splitted[:index], splitted[index+1:]...)
+			}
+		}
+		for i := 0; i < len(splitted); i++ {
+			swapped := append(splitted[i:], splitted[:i]...)
+			term := strings.Join(swapped, " ")
+			err := app.RedisAutocompleter.AddTerms(redisearch.Suggestion{Term: term, Score: 1, Payload: ShortName})
+			if err != nil {
+				return err
 			}
 		}
 	}
