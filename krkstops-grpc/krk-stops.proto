@@ -26,7 +26,7 @@ message Departure {
     string plannedTime = 2;
     string direction = 3;
     string patternText = 4;
-    string color = 5;
+    uint32 color = 5;
     string relativeTimeParsed = 6;
 }
 message Stop {
@@ -36,3 +36,8 @@ message Stop {
 message StopSearch {
     string query = 1;
 }
+
+// message DepartureColor {
+//     string plannedTime = 2;
+//     string direction = 3;
+// }
