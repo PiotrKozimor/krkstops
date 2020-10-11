@@ -31,19 +31,26 @@ func (s *krkStopsServer) GetAirly(ctx context.Context, installation *pb.Installa
 func (s *krkStopsServer) GetDepartures(stop *pb.Stop, stream pb.KrkStops_GetDeparturesServer) error {
 
 	var deps []pb.Departure
-	isCached, err := cache.IsCached(s.app.RedisClient, stop)
+	isCached, err := cache.IsDepartureCached(s.app.RedisClient, stop)
 	if err != nil {
 		log.Println(err)
 		isCached = false
 	}
 	if !isCached {
-		deps, err := s.app.GetStopDepartures(stop)
+		deps, err = s.app.GetStopDepartures(stop)
 		go cache.CacheDepartures(s.app.RedisClient, &deps, stop)
 		if err != nil {
 			return err
 		}
 	} else {
 		deps, err = cache.GetCachedDepartures(s.app.RedisClient, stop)
+		ttl, err := s.app.RedisClient.TTL(cache.DepsPrefix + stop.ShortName).Result()
+		livedFor := int32(cache.DepsExpire.Seconds() - ttl.Seconds())
+		for index := range deps {
+			if deps[index].RelativeTime != 0 {
+				deps[index].RelativeTime -= livedFor
+			}
+		}
 		if err != nil {
 			return err
 		}

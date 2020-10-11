@@ -3,6 +3,7 @@ package cache
 import (
 	"log"
 	"testing"
+	"time"
 
 	pb "github.com/PiotrKozimor/krk-stops-backend-golang/krkstops-grpc"
 	"github.com/go-redis/redis/v7"
@@ -11,6 +12,7 @@ import (
 )
 
 func TestCacheDepartures(t *testing.T) {
+	DepsExpire = time.Second * 1
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	client := redis.NewClient(
 		&redis.Options{
@@ -32,7 +34,7 @@ func TestCacheDepartures(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	isCached, err := IsCached(client, &testStop)
+	isCached, err := IsDepartureCached(client, &testStop)
 	if err != nil {
 		t.Fatal(err)
 	} else if isCached != false {
@@ -42,7 +44,7 @@ func TestCacheDepartures(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	isCached, err = IsCached(client, &testStop)
+	isCached, err = IsDepartureCached(client, &testStop)
 	if err != nil {
 		t.Fatal(err)
 	} else if isCached != true {
@@ -53,5 +55,12 @@ func TestCacheDepartures(t *testing.T) {
 		if diff := cmp.Diff(cachedDep, testDepartures[index], cmpopts.IgnoreUnexported(cachedDep)); diff != "" {
 			t.Errorf(diff)
 		}
+	}
+	time.Sleep(time.Millisecond * 1001)
+	isCached, err = IsDepartureCached(client, &testStop)
+	if err != nil {
+		t.Fatal(err)
+	} else if isCached != false {
+		t.Fatal("Stops not expired")
 	}
 }
