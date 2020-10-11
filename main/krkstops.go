@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/PiotrKozimor/krk-stops-backend-golang/cache"
 	"github.com/PiotrKozimor/krk-stops-backend-golang/krkstops"
 	pb "github.com/PiotrKozimor/krk-stops-backend-golang/krkstops-grpc"
 	"github.com/RediSearch/redisearch-go/redisearch"
@@ -28,10 +29,26 @@ func (s *krkStopsServer) GetAirly(ctx context.Context, installation *pb.Installa
 }
 
 func (s *krkStopsServer) GetDepartures(stop *pb.Stop, stream pb.KrkStops_GetDeparturesServer) error {
-	deps, err := s.app.GetStopDepartures(stop)
+
+	var deps []pb.Departure
+	isCached, err := cache.IsCached(s.app.RedisClient, stop)
 	if err != nil {
-		return err
+		log.Println(err)
+		isCached = false
 	}
+	if !isCached {
+		deps, err := s.app.GetStopDepartures(stop)
+		go cache.CacheDepartures(s.app.RedisClient, &deps, stop)
+		if err != nil {
+			return err
+		}
+	} else {
+		deps, err = cache.GetCachedDepartures(s.app.RedisClient, stop)
+		if err != nil {
+			return err
+		}
+	}
+
 	for _, dep := range deps {
 		if err := stream.Send(&dep); err != nil {
 			return err
