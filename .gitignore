@@ -19,3 +19,4 @@ main/*
 cmd/*
 !cmd/**.go
 KRKSTOPS
+mock/krkstopsmock
