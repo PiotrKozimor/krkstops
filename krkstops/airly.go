@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 
@@ -116,7 +115,6 @@ func (app *App) FindAirlyInstallation(location *pb.InstallationLocation) (*pb.In
 		return &installation, errors.New(string(body))
 	}
 	err = json.Unmarshal(body, &airlyInstallation)
-	log.Print(airlyInstallation)
 	return &pb.Installation{
 		Id:        airlyInstallation[0].Id,
 		Latitude:  airlyInstallation[0].Location.Latitude,
