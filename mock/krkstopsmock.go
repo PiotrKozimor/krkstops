@@ -51,11 +51,18 @@ func (s *krkStopsServer) SearchStops(search *pb.StopSearch, stream pb.KrkStops_S
 	return nil
 }
 
-func (s *krkStopsServer) GetAirlyInstallation(ctx context.Context, location *pb.InstallationLocation) (*pb.Installation, error) {
-	if s.returnErrors["installation"] {
+func (s *krkStopsServer) FindNearestAirlyInstallation(ctx context.Context, location *pb.InstallationLocation) (*pb.Installation, error) {
+	if s.returnErrors["searchInstallation"] {
 		return nil, foobarError
 	}
-	return &pb.Installation{Id: 9914}, nil
+	return &pb.Installation{Id: 9914, Latitude: 50.013157, Longitude: 19.906305}, nil
+}
+
+func (s *krkStopsServer) GetAirlyInstallation(ctx context.Context, installation *pb.Installation) (*pb.Installation, error) {
+	if s.returnErrors["searchInstallation"] {
+		return nil, foobarError
+	}
+	return &pb.Installation{Id: 9914, Latitude: 50.013157, Longitude: 19.906305}, nil
 }
 
 func main() {
@@ -67,10 +74,11 @@ func main() {
 	grpcServer := grpc.NewServer()
 	server := krkStopsServer{
 		returnErrors: map[string]bool{
-			"airly":        false,
-			"search":       true,
-			"installation": false,
-			"departures":   true,
+			"airly":              false,
+			"search":             true,
+			"searchInstallation": false,
+			"installation":       false,
+			"departures":         true,
 		},
 	}
 	pb.RegisterKrkStopsServer(grpcServer, &server)
