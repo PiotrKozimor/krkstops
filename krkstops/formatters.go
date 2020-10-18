@@ -20,8 +20,8 @@ func init() {
 
 // PrintAirly pretty with tabwriter
 func PrintAirly(airly *pb.Airly) {
-	fmt.Fprintf(airlyWriter, "CAQI\tHUMIDITY[%%]\tTEMP [°C]\t\n")
-	fmt.Fprintf(airlyWriter, "%d\t%d\t%2.1f\t\n", airly.Caqi, airly.Humidity, airly.Temperature)
+	fmt.Fprintf(airlyWriter, "CAQI\tHUMIDITY[%%]\tTEMP [°C]\tCOLOR\t\n")
+	fmt.Fprintf(airlyWriter, "%d\t%d\t%2.1f\t%s\t\n", airly.Caqi, airly.Humidity, airly.Temperature, airly.Color)
 	airlyWriter.Flush()
 }
 
