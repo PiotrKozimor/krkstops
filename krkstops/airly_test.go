@@ -27,10 +27,22 @@ func TestGetAirly(test *testing.T) {
 	}
 }
 
+func TestFindAirlyInstallation(test *testing.T) {
+	app := App{}
+	app.HTTPClient = &http.Client{}
+	inst, err := app.FindAirlyInstallation(&krk_stops.InstallationLocation{Latitude: 50.0236288, Longitude: 19.942604799999998})
+	if err != nil {
+		test.Error(err)
+	}
+	log.Print(inst)
+}
+
 func TestGetAirlyInstallation(test *testing.T) {
 	app := App{}
 	app.HTTPClient = &http.Client{}
-	inst, err := app.GetAirlyInstallation(&krk_stops.InstallationLocation{Latitude: 50.0236288, Longitude: 19.942604799999998})
+	inst, err := app.GetAirlyInstallation(&krk_stops.Installation{
+		Id: 9914,
+	})
 	if err != nil {
 		test.Error(err)
 	}

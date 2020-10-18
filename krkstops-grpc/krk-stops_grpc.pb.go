@@ -11,14 +11,15 @@ import (
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion6
+const _ = grpc.SupportPackageIsVersion7
 
 // KrkStopsClient is the client API for KrkStops service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type KrkStopsClient interface {
 	GetAirly(ctx context.Context, in *Installation, opts ...grpc.CallOption) (*Airly, error)
-	GetAirlyInstallation(ctx context.Context, in *InstallationLocation, opts ...grpc.CallOption) (*Installation, error)
+	FindNearestAirlyInstallation(ctx context.Context, in *InstallationLocation, opts ...grpc.CallOption) (*Installation, error)
+	GetAirlyInstallation(ctx context.Context, in *Installation, opts ...grpc.CallOption) (*Installation, error)
 	GetDepartures(ctx context.Context, in *Stop, opts ...grpc.CallOption) (KrkStops_GetDeparturesClient, error)
 	SearchStops(ctx context.Context, in *StopSearch, opts ...grpc.CallOption) (KrkStops_SearchStopsClient, error)
 }
@@ -40,7 +41,16 @@ func (c *krkStopsClient) GetAirly(ctx context.Context, in *Installation, opts ..
 	return out, nil
 }
 
-func (c *krkStopsClient) GetAirlyInstallation(ctx context.Context, in *InstallationLocation, opts ...grpc.CallOption) (*Installation, error) {
+func (c *krkStopsClient) FindNearestAirlyInstallation(ctx context.Context, in *InstallationLocation, opts ...grpc.CallOption) (*Installation, error) {
+	out := new(Installation)
+	err := c.cc.Invoke(ctx, "/KrkStops/FindNearestAirlyInstallation", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *krkStopsClient) GetAirlyInstallation(ctx context.Context, in *Installation, opts ...grpc.CallOption) (*Installation, error) {
 	out := new(Installation)
 	err := c.cc.Invoke(ctx, "/KrkStops/GetAirlyInstallation", in, out, opts...)
 	if err != nil {
@@ -118,7 +128,8 @@ func (x *krkStopsSearchStopsClient) Recv() (*Stop, error) {
 // for forward compatibility
 type KrkStopsServer interface {
 	GetAirly(context.Context, *Installation) (*Airly, error)
-	GetAirlyInstallation(context.Context, *InstallationLocation) (*Installation, error)
+	FindNearestAirlyInstallation(context.Context, *InstallationLocation) (*Installation, error)
+	GetAirlyInstallation(context.Context, *Installation) (*Installation, error)
 	GetDepartures(*Stop, KrkStops_GetDeparturesServer) error
 	SearchStops(*StopSearch, KrkStops_SearchStopsServer) error
 	mustEmbedUnimplementedKrkStopsServer()
@@ -128,19 +139,29 @@ type KrkStopsServer interface {
 type UnimplementedKrkStopsServer struct {
 }
 
-func (*UnimplementedKrkStopsServer) GetAirly(context.Context, *Installation) (*Airly, error) {
+func (UnimplementedKrkStopsServer) GetAirly(context.Context, *Installation) (*Airly, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAirly not implemented")
 }
-func (*UnimplementedKrkStopsServer) GetAirlyInstallation(context.Context, *InstallationLocation) (*Installation, error) {
+func (UnimplementedKrkStopsServer) FindNearestAirlyInstallation(context.Context, *InstallationLocation) (*Installation, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FindNearestAirlyInstallation not implemented")
+}
+func (UnimplementedKrkStopsServer) GetAirlyInstallation(context.Context, *Installation) (*Installation, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAirlyInstallation not implemented")
 }
-func (*UnimplementedKrkStopsServer) GetDepartures(*Stop, KrkStops_GetDeparturesServer) error {
+func (UnimplementedKrkStopsServer) GetDepartures(*Stop, KrkStops_GetDeparturesServer) error {
 	return status.Errorf(codes.Unimplemented, "method GetDepartures not implemented")
 }
-func (*UnimplementedKrkStopsServer) SearchStops(*StopSearch, KrkStops_SearchStopsServer) error {
+func (UnimplementedKrkStopsServer) SearchStops(*StopSearch, KrkStops_SearchStopsServer) error {
 	return status.Errorf(codes.Unimplemented, "method SearchStops not implemented")
 }
-func (*UnimplementedKrkStopsServer) mustEmbedUnimplementedKrkStopsServer() {}
+func (UnimplementedKrkStopsServer) mustEmbedUnimplementedKrkStopsServer() {}
+
+// UnsafeKrkStopsServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to KrkStopsServer will
+// result in compilation errors.
+type UnsafeKrkStopsServer interface {
+	mustEmbedUnimplementedKrkStopsServer()
+}
 
 func RegisterKrkStopsServer(s *grpc.Server, srv KrkStopsServer) {
 	s.RegisterService(&_KrkStops_serviceDesc, srv)
@@ -164,8 +185,26 @@ func _KrkStops_GetAirly_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
-func _KrkStops_GetAirlyInstallation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _KrkStops_FindNearestAirlyInstallation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(InstallationLocation)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KrkStopsServer).FindNearestAirlyInstallation(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/KrkStops/FindNearestAirlyInstallation",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KrkStopsServer).FindNearestAirlyInstallation(ctx, req.(*InstallationLocation))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _KrkStops_GetAirlyInstallation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Installation)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -177,7 +216,7 @@ func _KrkStops_GetAirlyInstallation_Handler(srv interface{}, ctx context.Context
 		FullMethod: "/KrkStops/GetAirlyInstallation",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(KrkStopsServer).GetAirlyInstallation(ctx, req.(*InstallationLocation))
+		return srv.(KrkStopsServer).GetAirlyInstallation(ctx, req.(*Installation))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -231,6 +270,10 @@ var _KrkStops_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAirly",
 			Handler:    _KrkStops_GetAirly_Handler,
+		},
+		{
+			MethodName: "FindNearestAirlyInstallation",
+			Handler:    _KrkStops_FindNearestAirlyInstallation_Handler,
 		},
 		{
 			MethodName: "GetAirlyInstallation",

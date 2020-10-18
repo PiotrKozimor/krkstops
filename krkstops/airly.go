@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 
@@ -33,12 +34,18 @@ type AirlyResp struct {
 	Current airlyParameters `json:"current"`
 }
 
+type location struct {
+	Latitude  float32
+	Longitude float32
+}
 type installation struct {
-	ID int32
+	Id       int32
+	Location location
 }
 
 const airlyMeasurementsURL = "https://airapi.airly.eu/v2/measurements/installation"
-const airlyInstallationsURL = "https://airapi.airly.eu/v2/installations/nearest"
+const airlyNearestInstallationsURL = "https://airapi.airly.eu/v2/installations/nearest"
+const airlyInstallationsURL = "https://airapi.airly.eu/v2/installations/"
 
 // GetAirly queries external API and parses response
 func (app *App) GetAirly(installation *pb.Installation) (pb.Airly, error) {
@@ -84,12 +91,13 @@ func (app *App) GetAirly(installation *pb.Installation) (pb.Airly, error) {
 	return airly, err
 }
 
-// GetAirlyInstallation queries Airly API for nearest installation
-func (app *App) GetAirlyInstallation(location *pb.InstallationLocation) (*pb.Installation, error) {
-	installation := make([]pb.Installation, 1)
-	req, err := http.NewRequest("GET", airlyInstallationsURL, nil)
+// FindAirlyInstallation queries Airly API for nearest installation
+func (app *App) FindAirlyInstallation(location *pb.InstallationLocation) (*pb.Installation, error) {
+	airlyInstallation := make([]installation, 1)
+	var installation pb.Installation
+	req, err := http.NewRequest("GET", airlyNearestInstallationsURL, nil)
 	if err != nil {
-		return &installation[0], err
+		return &installation, err
 	}
 	req.Header.Add("apikey", os.Getenv("AIRLY_KEY"))
 	q := req.URL.Query()
@@ -98,15 +106,47 @@ func (app *App) GetAirlyInstallation(location *pb.InstallationLocation) (*pb.Ins
 	req.URL.RawQuery = q.Encode()
 	resp, err := app.HTTPClient.Do(req)
 	if err != nil {
-		return &installation[0], err
+		return &installation, err
 	}
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return &installation[0], err
+		return &installation, err
 	}
 	if resp.StatusCode != 200 {
-		return &installation[0], errors.New(string(body))
+		return &installation, errors.New(string(body))
 	}
-	err = json.Unmarshal(body, &installation)
-	return &installation[0], err
+	err = json.Unmarshal(body, &airlyInstallation)
+	log.Print(airlyInstallation)
+	return &pb.Installation{
+		Id:        airlyInstallation[0].Id,
+		Latitude:  airlyInstallation[0].Location.Latitude,
+		Longitude: airlyInstallation[0].Location.Longitude,
+	}, err
+}
+
+// GetAirlyInstallation returns full details about installation with given ID
+func (app *App) GetAirlyInstallation(instToValidate *pb.Installation) (*pb.Installation, error) {
+	var airlyInstallation installation
+	req, err := http.NewRequest("GET", airlyInstallationsURL+fmt.Sprint(instToValidate.Id), nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Add("apikey", os.Getenv("AIRLY_KEY"))
+	resp, err := app.HTTPClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	if resp.StatusCode != 200 {
+		return nil, errors.New(string(body))
+	}
+	err = json.Unmarshal(body, &airlyInstallation)
+	return &pb.Installation{
+		Id:        airlyInstallation.Id,
+		Longitude: airlyInstallation.Location.Longitude,
+		Latitude:  airlyInstallation.Location.Latitude,
+	}, err
 }
