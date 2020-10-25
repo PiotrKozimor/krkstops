@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"sort"
 
@@ -13,10 +14,10 @@ import (
 	"github.com/go-redis/redis/v7"
 )
 
-const (
-	tramTtssStopDearturesURL = "http://185.70.182.51/internetservice/services/passageInfo/stopPassages/stop"
-	busTtssStopDearturesURL  = "http://91.223.13.70/internetservice/services/passageInfo/stopPassages/stop"
-)
+var ttssStopDearturesURLs = map[string]string{
+	"tram": "http://185.70.182.51/internetservice/services/passageInfo/stopPassages/stop",
+	"bus":  "http://91.223.13.70/internetservice/services/passageInfo/stopPassages/stop",
+}
 
 // Departure describe one departure - tram on bus from given stop.
 type departure struct {
@@ -39,14 +40,13 @@ type App struct {
 	RedisAutocompleter *redisearch.Autocompleter
 }
 
-// GetStopDepartures returns StopDepartures from given Stop.
-func (app *App) getStopDeparturesByURL(url string, stop *pb.Stop, c chan []pb.Departure) error {
-	var departures []pb.Departure
+// GetStopDeparturesByURL returns StopDepartures from given Stop.
+func (app *App) GetStopDeparturesByURL(url string, stop *pb.Stop) ([]pb.Departure, error) {
+	departures := make([]pb.Departure, 0, 20)
 	var departure pb.Departure
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		c <- departures
-		return err
+		return departures, err
 	}
 	q := req.URL.Query()
 	q.Add("stop", fmt.Sprint(stop.ShortName))
@@ -55,48 +55,50 @@ func (app *App) getStopDeparturesByURL(url string, stop *pb.Stop, c chan []pb.De
 	req.URL.RawQuery = q.Encode()
 	resp, err := app.HTTPClient.Do(req)
 	if err != nil {
-		c <- departures
-		return err
+		return departures, err
 	}
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		c <- departures
-		return err
+		return departures, err
 	}
 	if resp.StatusCode != 200 {
-		c <- departures
-		return errors.New(string(body))
+		return departures, errors.New(string(body))
 	}
 	var stopDepartures stopDepartures
 	err = json.Unmarshal(body, &stopDepartures)
 	if err != nil {
-		c <- departures
-		return err
+		return departures, err
 	}
 	for _, dep := range stopDepartures.Actual {
 		departure.PatternText = dep.PatternText
 		departure.Direction = dep.Direction
 		departure.PlannedTime = dep.PlannedTime
-		if dep.Status == "PREDICTED" {
-			departure.RelativeTime = dep.ActualRelativeTime
-		} else {
-			departure.RelativeTime = 0
-		}
+		departure.RelativeTime = dep.ActualRelativeTime
+		departure.Predicted = dep.Status == "PREDICTED"
 		departures = append(departures, departure)
 	}
-	c <- departures
-	return nil
+	return departures, nil
 }
 
 // GetStopDepartures returns bus and tram StopDepartures from given Stop.
 func (app *App) GetStopDepartures(stop *pb.Stop) ([]pb.Departure, error) {
+	departures := make([]pb.Departure, 0, 40)
 	c := make(chan []pb.Departure)
-	go app.getStopDeparturesByURL(busTtssStopDearturesURL, stop, c)
-	go app.getStopDeparturesByURL(tramTtssStopDearturesURL, stop, c)
-	deps1, deps2 := <-c, <-c
-	deps := append(deps1, deps2...)
-	sort.Slice(deps, func(i, j int) bool {
-		return deps[i].PlannedTime < deps[j].PlannedTime
+	for _, url := range ttssStopDearturesURLs {
+		go func(url string) {
+			deps, err := app.GetStopDeparturesByURL(url, stop)
+			if err != nil {
+				log.Println(err)
+			}
+			c <- deps
+		}(url)
+	}
+	for range ttssStopDearturesURLs {
+		depsTmp := <-c
+		departures = append(departures, depsTmp...)
+	}
+	sort.Slice(departures, func(i, j int) bool {
+		return departures[i].RelativeTime < departures[j].RelativeTime
 	})
-	return deps, nil
+	return departures, nil
 }
