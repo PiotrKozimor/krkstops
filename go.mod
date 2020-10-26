@@ -10,6 +10,7 @@ require (
 	github.com/google/go-cmp v0.5.2
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0
 	github.com/prometheus/client_golang v0.9.3
+	github.com/sirupsen/logrus v1.7.0
 	github.com/spf13/cobra v1.1.0
 	google.golang.org/grpc v1.32.0
 	google.golang.org/protobuf v1.25.0
