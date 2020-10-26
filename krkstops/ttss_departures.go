@@ -14,7 +14,8 @@ import (
 	"github.com/go-redis/redis/v7"
 )
 
-var ttssStopDearturesURLs = map[string]string{
+// TtssStopDearturesURLs deccribes TTSS API endpoints used to query departures. Separate endpoints exists for buses and trams.
+var TtssStopDearturesURLs = map[string]string{
 	"tram": "http://185.70.182.51/internetservice/services/passageInfo/stopPassages/stop",
 	"bus":  "http://91.223.13.70/internetservice/services/passageInfo/stopPassages/stop",
 }
@@ -40,7 +41,7 @@ type App struct {
 	RedisAutocompleter *redisearch.Autocompleter
 }
 
-// GetStopDeparturesByURL returns StopDepartures from given Stop.
+// GetStopDeparturesByURL fetches Departures from given Stop from given endpoint.
 func (app *App) GetStopDeparturesByURL(url string, stop *pb.Stop) ([]pb.Departure, error) {
 	departures := make([]pb.Departure, 0, 20)
 	var departure pb.Departure
@@ -57,15 +58,16 @@ func (app *App) GetStopDeparturesByURL(url string, stop *pb.Stop) ([]pb.Departur
 	if err != nil {
 		return departures, err
 	}
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return departures, err
-	}
 	if resp.StatusCode != 200 {
+		body, _ := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return departures, err
+		}
 		return departures, errors.New(string(body))
 	}
 	var stopDepartures stopDepartures
-	err = json.Unmarshal(body, &stopDepartures)
+	decoder := json.NewDecoder(resp.Body)
+	err = decoder.Decode(&stopDepartures)
 	if err != nil {
 		return departures, err
 	}
@@ -84,7 +86,7 @@ func (app *App) GetStopDeparturesByURL(url string, stop *pb.Stop) ([]pb.Departur
 func (app *App) GetStopDepartures(stop *pb.Stop) ([]pb.Departure, error) {
 	departures := make([]pb.Departure, 0, 40)
 	c := make(chan []pb.Departure)
-	for _, url := range ttssStopDearturesURLs {
+	for _, url := range TtssStopDearturesURLs {
 		go func(url string) {
 			deps, err := app.GetStopDeparturesByURL(url, stop)
 			if err != nil {
@@ -93,7 +95,7 @@ func (app *App) GetStopDepartures(stop *pb.Stop) ([]pb.Departure, error) {
 			c <- deps
 		}(url)
 	}
-	for range ttssStopDearturesURLs {
+	for range TtssStopDearturesURLs {
 		depsTmp := <-c
 		departures = append(departures, depsTmp...)
 	}

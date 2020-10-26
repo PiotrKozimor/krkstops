@@ -11,8 +11,10 @@ import (
 )
 
 var (
-	app     = krkstops.App{HTTPClient: &http.Client{}}
-	rootCmd = &cobra.Command{
+	app      = krkstops.App{HTTPClient: &http.Client{}}
+	busOnly  bool
+	tramOnly bool
+	rootCmd  = &cobra.Command{
 		Use:  "ttssctl",
 		Long: `ttssctl queries stops and departures from TTSS API of MPK in Cracow.`,
 	}
@@ -22,7 +24,15 @@ var (
 		Run: func(cmd *cobra.Command, args []string) {
 			stop := pb.Stop{}
 			stop.ShortName = fmt.Sprintf("%d", stopId)
-			deps, err := app.GetStopDepartures(&stop)
+			var err error
+			var deps []pb.Departure
+			if busOnly {
+				deps, err = app.GetStopDeparturesByURL(krkstops.TtssStopDearturesURLs["bus"], &stop)
+			} else if tramOnly {
+				deps, err = app.GetStopDeparturesByURL(krkstops.TtssStopDearturesURLs["tram"], &stop)
+			} else {
+				deps, err = app.GetStopDepartures(&stop)
+			}
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -33,7 +43,15 @@ var (
 		Use:   "stops",
 		Short: "Query all stops in Cracov",
 		Run: func(cmd *cobra.Command, args []string) {
-			stops, err := app.GetAllStops()
+			var err error
+			var stops krkstops.StopsMap
+			if busOnly {
+				stops, err = app.GetAllStopsByURL(krkstops.TtssListStopsURL["bus"])
+			} else if tramOnly {
+				stops, err = app.GetAllStopsByURL(krkstops.TtssListStopsURL["tram"])
+			} else {
+				stops, err = app.GetAllStops()
+			}
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -44,6 +62,8 @@ var (
 )
 
 func init() {
+	rootCmd.PersistentFlags().BoolVarP(&busOnly, "bus", "b", false, "fetch bus TTSS API only")
+	rootCmd.PersistentFlags().BoolVarP(&tramOnly, "tram", "t", false, "fetch tram TTSS API only")
 	depsCmd.Flags().Int32Var(&stopId, "id", 610, "id of stop to query departures from")
 	rootCmd.AddCommand(stopsCmd)
 	rootCmd.AddCommand(depsCmd)

@@ -4,17 +4,20 @@ import (
 	"encoding/json"
 	"errors"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strings"
+	"sync"
 
 	pb "github.com/PiotrKozimor/krk-stops-backend-golang/krkstops-grpc"
 	"github.com/RediSearch/redisearch-go/redisearch"
 )
 
-const (
-	tramTTssListStopsURL = "http://185.70.182.51:80/internetservice/geoserviceDispatcher/services/stopinfo/stops"
-	busTTssListStopsURL  = "http://91.223.13.70:80/internetservice/geoserviceDispatcher/services/stopinfo/stops"
-)
+// TtssListStopsURL deccribes TTSS API endpoints used to fetch all stops. Separate endpoints exists for buses and trams.
+var TtssListStopsURL = map[string]string{
+	"tram": "http://185.70.182.51:80/internetservice/geoserviceDispatcher/services/stopinfo/stops",
+	"bus":  "http://91.223.13.70:80/internetservice/geoserviceDispatcher/services/stopinfo/stops",
+}
 
 // TtssStops describes all stops returned by TTSS API
 type TtssStops struct {
@@ -24,57 +27,60 @@ type TtssStops struct {
 // StopsMap ShortName to Name
 type StopsMap map[string]string
 
-func (app *App) getAllStopsByURL(url string, c chan []pb.Stop) error {
-	var stps []pb.Stop
+// GetAllStopsByURL fetches Stops from given endpoint.
+func (app *App) GetAllStopsByURL(url string) (StopsMap, error) {
+	var stops = make(StopsMap, 500)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		c <- stps
-		return err
+		return stops, err
 	}
 	q := req.URL.Query()
 	q.Add("left", "-648000000")
 	q.Add("bottom", "-324000000")
 	q.Add("right", "648000000")
 	q.Add("top", "324000000")
-	// req.URL.RawQuery = "left=-648000000&bottom=-324000000&right=648000000&top=324000000"
 	req.URL.RawQuery = q.Encode()
 	resp, err := app.HTTPClient.Do(req)
 	if err != nil {
-		c <- stps
-		return err
-	}
-	body, err := ioutil.ReadAll(resp.Body)
-	// log.Printf("%v", string(body))
-	if err != nil {
-		c <- stps
-		return err
+		return stops, err
 	}
 	if resp.StatusCode != 200 {
-		c <- stps
-		return errors.New(string(body))
+		body, _ := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return stops, err
+		}
+		return stops, errors.New(string(body))
 	}
 	var stopsWrapped TtssStops
-	err = json.Unmarshal(body, &stopsWrapped)
+	decoder := json.NewDecoder(resp.Body)
+	err = decoder.Decode(&stopsWrapped)
 	if err != nil {
-		c <- stps
-		return err
+		return stops, err
 	}
-	c <- stopsWrapped.Stops
-	return nil
+	for _, stop := range stopsWrapped.Stops {
+		stops[stop.ShortName] = stop.Name
+	}
+	return stops, err
 }
 
 // GetAllStops returns bus and tram stops.
 func (app *App) GetAllStops() (StopsMap, error) {
-	c := make(chan []pb.Stop)
-	go app.getAllStopsByURL(busTTssListStopsURL, c)
-	go app.getAllStopsByURL(tramTTssListStopsURL, c)
-	stops1, stops2 := <-c, <-c
-	allStops := append(stops1, stops2...)
-	// log.Printf("%v", allStops)
-	var stopsMap StopsMap = make(StopsMap)
-	for _, stop := range allStops {
-		stopsMap[stop.ShortName] = stop.Name
+	var stopsMap StopsMap = make(StopsMap, 1000)
+	wg := sync.WaitGroup{}
+	for _, url := range TtssListStopsURL {
+		wg.Add(1)
+		go func(url string) {
+			defer wg.Done()
+			stops, err := app.GetAllStopsByURL(url)
+			if err != nil {
+				log.Println(err)
+			}
+			for shortName, name := range stops {
+				stopsMap[shortName] = name
+			}
+		}(url)
 	}
+	wg.Wait()
 	return stopsMap, nil
 }
 
