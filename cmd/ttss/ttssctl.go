@@ -27,9 +27,9 @@ var (
 			var err error
 			var deps []pb.Departure
 			if busOnly {
-				deps, err = app.GetStopDeparturesByURL(krkstops.TtssStopDearturesURLs["bus"], &stop)
+				deps, err = app.GetStopDeparturesByURL(krkstops.BUS, &stop)
 			} else if tramOnly {
-				deps, err = app.GetStopDeparturesByURL(krkstops.TtssStopDearturesURLs["tram"], &stop)
+				deps, err = app.GetStopDeparturesByURL(krkstops.TRAM, &stop)
 			} else {
 				deps, err = app.GetStopDepartures(&stop)
 			}
@@ -46,9 +46,9 @@ var (
 			var err error
 			var stops krkstops.StopsMap
 			if busOnly {
-				stops, err = app.GetAllStopsByURL(krkstops.TtssListStopsURL["bus"])
+				stops, err = app.GetAllStopsByURL(krkstops.BUS)
 			} else if tramOnly {
-				stops, err = app.GetAllStopsByURL(krkstops.TtssListStopsURL["tram"])
+				stops, err = app.GetAllStopsByURL(krkstops.TRAM)
 			} else {
 				stops, err = app.GetAllStops()
 			}

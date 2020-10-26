@@ -14,14 +14,22 @@ import (
 	"github.com/go-redis/redis/v7"
 )
 
+type Endpoint int
+
+const (
+	BUS Endpoint = iota
+	TRAM
+	INVALID
+)
+
 // TtssStopDearturesURLs deccribes TTSS API endpoints used to query departures. Separate endpoints exists for buses and trams.
-var TtssStopDearturesURLs = map[string]string{
-	"tram": "http://185.70.182.51/internetservice/services/passageInfo/stopPassages/stop",
-	"bus":  "http://91.223.13.70/internetservice/services/passageInfo/stopPassages/stop",
+var TtssStopDearturesURLs = [...]string{
+	BUS:  "http://91.223.13.70/internetservice/services/passageInfo/stopPassages/stop",
+	TRAM: "http://185.70.182.51/internetservice/services/passageInfo/stopPassages/stop",
 }
 
-// Departure describe one departure - tram on bus from given stop.
-type departure struct {
+// Departure describe one Departure - tram or bus from given stop.
+type Departure struct {
 	PlannedTime        string
 	Status             string
 	ActualRelativeTime int32
@@ -30,8 +38,8 @@ type departure struct {
 }
 
 // StopDepartures includes all departures from given Stop.
-type stopDepartures struct {
-	Actual []departure
+type StopDepartures struct {
+	Actual []Departure
 }
 
 // App stores clients
@@ -42,10 +50,13 @@ type App struct {
 }
 
 // GetStopDeparturesByURL fetches Departures from given Stop from given endpoint.
-func (app *App) GetStopDeparturesByURL(url string, stop *pb.Stop) ([]pb.Departure, error) {
+func (app *App) GetStopDeparturesByURL(endp Endpoint, stop *pb.Stop) ([]pb.Departure, error) {
+	if int(endp) >= len(TtssStopDearturesURLs) {
+		return nil, fmt.Errorf("invalid endpoit provided: %d", endp)
+	}
 	departures := make([]pb.Departure, 0, 20)
 	var departure pb.Departure
-	req, err := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequest("GET", TtssStopDearturesURLs[endp], nil)
 	if err != nil {
 		return departures, err
 	}
@@ -65,7 +76,7 @@ func (app *App) GetStopDeparturesByURL(url string, stop *pb.Stop) ([]pb.Departur
 		}
 		return departures, errors.New(string(body))
 	}
-	var stopDepartures stopDepartures
+	var stopDepartures StopDepartures
 	decoder := json.NewDecoder(resp.Body)
 	err = decoder.Decode(&stopDepartures)
 	if err != nil {
@@ -79,21 +90,22 @@ func (app *App) GetStopDeparturesByURL(url string, stop *pb.Stop) ([]pb.Departur
 		departure.Predicted = dep.Status == "PREDICTED"
 		departures = append(departures, departure)
 	}
-	return departures, nil
+	err = resp.Body.Close()
+	return departures, err
 }
 
 // GetStopDepartures returns bus and tram StopDepartures from given Stop.
 func (app *App) GetStopDepartures(stop *pb.Stop) ([]pb.Departure, error) {
 	departures := make([]pb.Departure, 0, 40)
 	c := make(chan []pb.Departure)
-	for _, url := range TtssStopDearturesURLs {
-		go func(url string) {
-			deps, err := app.GetStopDeparturesByURL(url, stop)
+	for endp := range TtssStopDearturesURLs {
+		go func(endp Endpoint) {
+			deps, err := app.GetStopDeparturesByURL(endp, stop)
 			if err != nil {
 				log.Println(err)
 			}
 			c <- deps
-		}(url)
+		}(Endpoint(endp))
 	}
 	for range TtssStopDearturesURLs {
 		depsTmp := <-c

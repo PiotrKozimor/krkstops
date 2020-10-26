@@ -3,6 +3,7 @@ package krkstops
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -14,9 +15,9 @@ import (
 )
 
 // TtssListStopsURL deccribes TTSS API endpoints used to fetch all stops. Separate endpoints exists for buses and trams.
-var TtssListStopsURL = map[string]string{
-	"tram": "http://185.70.182.51:80/internetservice/geoserviceDispatcher/services/stopinfo/stops",
-	"bus":  "http://91.223.13.70:80/internetservice/geoserviceDispatcher/services/stopinfo/stops",
+var TtssListStopsURL = [...]string{
+	BUS:  "http://91.223.13.70:80/internetservice/geoserviceDispatcher/services/stopinfo/stops",
+	TRAM: "http://185.70.182.51:80/internetservice/geoserviceDispatcher/services/stopinfo/stops",
 }
 
 // TtssStops describes all stops returned by TTSS API
@@ -28,7 +29,11 @@ type TtssStops struct {
 type StopsMap map[string]string
 
 // GetAllStopsByURL fetches Stops from given endpoint.
-func (app *App) GetAllStopsByURL(url string) (StopsMap, error) {
+func (app *App) GetAllStopsByURL(endp Endpoint) (StopsMap, error) {
+	if int(endp) >= len(TtssListStopsURL) {
+		return nil, fmt.Errorf("invalid endpoit provided: %d", endp)
+	}
+	url := TtssListStopsURL[endp]
 	var stops = make(StopsMap, 500)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -60,6 +65,7 @@ func (app *App) GetAllStopsByURL(url string) (StopsMap, error) {
 	for _, stop := range stopsWrapped.Stops {
 		stops[stop.ShortName] = stop.Name
 	}
+	err = resp.Body.Close()
 	return stops, err
 }
 
@@ -67,18 +73,18 @@ func (app *App) GetAllStopsByURL(url string) (StopsMap, error) {
 func (app *App) GetAllStops() (StopsMap, error) {
 	var stopsMap StopsMap = make(StopsMap, 1000)
 	wg := sync.WaitGroup{}
-	for _, url := range TtssListStopsURL {
+	for endp := range TtssListStopsURL {
 		wg.Add(1)
-		go func(url string) {
+		go func(endp Endpoint) {
 			defer wg.Done()
-			stops, err := app.GetAllStopsByURL(url)
+			stops, err := app.GetAllStopsByURL(endp)
 			if err != nil {
 				log.Println(err)
 			}
 			for shortName, name := range stops {
 				stopsMap[shortName] = name
 			}
-		}(url)
+		}(Endpoint(endp))
 	}
 	wg.Wait()
 	return stopsMap, nil
