@@ -3,6 +3,7 @@ package ttssmonitor
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 
 	"github.com/PiotrKozimor/krk-stops-backend-golang/krkstops"
@@ -49,7 +50,15 @@ func GetStopDeparturesErrorCode(endp krkstops.Endpoint, stop *pb.Stop) (errorCod
 		return REQUEST_FAILED
 	}
 	if resp.StatusCode != 200 {
-		logWithEndpointAndStop(endp, stop).Warn(err)
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			logWithEndpointAndStop(endp, stop).Error(err)
+		}
+		err = resp.Body.Close()
+		if err != nil {
+			logWithEndpointAndStop(endp, stop).Error(err)
+		}
+		logWithEndpointAndStop(endp, stop).Warnf("StatusCode: %d, Body: %s", resp.StatusCode, body)
 		return REQUEST_NON_200
 	}
 	var stopDepartures krkstops.StopDepartures
