@@ -38,20 +38,39 @@ func main() {
 	logrus.SetFormatter(&logrus.TextFormatter{
 		FullTimestamp: true,
 	})
-	for endpoint := range errorCodes {
-		var gauge = prometheus.NewGaugeFunc(prometheus.GaugeOpts{
-			Name: fmt.Sprintf("departures_error_code_%d", endpoint),
-			Help: fmt.Sprintf("Current error code of TTSS API for %d", endpoint),
+	gauges := [...]prometheus.GaugeFunc{
+		prometheus.NewGaugeFunc(prometheus.GaugeOpts{
+			Name: "departures_error_code",
+			ConstLabels: prometheus.Labels{
+				"endpoint": fmt.Sprint(krkstops.BUS),
+			},
 		}, func() float64 {
-			errorCodeRet := errorCodes[endpoint]
+			errorCodeRet := errorCodes[krkstops.BUS]
 			logrus.WithFields(logrus.Fields{
-				"endpoint": endpoint,
+				"endpoint": krkstops.BUS,
 				"code":     errorCodeRet,
 			}).Info("Prometheus pull")
-			errorCodes[endpoint] = 0
+			errorCodes[krkstops.BUS] = 0
 			return float64(errorCodeRet)
-		})
-		prometheus.MustRegister(gauge)
+		}),
+		prometheus.NewGaugeFunc(prometheus.GaugeOpts{
+			Name: "departures_error_code",
+			ConstLabels: prometheus.Labels{
+				"endpoint": fmt.Sprint(krkstops.TRAM),
+			},
+		}, func() float64 {
+			errorCodeRet := errorCodes[krkstops.TRAM]
+			logrus.WithFields(logrus.Fields{
+				"endpoint": krkstops.TRAM,
+				"code":     errorCodeRet,
+			}).Info("Prometheus pull")
+			errorCodes[krkstops.TRAM] = 0
+			return float64(errorCodeRet)
+		}),
+	}
+	r := prometheus.NewRegistry()
+	for _, gauge := range gauges {
+		r.MustRegister(gauge)
 	}
 	t := time.NewTicker(time.Minute * 2)
 	go func() {
@@ -70,7 +89,8 @@ func main() {
 			}
 		}
 	}()
-	http.Handle("/metrics", promhttp.Handler())
+	handler := promhttp.HandlerFor(r, promhttp.HandlerOpts{})
+	http.Handle("/metrics", handler)
 	logrus.Warn("Ttssmonitord started")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
