@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	pb "github.com/PiotrKozimor/krk-stops-backend-golang/krkstops-grpc"
+	"github.com/PiotrKozimor/krkstops/pb"
 	"github.com/go-redis/redis/v7"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
@@ -19,12 +19,12 @@ func TestCacheDepartures(t *testing.T) {
 			Addr: "localhost:6379"})
 	testStop := pb.Stop{Name: "Nor", ShortName: "45"}
 	testDepartures := []pb.Departure{
-		pb.Departure{
+		{
 			Direction:   "Czerwone Maki Żółć",
 			PatternText: "52",
 			PlannedTime: "21:43",
 		},
-		pb.Departure{
+		{
 			Direction:   "Rząka",
 			PatternText: "139",
 			PlannedTime: "4:32",

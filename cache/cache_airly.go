@@ -4,7 +4,7 @@ import (
 	"log"
 	"time"
 
-	pb "github.com/PiotrKozimor/krk-stops-backend-golang/krkstops-grpc"
+	"github.com/PiotrKozimor/krkstops/pb"
 	"github.com/go-redis/redis/v7"
 	"google.golang.org/protobuf/proto"
 )

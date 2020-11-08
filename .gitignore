@@ -13,10 +13,7 @@
 
 
 .lock 
-main/*
-!main/*.go
 *.pem
-cmd/*ctl
-cmd/*d
+cmd/**
+!cmd/**.go
 KRKSTOPS
-mock/krkstopsmock

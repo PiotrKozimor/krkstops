@@ -1,4 +1,4 @@
-module github.com/PiotrKozimor/krk-stops-backend-golang
+module github.com/PiotrKozimor/krkstops
 
 go 1.14
 
