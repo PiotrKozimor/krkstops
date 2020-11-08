@@ -37,39 +37,44 @@ func (c *Clients) CompareStops(stops ttss.Stops) (newStops ttss.Stops, oldStops 
 }
 
 // UpdateSuggestionsAndRedis in Redisearch engine
-func (app *Clients) UpdateSuggestionsAndRedis(newStops ttss.Stops, oldStops ttss.Stops) error {
-	pipe := app.Redis.TxPipeline()
-	for ShortName, name := range newStops {
-		pipe.SAdd("stops.new", ShortName)
-		pipe.Set(ShortName, name, -1)
-		splitted := strings.Split(name, " ")
-		for index, value := range splitted {
-			if value == "(nż)" {
-				splitted = append(splitted[:index], splitted[index+1:]...)
-			}
-		}
-		for i := 0; i < len(splitted); i++ {
-			swapped := append(splitted[i:], splitted[:i]...)
-			term := strings.Join(swapped, " ")
-			err := app.RedisAutocompleter.AddTerms(redisearch.Suggestion{Term: term, Score: 1, Payload: ShortName})
-			if err != nil {
-				return err
-			}
-		}
+func (c *Clients) UpdateSuggestionsAndRedis(newStops ttss.Stops, oldStops ttss.Stops) error {
+	pipe := c.Redis.TxPipeline()
+	for shortName, name := range newStops {
+		pipe.SAdd("stops.new", shortName)
+		pipe.Set(shortName, name, -1)
+		c.AddSuggestion(shortName, name, 1.0)
 	}
 	_, err := pipe.Exec()
 	if err != nil {
 		return err
 	}
 	for _, name := range oldStops {
-		err := app.RedisAutocompleter.DeleteTerms(redisearch.Suggestion{Term: name})
+		err := c.RedisAutocompleter.DeleteTerms(redisearch.Suggestion{Term: name})
 		if err != nil {
 			return err
 		}
 	}
-	_, err = app.Redis.Rename("stops.tmp", "stops").Result()
+	_, err = c.Redis.Rename("stops.tmp", "stops").Result()
 	if err != nil {
 		return err
+	}
+	return nil
+}
+
+func (c *Clients) AddSuggestion(shortName, name string, score float64) error {
+	splitted := strings.Split(name, " ")
+	for index, value := range splitted {
+		if value == "(nż)" {
+			splitted = append(splitted[:index], splitted[index+1:]...)
+		}
+	}
+	for i := 0; i < len(splitted); i++ {
+		swapped := append(splitted[i:], splitted[:i]...)
+		term := strings.Join(swapped, " ")
+		err := c.RedisAutocompleter.AddTerms(redisearch.Suggestion{Term: term, Score: score, Payload: shortName})
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
