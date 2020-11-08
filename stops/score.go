@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"io"
-	"log"
 	"math"
 
 	"github.com/PiotrKozimor/krkstops/pb"
@@ -30,10 +29,8 @@ func (c *Clients) ScoreStop(krk pb.KrkStopsClient, shortName string) (float64, e
 		if err == nil {
 			totalDepartures += 1
 		} else if err == io.EOF {
-			log.Print(totalDepartures)
 			return scoreByTotalDepartures(totalDepartures), nil
 		} else {
-			log.Print(err)
 			return 0, err
 		}
 	}
@@ -52,6 +49,10 @@ func (c *Clients) InitializeScoring() error {
 	if exist != 0 {
 		return ScoringInitialized
 	}
+	return c.RestartScoring()
+}
+
+func (c *Clients) RestartScoring() error {
 	res, err := c.Redis.SUnionStore(STOPS_TO_SCORE, STOPS).Result()
 	if err != nil {
 		return err

@@ -15,11 +15,13 @@ import (
 
 func init() {
 	scoreCmd.Flags().StringVar(&endpoint, "krk-endpoint", "krk-stops.pl:8080", "url address of krk-stops backend to connect to")
+	scoreCmd.Flags().BoolVar(&restartScoring, "reset", false, "restart scoring")
 	rootCmd.AddCommand(scoreCmd)
 
 }
 
 var endpoint string
+var restartScoring bool
 var stop = false
 
 const STOPS_TO_SCORE = "stops.toScore"
@@ -45,7 +47,11 @@ var scoreCmd = &cobra.Command{
 			Redis:              redisClient,
 			RedisAutocompleter: redisearchClient,
 		}
-		err = cl.InitializeScoring()
+		if restartScoring {
+			err = cl.RestartScoring()
+		} else {
+			err = cl.InitializeScoring()
+		}
 		if err == stops.ScoringInitialized {
 			log.Println("Scoring is already initialized, continuing")
 		} else if err != nil {
