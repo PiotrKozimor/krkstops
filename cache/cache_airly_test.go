@@ -45,7 +45,10 @@ func TestCacheAirly(t *testing.T) {
 		t.Fatal("Installation not cached")
 	}
 	cachedAirly, err := GetCachedAirly(client, &testInst)
-	if diff := cmp.Diff(cachedAirly, testAirly, cmpopts.IgnoreUnexported(cachedAirly)); diff != "" {
+	if err != nil {
+		t.Fatal(err)
+	}
+	if diff := cmp.Diff(*cachedAirly, testAirly, cmpopts.IgnoreUnexported(*cachedAirly)); diff != "" {
 		t.Errorf(diff)
 	}
 

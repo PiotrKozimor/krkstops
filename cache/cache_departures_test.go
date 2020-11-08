@@ -40,7 +40,7 @@ func TestCacheDepartures(t *testing.T) {
 	} else if isCached != false {
 		t.Fatal("Stops cached")
 	}
-	err = CacheDepartures(client, &testDepartures, &testStop)
+	err = CacheDepartures(client, testDepartures, &testStop)
 	if err != nil {
 		t.Fatal(err)
 	}

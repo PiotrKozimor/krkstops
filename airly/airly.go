@@ -47,11 +47,11 @@ const airlyNearestInstallationsURL = "https://airapi.airly.eu/v2/installations/n
 const airlyInstallationsURL = "https://airapi.airly.eu/v2/installations/"
 
 // GetAirly queries external API and parses response
-func GetAirly(installation *pb.Installation) (pb.Airly, error) {
+func GetAirly(installation *pb.Installation) (*pb.Airly, error) {
 	airly := pb.Airly{}
 	req, err := http.NewRequest("GET", airlyMeasurementsURL, nil)
 	if err != nil {
-		return airly, err
+		return &airly, err
 	}
 	req.Header.Add("apikey", os.Getenv("AIRLY_KEY"))
 	q := req.URL.Query()
@@ -59,19 +59,19 @@ func GetAirly(installation *pb.Installation) (pb.Airly, error) {
 	req.URL.RawQuery = q.Encode()
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return airly, err
+		return &airly, err
 	}
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return airly, err
+		return &airly, err
 	}
 	if resp.StatusCode != 200 {
-		return airly, errors.New(string(body))
+		return &airly, errors.New(string(body))
 	}
 	var airlyResp AirlyResp
 	err = json.Unmarshal(body, &airlyResp)
 	if err != nil {
-		return airly, err
+		return &airly, err
 	}
 	for _, index := range airlyResp.Current.Indexes {
 		if index.Name == "AIRLY_CAQI" {
@@ -87,7 +87,7 @@ func GetAirly(installation *pb.Installation) (pb.Airly, error) {
 			airly.Temperature = float32(indicator.Value)
 		}
 	}
-	return airly, err
+	return &airly, err
 }
 
 // FindAirlyInstallation queries Airly API for nearest installation

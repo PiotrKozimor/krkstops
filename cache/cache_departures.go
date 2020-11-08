@@ -31,13 +31,13 @@ func IsDepartureCached(c *redis.Client, stop *pb.Stop) (cached bool, err error) 
 	return
 }
 
-func CacheDepartures(c *redis.Client, deps *[]pb.Departure, stop *pb.Stop) (err error) {
+func CacheDepartures(c *redis.Client, deps []pb.Departure, stop *pb.Stop) (err error) {
 	pipe := c.Pipeline()
 	executePipe := true
 	pipe.Del(getDeparturesKey(stop))
-	rawDeps := make([]interface{}, len(*deps))
-	for index, dep := range *deps {
-		rawDeps[index], err = proto.Marshal(&dep)
+	rawDeps := make([]interface{}, len(deps))
+	for index := range deps {
+		rawDeps[index], err = proto.Marshal(&(deps[index]))
 		if err != nil {
 			log.Println(err)
 			return

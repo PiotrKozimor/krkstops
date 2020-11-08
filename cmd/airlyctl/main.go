@@ -20,7 +20,7 @@ var (
 			if err != nil {
 				log.Fatal(err)
 			}
-			krkstops.PrintAirly(&airly)
+			krkstops.PrintAirly(airly)
 		},
 	}
 	id int32

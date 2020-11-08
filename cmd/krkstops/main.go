@@ -26,7 +26,7 @@ type krkStopsServer struct {
 }
 
 func (s *krkStopsServer) GetAirly(ctx context.Context, installation *pb.Installation) (*pb.Airly, error) {
-	var a pb.Airly
+	var a *pb.Airly
 	var err error
 	isCached, err := cache.IsAirlyCached(s.c.Redis, installation)
 	if err != nil {
@@ -36,13 +36,13 @@ func (s *krkStopsServer) GetAirly(ctx context.Context, installation *pb.Installa
 	if !isCached {
 		a, err = airly.GetAirly(installation)
 		if err != nil {
-			return &a, err
+			return a, err
 		}
-		go cache.CacheAirly(s.c.Redis, &a, installation)
+		go cache.CacheAirly(s.c.Redis, a, installation)
 	} else {
 		a, err = cache.GetCachedAirly(s.c.Redis, installation)
 	}
-	return &a, err
+	return a, err
 
 	// return airly, err
 }
@@ -60,7 +60,7 @@ func (s *krkStopsServer) GetDepartures(stop *pb.Stop, stream pb.KrkStops_GetDepa
 		if err != nil {
 			return err
 		}
-		go cache.CacheDepartures(s.c.Redis, &deps, stop)
+		go cache.CacheDepartures(s.c.Redis, deps, stop)
 	} else {
 		deps, err = cache.GetCachedDepartures(s.c.Redis, stop)
 		ttl, err := s.c.Redis.TTL(cache.DepsPrefix + stop.ShortName).Result()
