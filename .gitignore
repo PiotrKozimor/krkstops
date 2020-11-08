@@ -16,7 +16,7 @@
 main/*
 !main/*.go
 *.pem
-cmd/*
-!cmd/**.go
+cmd/*ctl
+cmd/*d
 KRKSTOPS
 mock/krkstopsmock

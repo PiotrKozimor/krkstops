@@ -1,6 +1,7 @@
 package krkstops
 
 import (
+	"net/http"
 	"testing"
 
 	"github.com/RediSearch/redisearch-go/redisearch"
@@ -22,4 +23,17 @@ func TestUpdateSuggestionsAndRedis(t *testing.T) {
 		"0": "Foo",
 	}
 	app.UpdateSuggestionsAndRedis(newStops, oldStops)
+}
+
+func TestGetAllStops(t *testing.T) {
+	app := App{
+		HTTPClient: http.DefaultClient,
+	}
+	maps, err := app.GetAllStops()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(maps) < 300 {
+		t.Error("Got less than 300 stops!")
+	}
 }
