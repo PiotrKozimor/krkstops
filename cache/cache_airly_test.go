@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	pb "github.com/PiotrKozimor/krk-stops-backend-golang/krkstops-grpc"
+	"github.com/PiotrKozimor/krkstops/pb"
 	"github.com/go-redis/redis/v7"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
@@ -45,7 +45,10 @@ func TestCacheAirly(t *testing.T) {
 		t.Fatal("Installation not cached")
 	}
 	cachedAirly, err := GetCachedAirly(client, &testInst)
-	if diff := cmp.Diff(cachedAirly, testAirly, cmpopts.IgnoreUnexported(cachedAirly)); diff != "" {
+	if err != nil {
+		t.Fatal(err)
+	}
+	if diff := cmp.Diff(*cachedAirly, testAirly, cmpopts.IgnoreUnexported(*cachedAirly)); diff != "" {
 		t.Errorf(diff)
 	}
 

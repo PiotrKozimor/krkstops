@@ -4,7 +4,7 @@ import (
 	"log"
 	"time"
 
-	pb "github.com/PiotrKozimor/krk-stops-backend-golang/krkstops-grpc"
+	"github.com/PiotrKozimor/krkstops/pb"
 	"github.com/go-redis/redis/v7"
 	"google.golang.org/protobuf/proto"
 )
@@ -50,14 +50,12 @@ func CacheAirly(c *redis.Client, airly *pb.Airly, installation *pb.Installation)
 	return
 }
 
-func GetCachedAirly(c *redis.Client, installation *pb.Installation) (airly pb.Airly, err error) {
+func GetCachedAirly(c *redis.Client, installation *pb.Installation) (*pb.Airly, error) {
+	var airly pb.Airly
 	airlyRaw, err := c.Get(getAirlyKey(installation)).Result()
 	if err != nil {
-		return airly, err
+		return nil, err
 	}
 	err = proto.Unmarshal([]byte(airlyRaw), &airly)
-	if err != nil {
-		return airly, err
-	}
-	return
+	return &airly, err
 }

@@ -6,8 +6,8 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/PiotrKozimor/krk-stops-backend-golang/krkstops"
-	pb "github.com/PiotrKozimor/krk-stops-backend-golang/krkstops-grpc"
+	"github.com/PiotrKozimor/krkstops/pb"
+	"github.com/PiotrKozimor/krkstops/ttss"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -20,7 +20,7 @@ const (
 	EMPTY_DEPARTURES // No departures received (with 200 status code)
 )
 
-func logWithEndpointAndStop(endp krkstops.Endpoint, stop *pb.Stop) *log.Entry {
+func logWithEndpointAndStop(endp ttss.Endpoint, stop *pb.Stop) *log.Entry {
 	return log.WithFields(log.Fields{
 		"endpoint": endp,
 		"stop":     stop.ShortName,
@@ -28,12 +28,12 @@ func logWithEndpointAndStop(endp krkstops.Endpoint, stop *pb.Stop) *log.Entry {
 }
 
 // GetStopDeparturesErrorCodeByURL returns error that can be consumed by e.g. Prometheus.
-func GetStopDeparturesErrorCode(endp krkstops.Endpoint, stop *pb.Stop) (errorCode int) {
-	if int(endp) >= len(krkstops.TtssListStopsURL) {
+func GetStopDeparturesErrorCode(endp ttss.Endpoint, stop *pb.Stop) (errorCode int) {
+	if int(endp) >= len(ttss.TtssListStopsURL) {
 		logWithEndpointAndStop(endp, stop).Errorln("invalid endpoit provided: %d", endp)
 		return OTHER_ERROR
 	}
-	url := krkstops.TtssStopDearturesURLs[endp]
+	url := ttss.TtssStopDearturesURLs[endp]
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		logWithEndpointAndStop(endp, stop).Errorln(err)
@@ -61,7 +61,7 @@ func GetStopDeparturesErrorCode(endp krkstops.Endpoint, stop *pb.Stop) (errorCod
 		logWithEndpointAndStop(endp, stop).Warnf("StatusCode: %d, Body: %s", resp.StatusCode, body)
 		return REQUEST_NON_200
 	}
-	var stopDepartures krkstops.StopDepartures
+	var stopDepartures ttss.StopDepartures
 	decoder := json.NewDecoder(resp.Body)
 	err = decoder.Decode(&stopDepartures)
 	if err != nil {
