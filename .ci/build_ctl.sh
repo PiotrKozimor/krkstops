@@ -5,7 +5,7 @@ do
         echo skip
     else
         cd $ctl
-        go build .
+        go build -race .
         echo $ctl
         cd ..
     fi
