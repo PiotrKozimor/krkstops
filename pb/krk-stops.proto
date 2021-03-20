@@ -17,9 +17,10 @@ message Installation{
 }
 message Airly {
     int32 caqi = 1;
-    string color = 2;
+    string colorStr = 2;
     int32 humidity = 3;
     float temperature = 4;
+    uint32 color = 5;
 }
 message InstallationLocation {
     float latitude = 1;
@@ -38,12 +39,8 @@ message Departure {
 message Stop {
     string shortName = 1;
     string name = 2;
+    uint32 id = 3;
 }
 message StopSearch {
     string query = 1;
 }
-
-// message DepartureColor {
-//     string plannedTime = 2;
-//     string direction = 3;
-// }
