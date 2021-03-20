@@ -8,19 +8,9 @@ import (
 	"github.com/PiotrKozimor/krkstops/pb"
 )
 
-// var airlyWriter
-// var stopsWriter *tabwriter.Writer
-// var departuresWriter *tabwriter.Writer
-
 type PrettyPrint struct {
 	*tabwriter.Writer
 }
-
-// func init() {
-// 	airlyWriter =
-// 	stopsWriter = airlyWriter
-// 	departuresWriter = airlyWriter
-// }
 
 func NewPrettyPrint() PrettyPrint {
 	return PrettyPrint{
@@ -31,7 +21,7 @@ func NewPrettyPrint() PrettyPrint {
 // PrettyPrint Airly data
 func (p PrettyPrint) Airly(airly *pb.Airly) {
 	fmt.Fprintf(p, "CAQI\tHUMIDITY[%%]\tTEMP [°C]\tCOLOR\t\n")
-	fmt.Fprintf(p, "%d\t%d\t%2.1f\t%s\t\n", airly.Caqi, airly.Humidity, airly.Temperature, airly.Color)
+	fmt.Fprintf(p, "%d\t%d\t%2.1f\t%X\t\n", airly.Caqi, airly.Humidity, airly.Temperature, airly.Color)
 	p.Flush()
 }
 

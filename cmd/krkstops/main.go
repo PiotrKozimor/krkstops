@@ -107,12 +107,12 @@ func (s *krkStopsServer) SearchStops(search *pb.StopSearch, stream pb.KrkStops_S
 }
 
 func (s *krkStopsServer) FindNearestAirlyInstallation(ctx context.Context, location *pb.InstallationLocation) (*pb.Installation, error) {
-	inst, err := airly.FindAirlyInstallation(location)
+	inst, err := airly.NearestInstallation(location)
 	return inst, err
 }
 
 func (s *krkStopsServer) GetAirlyInstallation(ctx context.Context, installation *pb.Installation) (*pb.Installation, error) {
-	inst, err := airly.GetAirlyInstallation(installation)
+	inst, err := airly.GetInstallation(installation)
 	return inst, err
 }
 

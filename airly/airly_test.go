@@ -2,42 +2,28 @@ package airly
 
 import (
 	"log"
-	"strings"
 	"testing"
 
 	"github.com/PiotrKozimor/krkstops/pb"
+	"github.com/stretchr/testify/assert"
 )
 
-func TestGetAirly(test *testing.T) {
+func TestGetAirly(t *testing.T) {
 	airly, err := GetAirly(&pb.Installation{Id: 8077})
-	if err != nil {
-		test.Error(err)
-	}
-	if airly.Humidity < 0 {
-		test.Errorf("Humdidity %d < 0", airly.Humidity)
-	}
-	if airly.Caqi < 0 {
-		test.Errorf("CAQI %d < 0", airly.Caqi)
-	}
-	if strings.Contains(airly.Color, "#") != true {
-		test.Errorf("Got improper color string: %s", airly.Color)
-	}
+	assert.NoError(t, err)
+	assert.Greater(t, airly.Humidity, int32(0))
+	assert.Greater(t, airly.Caqi, int32(0))
+	assert.Greater(t, airly.Color, uint32(0))
 }
 
-func TestFindAirlyInstallation(test *testing.T) {
-	inst, err := FindAirlyInstallation(&pb.InstallationLocation{Latitude: 50.0236288, Longitude: 19.942604799999998})
-	if err != nil {
-		test.Error(err)
-	}
+func TestFindAirlyInstallation(t *testing.T) {
+	inst, err := NearestInstallation(&pb.InstallationLocation{Latitude: 50.0236288, Longitude: 19.942604799999998})
+	assert.NoError(t, err)
 	log.Print(inst)
 }
 
-func TestGetAirlyInstallation(test *testing.T) {
-	inst, err := GetAirlyInstallation(&pb.Installation{
-		Id: 8077,
-	})
-	if err != nil {
-		test.Error(err)
-	}
+func TestGetAirlyInstallation(t *testing.T) {
+	inst, err := GetInstallation(8077)
+	assert.NoError(t, err)
 	log.Print(inst)
 }

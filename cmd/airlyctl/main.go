@@ -20,14 +20,15 @@ var (
 			if err != nil {
 				log.Fatal(err)
 			}
-			krkstops.PrintAirly(airly)
+			pp := krkstops.NewPrettyPrint()
+			pp.Airly(airly)
 		},
 	}
 	id int32
 )
 
 func init() {
-	rootCmd.Flags().Int32Var(&id, "id", 9914, "id of installation to query. Find it from map on https://airly.eu/map/pl/")
+	rootCmd.Flags().Int32Var(&id, "id", 9895, "id of installation to query. Find it from map on https://airly.eu/map/pl/")
 }
 
 func main() {
