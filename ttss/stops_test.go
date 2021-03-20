@@ -2,14 +2,21 @@ package ttss
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
-func TestGetAllStops(t *testing.T) {
-	maps, err := GetAllStops()
-	if err != nil {
+func TestStops(t *testing.T) {
+	stops, errC := GetAllStops(KrkStopsEndpoints)
+	var cnt int
+	for s := range stops {
+		cnt++
+		assert.Greater(t, len(s), 100)
+		assert.Greater(t, len(s[0].Name), 2)
+		assert.Greater(t, s[0].Id, uint32(0))
+	}
+	for err := range errC {
 		t.Fatal(err)
 	}
-	if len(maps) < 300 {
-		t.Error("Got less than 300 stops!")
-	}
+	assert.Equal(t, cnt, 2)
 }

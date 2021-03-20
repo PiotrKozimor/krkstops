@@ -6,38 +6,47 @@ import (
 	"text/tabwriter"
 
 	"github.com/PiotrKozimor/krkstops/pb"
-	"github.com/PiotrKozimor/krkstops/ttss"
 )
 
-var airlyWriter *tabwriter.Writer
-var stopsWriter *tabwriter.Writer
-var departuresWriter *tabwriter.Writer
+// var airlyWriter
+// var stopsWriter *tabwriter.Writer
+// var departuresWriter *tabwriter.Writer
 
-func init() {
-	airlyWriter = tabwriter.NewWriter(os.Stdout, 1, 2, 2, ' ', 0)
-	stopsWriter = airlyWriter
-	departuresWriter = airlyWriter
+type PrettyPrint struct {
+	*tabwriter.Writer
 }
 
-// PrintAirly pretty with tabwriter
-func PrintAirly(airly *pb.Airly) {
-	fmt.Fprintf(airlyWriter, "CAQI\tHUMIDITY[%%]\tTEMP [°C]\tCOLOR\t\n")
-	fmt.Fprintf(airlyWriter, "%d\t%d\t%2.1f\t%s\t\n", airly.Caqi, airly.Humidity, airly.Temperature, airly.Color)
-	airlyWriter.Flush()
-}
+// func init() {
+// 	airlyWriter =
+// 	stopsWriter = airlyWriter
+// 	departuresWriter = airlyWriter
+// }
 
-// PrintStops pretty with tabwriter
-func PrintStops(stops *ttss.Stops) {
-	for shortName, name := range *stops {
-		fmt.Fprintf(stopsWriter, "%s\t%s\t\n", shortName, name)
+func NewPrettyPrint() PrettyPrint {
+	return PrettyPrint{
+		tabwriter.NewWriter(os.Stdout, 1, 2, 2, ' ', 0),
 	}
-	stopsWriter.Flush()
 }
 
-// PrintDepartures pretty with tabwriter
-func PrintDepartures(deps []pb.Departure) {
+// PrettyPrint Airly data
+func (p PrettyPrint) Airly(airly *pb.Airly) {
+	fmt.Fprintf(p, "CAQI\tHUMIDITY[%%]\tTEMP [°C]\tCOLOR\t\n")
+	fmt.Fprintf(p, "%d\t%d\t%2.1f\t%s\t\n", airly.Caqi, airly.Humidity, airly.Temperature, airly.Color)
+	p.Flush()
+}
+
+// PrettyPrint stops
+func (p *PrettyPrint) Stops(stops []pb.Stop) {
+	for i, stop := range stops {
+		fmt.Fprintf(p, "%d,%s\t%s\t\n", i, stop.ShortName, stop.Name)
+	}
+	p.Flush()
+}
+
+// PrettyPrint departures
+func (p *PrettyPrint) Departures(deps []pb.Departure) {
 	for _, dep := range deps {
-		fmt.Fprintf(departuresWriter, "%s\t%s\t%d\t%s\t\n", dep.PatternText, dep.Direction, dep.RelativeTime, dep.PlannedTime)
+		fmt.Fprintf(p, "%s\t%s\t%d\t%s\t\n", dep.PatternText, dep.Direction, dep.RelativeTime, dep.PlannedTime)
 	}
-	departuresWriter.Flush()
+	p.Flush()
 }

@@ -1,11 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/PiotrKozimor/krkstops"
-	"github.com/PiotrKozimor/krkstops/pb"
 	"github.com/PiotrKozimor/krkstops/ttss"
 	"github.com/spf13/cobra"
 )
@@ -19,53 +17,63 @@ var (
 	}
 	depsCmd = &cobra.Command{
 		Use:   "deps",
-		Short: "Query departures from given stop",
+		Short: "Query departures from given stop for bus and tram",
 		Run: func(cmd *cobra.Command, args []string) {
-			stop := pb.Stop{}
-			stop.ShortName = fmt.Sprintf("%d", stopId)
-			var err error
-			var deps []pb.Departure
-			if busOnly {
-				deps, err = ttss.GetStopDeparturesByURL(ttss.BUS, &stop)
-			} else if tramOnly {
-				deps, err = ttss.GetStopDeparturesByURL(ttss.TRAM, &stop)
-			} else {
-				deps, err = ttss.GetStopDepartures(&stop)
+			depsC, errC := ttss.GetDepartures(ttss.KrkStopsEndpoints, stopId)
+			pprint := krkstops.NewPrettyPrint()
+			for dep := range depsC {
+				pprint.Departures(dep)
 			}
-			if err != nil {
+			for err := range errC {
 				log.Fatal(err)
 			}
-			krkstops.PrintDepartures(deps)
 		},
 	}
 	stopsCmd = &cobra.Command{
 		Use:   "stops",
 		Short: "Query all stops in Cracov",
 		Run: func(cmd *cobra.Command, args []string) {
-			var err error
-			var stops ttss.Stops
-			if busOnly {
-				stops, err = ttss.GetAllStopsByURL(ttss.BUS)
-			} else if tramOnly {
-				stops, err = ttss.GetAllStopsByURL(ttss.TRAM)
-			} else {
-				stops, err = ttss.GetAllStops()
+			stopsC, errC := ttss.GetAllStops(ttss.KrkStopsEndpoints)
+			pprint := krkstops.NewPrettyPrint()
+			for stop := range stopsC {
+				pprint.Stops(stop)
 			}
+			for err := range errC {
+				log.Fatal(err)
+			}
+		},
+	}
+	busCmd = &cobra.Command{
+		Use:   "bus",
+		Short: "Query bus departures from stop",
+		Run: func(cmd *cobra.Command, args []string) {
+			deps, err := ttss.BusEndpoint.GetDepartures(stopId)
 			if err != nil {
 				log.Fatal(err)
 			}
-			krkstops.PrintStops(&stops)
+			pprint := krkstops.NewPrettyPrint()
+			pprint.Departures(deps)
 		},
 	}
-	stopId int32
+	tramCmd = &cobra.Command{
+		Use:   "tram",
+		Short: "Query tram departures from stop",
+		Run: func(cmd *cobra.Command, args []string) {
+			deps, err := ttss.TramEndpoint.GetDepartures(stopId)
+			if err != nil {
+				log.Fatal(err)
+			}
+			pprint := krkstops.NewPrettyPrint()
+			pprint.Departures(deps)
+		},
+	}
+	stopId uint
 )
 
 func init() {
-	rootCmd.PersistentFlags().BoolVarP(&busOnly, "bus", "b", false, "fetch bus TTSS API only")
-	rootCmd.PersistentFlags().BoolVarP(&tramOnly, "tram", "t", false, "fetch tram TTSS API only")
-	depsCmd.Flags().Int32Var(&stopId, "id", 610, "id of stop to query departures from")
-	rootCmd.AddCommand(stopsCmd)
-	rootCmd.AddCommand(depsCmd)
+	depsCmd.Flags().UintVar(&stopId, "id", 610, "id of stop to query departures from")
+	depsCmd.AddCommand(busCmd, tramCmd)
+	rootCmd.AddCommand(stopsCmd, depsCmd)
 }
 
 func main() {
