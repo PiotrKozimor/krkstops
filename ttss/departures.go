@@ -35,7 +35,7 @@ type stopDepartures struct {
 type Endpointer interface {
 	GetDepartures(uint) ([]pb.Departure, error)
 	GetAllStops() ([]pb.Stop, error)
-	GetId() uint
+	Id() string
 }
 
 const (
@@ -44,9 +44,9 @@ const (
 	TramEndpoint   = Endpoint("http://185.70.182.51/internetservice")
 )
 
-var endpointsIds = map[Endpoint]uint{
-	BusEndpoint:  0,
-	TramEndpoint: 1,
+var endpointsIds = map[Endpoint]string{
+	BusEndpoint:  "bus",
+	TramEndpoint: "tram",
 }
 
 var KrkStopsEndpoints = []Endpointer{
@@ -62,7 +62,7 @@ func (e ErrRequestFailed) Error() string {
 	return fmt.Sprintf("request failed: %v", e.err)
 }
 
-func (e Endpoint) GetId() uint {
+func (e Endpoint) Id() string {
 	return endpointsIds[e]
 }
 

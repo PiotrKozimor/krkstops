@@ -14,7 +14,7 @@ const (
 	EMPTY_DEPARTURES // No departures received (with 200 status code)
 )
 
-func log(endpointId, stopId uint) *logrus.Entry {
+func log(endpointId string, stopId uint) *logrus.Entry {
 	return logrus.WithFields(logrus.Fields{
 		"endpoint": endpointId,
 		"stop":     stopId,
@@ -33,10 +33,10 @@ func GetDeparturesErrorCode(e Endpointer, id uint) (errorCode int) {
 		default:
 			errorCode = OTHER_ERROR
 		}
-		log(e.GetId(), id).Error(err)
+		log(e.Id(), id).Error(err)
 	} else if len(dep) == 0 {
 		errorCode = EMPTY_DEPARTURES
-		log(e.GetId(), id).Error("got no departures")
+		log(e.Id(), id).Error("got no departures")
 	}
 	return
 }

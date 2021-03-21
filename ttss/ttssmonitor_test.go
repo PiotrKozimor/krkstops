@@ -17,7 +17,7 @@ func (e TestEndpoint) GetDepartures(uint) ([]pb.Departure, error) {
 }
 
 func (e TestEndpoint) GetAllStops() (a []pb.Stop, b error) { return }
-func (e TestEndpoint) GetId() (a uint)                     { return }
+func (e TestEndpoint) Id() (a string)                      { return }
 
 func TestGetDeparturesErrorCode(t *testing.T) {
 	c := make(chan error, 4)

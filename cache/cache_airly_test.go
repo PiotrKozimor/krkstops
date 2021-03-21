@@ -21,7 +21,7 @@ func TestCacheAirly(t *testing.T) {
 	testAirly := pb.Airly{
 		Caqi:        32,
 		Humidity:    45,
-		Color:       "435",
+		Color:       435,
 		Temperature: 45.6,
 	}
 	_, err := client.Del(getAirlyKey(&testInst)).Result()
