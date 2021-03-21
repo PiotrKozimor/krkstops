@@ -23,11 +23,13 @@ var (
 		Short: "Query air quality, temperature and humidity from airly installation",
 		Run: func(cmd *cobra.Command, args []string) {
 			initClient()
+			defer cancel()
 			airly, err := client.GetAirly(ctx, &pb.Installation{Id: airlyId})
 			if err != nil {
 				log.Fatalf("fail to get airly: %v", err)
 			}
-			krkstops.PrintAirly(airly)
+			pp := krkstops.NewPrettyPrint()
+			pp.Airly(airly)
 		},
 	}
 	depsCmd = &cobra.Command{
@@ -35,6 +37,7 @@ var (
 		Short: "Query departures from given stop",
 		Run: func(cmd *cobra.Command, args []string) {
 			initClient()
+			defer cancel()
 			depsStrem, err := client.GetDepartures(ctx, &pb.Stop{ShortName: fmt.Sprint(stopId)})
 			if err != nil {
 				log.Fatalf("fail to get departures: %v", err)
@@ -56,6 +59,7 @@ var (
 		Short: "Search stops",
 		Run: func(cmd *cobra.Command, args []string) {
 			initClient()
+			defer cancel()
 			stopsStream, err := client.SearchStops(ctx, &pb.StopSearch{Query: args[0]})
 			if err != nil {
 				log.Fatalf("fail to search stops: %v", err)
@@ -81,6 +85,7 @@ var (
 	client   pb.KrkStopsClient
 	ctx      context.Context
 	endpoint string
+	cancel   context.CancelFunc
 )
 
 func initClient() {
@@ -89,13 +94,13 @@ func initClient() {
 		log.Fatalf("fail to dial: %v", err)
 	}
 	client = pb.NewKrkStopsClient(conn)
-	ctx, _ = context.WithTimeout(context.Background(), 1*time.Second)
+	ctx, cancel = context.WithTimeout(context.Background(), 1*time.Second)
 }
 
 func init() {
-	rootCmd.PersistentFlags().StringVarP(&endpoint, "endpoint", "e", "krk-stops.pl:8080", "backend url address")
+	rootCmd.PersistentFlags().StringVarP(&endpoint, "endpoint", "e", krkstops.ENDPOINT, "backend url address")
 	depsCmd.Flags().Int32Var(&stopId, "id", 610, "stop id, find it by using stops command")
-	airlyCmd.Flags().Int32Var(&airlyId, "id", 9914, "installation id")
+	airlyCmd.Flags().Int32Var(&airlyId, "id", 9895, "installation id")
 	rootCmd.AddCommand(depsCmd)
 	rootCmd.AddCommand(airlyCmd)
 	rootCmd.AddCommand(stopsCmd)

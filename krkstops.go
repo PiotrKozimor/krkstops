@@ -9,6 +9,8 @@ import (
 	"github.com/PiotrKozimor/krkstops/ttss"
 )
 
+var ENDPOINT = "krkstops.germanywestcentral.cloudapp.azure.com:8080"
+
 type PrettyPrint struct {
 	*tabwriter.Writer
 }
