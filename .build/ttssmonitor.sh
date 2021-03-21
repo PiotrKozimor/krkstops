@@ -1,3 +1,6 @@
+cd cmd/ttssmonitord
+go build 
+cd ../..
 set -ex
 cont=$(buildah from gcr.io/distroless/base-debian10)
 buildah copy $cont cmd/ttssmonitord /bin
