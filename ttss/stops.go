@@ -22,7 +22,7 @@ type stop struct {
 }
 
 // Stops ShortName to Name
-type Stops map[string]string
+type Stops map[uint32]string
 
 // GetAllStops fetches Stops from given endpoint.
 func (e Endpoint) GetAllStops() ([]pb.Stop, error) {

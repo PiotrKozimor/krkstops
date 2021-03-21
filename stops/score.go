@@ -16,7 +16,7 @@ const (
 	STOPS_TMP      = "stops.tmp"
 )
 
-var ScoringInitialized = errors.New("Scoring is already initialized")
+var ScoringInitialized = errors.New("scoring is already initialized")
 
 func (c *Clients) ScoreStop(krk pb.KrkStopsClient, shortName string) (float64, error) {
 	stream, err := krk.GetDepartures(context.Background(), &pb.Stop{ShortName: shortName})
@@ -37,12 +37,12 @@ func (c *Clients) ScoreStop(krk pb.KrkStopsClient, shortName string) (float64, e
 }
 
 func (c *Clients) GetStopToScore() (shortName string, err error) {
-	shortName, err = c.Redis.SPop(STOPS_TO_SCORE).Result()
+	shortName, err = c.Redis.SPop(ctx, STOPS_TO_SCORE).Result()
 	return
 }
 
 func (c *Clients) InitializeScoring() error {
-	exist, err := c.Redis.Exists(STOPS_TO_SCORE).Result()
+	exist, err := c.Redis.Exists(ctx, STOPS_TO_SCORE).Result()
 	if err != nil {
 		return err
 	}
@@ -53,7 +53,7 @@ func (c *Clients) InitializeScoring() error {
 }
 
 func (c *Clients) RestartScoring() error {
-	res, err := c.Redis.SUnionStore(STOPS_TO_SCORE, STOPS).Result()
+	res, err := c.Redis.SUnionStore(ctx, STOPS_TO_SCORE, STOPS).Result()
 	if err != nil {
 		return err
 	}
@@ -64,7 +64,7 @@ func (c *Clients) RestartScoring() error {
 }
 
 func (c *Clients) FinishScoring() error {
-	res, err := c.Redis.Del(STOPS_TO_SCORE).Result()
+	res, err := c.Redis.Del(ctx, STOPS_TO_SCORE).Result()
 	if err != nil {
 		return err
 	}
@@ -79,7 +79,7 @@ func scoreByTotalDepartures(total int) float64 {
 }
 
 func (c *Clients) ApplyScore(score float64, shortName string) error {
-	name, err := c.Redis.Get(shortName).Result()
+	name, err := c.Redis.Get(ctx, shortName).Result()
 	if err != nil {
 		return err
 	}

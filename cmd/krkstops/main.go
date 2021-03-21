@@ -14,7 +14,7 @@ import (
 	"github.com/PiotrKozimor/krkstops/stops"
 	"github.com/PiotrKozimor/krkstops/ttss"
 	"github.com/RediSearch/redisearch-go/redisearch"
-	"github.com/go-redis/redis/v7"
+	"github.com/go-redis/redis/v8"
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"google.golang.org/grpc"

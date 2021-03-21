@@ -1,12 +1,13 @@
 package cache
 
 import (
+	"context"
 	"log"
 	"testing"
 	"time"
 
 	"github.com/PiotrKozimor/krkstops/pb"
-	"github.com/go-redis/redis/v7"
+	"github.com/go-redis/redis/v8"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 )
@@ -30,7 +31,7 @@ func TestCacheDepartures(t *testing.T) {
 			PlannedTime: "4:32",
 		},
 	}
-	_, err := client.Del(getDeparturesKey(&testStop)).Result()
+	_, err := client.Del(context.Background(), getDeparturesKey(&testStop)).Result()
 	if err != nil {
 		t.Fatal(err)
 	}

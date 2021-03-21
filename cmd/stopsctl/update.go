@@ -27,18 +27,25 @@ var (
 				Redis:              redisClient,
 				RedisAutocompleter: redisearchClient,
 			}
-			stops, err := ttss.GetAllStops()
-			if err != nil {
+			stops := make(ttss.Stops)
+			stopsC, errC := ttss.GetAllStops(ttss.KrkStopsEndpoints)
+			for err := range errC {
 				log.Fatal(err)
+			}
+			for stop := range stopsC {
+				for _, s := range stop {
+					stops[s.Id] = s.Name
+				}
 			}
 			newStops, oldStops, err := app.CompareStops(stops)
 			if err != nil {
 				log.Fatal(err)
 			}
+			pp := krkstops.NewPrettyPrint()
 			print("New stops:\n")
-			krkstops.PrintStops(&newStops)
+			pp.StopsMap(newStops)
 			print("Old stops:\n")
-			krkstops.PrintStops(&oldStops)
+			pp.StopsMap(oldStops)
 			if !nonInteractive {
 				print("Apply new changes?[y/N]\n")
 				text, _ := reader.ReadString('\n')

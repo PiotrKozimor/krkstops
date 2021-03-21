@@ -1,12 +1,13 @@
 package cache
 
 import (
+	"context"
 	"log"
 	"testing"
 	"time"
 
 	"github.com/PiotrKozimor/krkstops/pb"
-	"github.com/go-redis/redis/v7"
+	"github.com/go-redis/redis/v8"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 )
@@ -24,7 +25,7 @@ func TestCacheAirly(t *testing.T) {
 		Color:       435,
 		Temperature: 45.6,
 	}
-	_, err := client.Del(getAirlyKey(&testInst)).Result()
+	_, err := client.Del(context.Background(), getAirlyKey(&testInst)).Result()
 	if err != nil {
 		t.Fatal(err)
 	}

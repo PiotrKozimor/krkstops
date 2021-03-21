@@ -1,11 +1,14 @@
 package stops
 
 import (
+	"context"
+	"strconv"
 	"strings"
 
 	"github.com/PiotrKozimor/krkstops/ttss"
 	"github.com/RediSearch/redisearch-go/redisearch"
-	"github.com/go-redis/redis/v7"
+	"github.com/go-redis/redis/v8"
+	"github.com/sirupsen/logrus"
 )
 
 type Clients struct {
@@ -13,25 +16,35 @@ type Clients struct {
 	RedisAutocompleter *redisearch.Autocompleter
 }
 
+var ctx = context.Background()
+
 // CompareStops and return new and old. New stops are stored in 'stops.tmp' set.
 func (c *Clients) CompareStops(stops ttss.Stops) (newStops ttss.Stops, oldStops ttss.Stops, err error) {
 	newStops = make(ttss.Stops)
 	oldStops = make(ttss.Stops)
 	pipe := c.Redis.TxPipeline()
 	for ShortName := range stops {
-		pipe.SAdd("stops.tmp", ShortName)
+		pipe.SAdd(ctx, "stops.tmp", ShortName)
 	}
-	_, err = pipe.Exec()
+	_, err = pipe.Exec(ctx)
 	if err != nil {
 		return nil, nil, err
 	}
-	newStopsShortNames := c.Redis.SDiff("stops.tmp", "stops").Val()
-	oldStopsShortNames := c.Redis.SDiff("stops", "stops.tmp").Val()
-	for _, ShortName := range newStopsShortNames {
-		newStops[ShortName] = stops[ShortName]
+	newStopIds := c.Redis.SDiff(ctx, "stops.tmp", "stops").Val()
+	oldStopIds := c.Redis.SDiff(ctx, "stops", "stops.tmp").Val()
+	for _, ShortName := range newStopIds {
+		id, err := strconv.Atoi(ShortName)
+		if err != nil {
+			logrus.Error(err)
+		}
+		newStops[uint32(id)] = stops[uint32(id)]
 	}
-	for _, ShortName := range oldStopsShortNames {
-		oldStops[ShortName] = stops[ShortName]
+	for _, ShortName := range oldStopIds {
+		id, err := strconv.Atoi(ShortName)
+		if err != nil {
+			logrus.Error(err)
+		}
+		oldStops[uint32(id)] = stops[uint32(id)]
 	}
 	return newStops, oldStops, nil
 }
@@ -40,11 +53,11 @@ func (c *Clients) CompareStops(stops ttss.Stops) (newStops ttss.Stops, oldStops 
 func (c *Clients) UpdateSuggestionsAndRedis(newStops ttss.Stops, oldStops ttss.Stops) error {
 	pipe := c.Redis.TxPipeline()
 	for shortName, name := range newStops {
-		pipe.SAdd("stops.new", shortName)
-		pipe.Set(shortName, name, -1)
-		c.AddSuggestion(shortName, name, 1.0)
+		pipe.SAdd(ctx, "stops.new", shortName)
+		pipe.Set(ctx, strconv.Itoa(int(shortName)), name, -1)
+		c.AddSuggestion(strconv.Itoa(int(shortName)), name, 1.0)
 	}
-	_, err := pipe.Exec()
+	_, err := pipe.Exec(ctx)
 	if err != nil {
 		return err
 	}
@@ -54,7 +67,7 @@ func (c *Clients) UpdateSuggestionsAndRedis(newStops ttss.Stops, oldStops ttss.S
 			return err
 		}
 	}
-	_, err = c.Redis.Rename("stops.tmp", "stops").Result()
+	_, err = c.Redis.Rename(ctx, "stops.tmp", "stops").Result()
 	if err != nil {
 		return err
 	}

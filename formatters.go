@@ -6,6 +6,7 @@ import (
 	"text/tabwriter"
 
 	"github.com/PiotrKozimor/krkstops/pb"
+	"github.com/PiotrKozimor/krkstops/ttss"
 )
 
 type PrettyPrint struct {
@@ -28,7 +29,15 @@ func (p PrettyPrint) Airly(airly *pb.Airly) {
 // PrettyPrint stops
 func (p *PrettyPrint) Stops(stops []pb.Stop) {
 	for i, stop := range stops {
-		fmt.Fprintf(p, "%d,%s\t%s\t\n", i, stop.ShortName, stop.Name)
+		fmt.Fprintf(p, "%d\t%d\t%s\t\n", i, stop.Id, stop.Name)
+	}
+	p.Flush()
+}
+
+// PrettyPrint stopsMap
+func (p *PrettyPrint) StopsMap(stops ttss.Stops) {
+	for id, name := range stops {
+		fmt.Fprintf(p, "%d\t%s\t\n", id, name)
 	}
 	p.Flush()
 }

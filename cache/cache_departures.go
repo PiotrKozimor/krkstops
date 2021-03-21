@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/PiotrKozimor/krkstops/pb"
-	"github.com/go-redis/redis/v7"
+	"github.com/go-redis/redis/v8"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -19,7 +19,7 @@ func getDeparturesKey(d *pb.Stop) string {
 
 func IsDepartureCached(c *redis.Client, stop *pb.Stop) (cached bool, err error) {
 	var exist int64
-	exist, err = c.Exists(getDeparturesKey(stop)).Result()
+	exist, err = c.Exists(ctx, getDeparturesKey(stop)).Result()
 	if err != nil {
 		return
 	}
@@ -34,7 +34,7 @@ func IsDepartureCached(c *redis.Client, stop *pb.Stop) (cached bool, err error) 
 func CacheDepartures(c *redis.Client, deps []pb.Departure, stop *pb.Stop) (err error) {
 	pipe := c.Pipeline()
 	executePipe := true
-	pipe.Del(getDeparturesKey(stop))
+	pipe.Del(ctx, getDeparturesKey(stop))
 	rawDeps := make([]interface{}, len(deps))
 	for index := range deps {
 		rawDeps[index], err = proto.Marshal(&(deps[index]))
@@ -43,10 +43,10 @@ func CacheDepartures(c *redis.Client, deps []pb.Departure, stop *pb.Stop) (err e
 			return
 		}
 	}
-	pipe.RPush(getDeparturesKey(stop), rawDeps...)
-	pipe.Expire(getDeparturesKey(stop), DepsExpire)
+	pipe.RPush(ctx, getDeparturesKey(stop), rawDeps...)
+	pipe.Expire(ctx, getDeparturesKey(stop), DepsExpire)
 	if executePipe {
-		_, err = pipe.Exec()
+		_, err = pipe.Exec(ctx)
 		if err != nil {
 			log.Println(err)
 			return
@@ -56,11 +56,11 @@ func CacheDepartures(c *redis.Client, deps []pb.Departure, stop *pb.Stop) (err e
 }
 
 func GetCachedDepartures(c *redis.Client, stop *pb.Stop) (departures []pb.Departure, err error) {
-	countDepartures, err := c.LLen(getDeparturesKey(stop)).Result()
+	countDepartures, err := c.LLen(ctx, getDeparturesKey(stop)).Result()
 	if err != nil {
 		return
 	}
-	rawDepartures, err := c.LRange(getDeparturesKey(stop), 0, -1).Result()
+	rawDepartures, err := c.LRange(ctx, getDeparturesKey(stop), 0, -1).Result()
 	departures = make([]pb.Departure, countDepartures)
 	if err != nil {
 		return
