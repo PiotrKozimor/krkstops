@@ -38,7 +38,7 @@ var (
 		Run: func(cmd *cobra.Command, args []string) {
 			initClient()
 			defer cancel()
-			depsStrem, err := client.GetDepartures(ctx, &pb.Stop{ShortName: fmt.Sprint(stopId)})
+			depsStrem, err := client.GetDepartures(ctx, &pb.Stop{Id: uint32(stopId)})
 			if err != nil {
 				log.Fatalf("fail to get departures: %v", err)
 			}
