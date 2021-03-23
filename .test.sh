@@ -13,3 +13,10 @@ cd ../cache
 go test -v
 
 sudo systemctl stop redis
+
+cd ../cmd/airlyctl
+go build
+./airlyctl
+cd ../ttssctl
+go build
+./ttssctl deps
