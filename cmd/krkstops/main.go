@@ -6,6 +6,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	_ "net/http/pprof"
 	"os"
 	"strconv"
 
@@ -151,5 +152,6 @@ func main() {
 			log.Fatal(err)
 		}
 	}()
+
 	log.Fatal(grpcServer.Serve(lis))
 }
