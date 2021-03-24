@@ -19,6 +19,7 @@ import (
 	"github.com/go-redis/redis/v8"
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 )
 
@@ -111,7 +112,10 @@ func (s *krkStopsServer) SearchStops(search *pb.StopSearch, stream pb.KrkStops_S
 		if err != nil {
 			return err
 		}
-		if err := stream.Send(&pb.Stop{Name: name, ShortName: stop.Payload}); err != nil {
+		id, err := strconv.Atoi(stop.Payload)
+		if err != nil {
+			logrus.Errorf("failed to parse %d to int", stop.Payload)
+		} else if err := stream.Send(&pb.Stop{Name: name, Id: uint32(id)}); err != nil {
 			return err
 		}
 	}
