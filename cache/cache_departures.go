@@ -2,6 +2,7 @@ package cache
 
 import (
 	"log"
+	"strconv"
 	"time"
 
 	"github.com/PiotrKozimor/krkstops/pb"
@@ -14,7 +15,7 @@ var DepsExpire = time.Second * 15
 const DepsPrefix = "deps-"
 
 func getDeparturesKey(d *pb.Stop) string {
-	return DepsPrefix + d.ShortName
+	return DepsPrefix + strconv.Itoa(int(d.Id))
 }
 
 func IsDepartureCached(c *redis.Client, stop *pb.Stop) (cached bool, err error) {
