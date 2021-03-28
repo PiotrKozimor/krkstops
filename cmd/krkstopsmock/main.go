@@ -23,7 +23,7 @@ func (s *krkStopsServer) GetAirly(ctx context.Context, installation *pb.Installa
 	if s.returnErrors["airly"] {
 		return nil, foobarError
 	}
-	return &pb.Airly{Caqi: 10, Humidity: 50, Temperature: 30.0, Color: "#999999"}, nil
+	return &pb.Airly{Caqi: 10, Humidity: 50, Temperature: 30.0, Color: 0x999999}, nil
 }
 
 func (s *krkStopsServer) GetDepartures(stop *pb.Stop, stream pb.KrkStops_GetDeparturesServer) error {

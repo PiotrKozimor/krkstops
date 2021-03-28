@@ -2,11 +2,10 @@ package airly
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/PiotrKozimor/krkstops/pb"
 )
@@ -61,22 +60,22 @@ func GetAirly(installation *pb.Installation) (*pb.Airly, error) {
 	if err != nil {
 		return &airly, err
 	}
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return &airly, err
-	}
+	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
-		return &airly, errors.New(string(body))
+		return &airly, fmt.Errorf("get airly status code: %d", resp.StatusCode)
 	}
 	var airlyResp AirlyResp
-	err = json.Unmarshal(body, &airlyResp)
+	enc := json.NewDecoder(resp.Body)
+	err = enc.Decode(&airlyResp)
 	if err != nil {
 		return &airly, err
 	}
 	for _, index := range airlyResp.Current.Indexes {
 		if index.Name == "AIRLY_CAQI" {
 			airly.Caqi = int32(index.Value)
-			airly.Color = index.Color
+			var color int64
+			color, err = strconv.ParseInt(index.Color[1:], 16, 32)
+			airly.Color = uint32(color)
 		}
 	}
 	for _, indicator := range airlyResp.Current.Values {
@@ -90,8 +89,8 @@ func GetAirly(installation *pb.Installation) (*pb.Airly, error) {
 	return &airly, err
 }
 
-// FindAirlyInstallation queries Airly API for nearest installation
-func FindAirlyInstallation(location *pb.InstallationLocation) (*pb.Installation, error) {
+// NearestInstallation for given location.
+func NearestInstallation(location *pb.InstallationLocation) (*pb.Installation, error) {
 	airlyInstallation := make([]installation, 1)
 	var installation pb.Installation
 	req, err := http.NewRequest("GET", airlyNearestInstallationsURL, nil)
@@ -107,14 +106,12 @@ func FindAirlyInstallation(location *pb.InstallationLocation) (*pb.Installation,
 	if err != nil {
 		return &installation, err
 	}
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return &installation, err
-	}
+	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
-		return &installation, errors.New(string(body))
+		return &installation, fmt.Errorf("nearest installation status code: %d", resp.StatusCode)
 	}
-	err = json.Unmarshal(body, &airlyInstallation)
+	enc := json.NewDecoder(resp.Body)
+	err = enc.Decode(&airlyInstallation)
 	return &pb.Installation{
 		Id:        airlyInstallation[0].Id,
 		Latitude:  airlyInstallation[0].Location.Latitude,
@@ -122,10 +119,10 @@ func FindAirlyInstallation(location *pb.InstallationLocation) (*pb.Installation,
 	}, err
 }
 
-// GetAirlyInstallation returns full details about installation with given ID
-func GetAirlyInstallation(instToValidate *pb.Installation) (*pb.Installation, error) {
+// GetInstallation returns full details about installation with given ID
+func GetInstallation(id uint) (*pb.Installation, error) {
 	var airlyInstallation installation
-	req, err := http.NewRequest("GET", airlyInstallationsURL+fmt.Sprint(instToValidate.Id), nil)
+	req, err := http.NewRequest("GET", airlyInstallationsURL+fmt.Sprint(id), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -134,14 +131,12 @@ func GetAirlyInstallation(instToValidate *pb.Installation) (*pb.Installation, er
 	if err != nil {
 		return nil, err
 	}
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
+	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
-		return nil, errors.New(string(body))
+		return nil, fmt.Errorf("get installation status code: %d", resp.StatusCode)
 	}
-	err = json.Unmarshal(body, &airlyInstallation)
+	enc := json.NewDecoder(resp.Body)
+	err = enc.Decode(&airlyInstallation)
 	return &pb.Installation{
 		Id:        airlyInstallation.Id,
 		Longitude: airlyInstallation.Location.Longitude,

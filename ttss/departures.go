@@ -2,32 +2,25 @@ package ttss
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
-	"io/ioutil"
-	"log"
 	"net/http"
-	"sort"
+	"strings"
+	"sync"
 
 	"github.com/PiotrKozimor/krkstops/pb"
 )
 
-type Endpoint int
+type Endpoint string
 
-const (
-	BUS Endpoint = iota
-	TRAM
-	INVALID
-)
-
-// TtssStopDearturesURLs deccribes TTSS API endpoints used to query departures. Separate endpoints exists for buses and trams.
-var TtssStopDearturesURLs = [...]string{
-	BUS:  "http://91.223.13.70/internetservice/services/passageInfo/stopPassages/stop",
-	TRAM: "http://185.70.182.51/internetservice/services/passageInfo/stopPassages/stop",
+type ErrStatusCode struct {
+	code int
 }
 
-// Departure describe one Departure - tram or bus from given stop.
-type Departure struct {
+type ErrRequestFailed struct {
+	err error
+}
+
+type departure struct {
 	PlannedTime        string
 	Status             string
 	ActualRelativeTime int32
@@ -35,75 +28,93 @@ type Departure struct {
 	PatternText        string
 }
 
-// StopDepartures includes all departures from given Stop.
-type StopDepartures struct {
-	Actual []Departure
+type stopDepartures struct {
+	Actual []departure
 }
 
-// GetStopDeparturesByURL fetches Departures from given Stop from given endpoint.
-func GetStopDeparturesByURL(endp Endpoint, stop *pb.Stop) ([]pb.Departure, error) {
-	if int(endp) >= len(TtssStopDearturesURLs) {
-		return nil, fmt.Errorf("invalid endpoit provided: %d", endp)
-	}
-	departures := make([]pb.Departure, 0, 20)
-	var departure pb.Departure
-	req, err := http.NewRequest("GET", TtssStopDearturesURLs[endp], nil)
+type Endpointer interface {
+	GetDepartures(uint) ([]pb.Departure, error)
+	GetAllStops() ([]pb.Stop, error)
+	Id() string
+}
+
+const (
+	departuresPath = "services/passageInfo/stopPassages/stop?stop=%d&mode=departure&language=pl"
+	BusEndpoint    = Endpoint("http://91.223.13.70/internetservice")
+	TramEndpoint   = Endpoint("http://185.70.182.51/internetservice")
+)
+
+var endpointsIds = map[Endpoint]string{
+	BusEndpoint:  "bus",
+	TramEndpoint: "tram",
+}
+
+var KrkStopsEndpoints = []Endpointer{
+	BusEndpoint,
+	TramEndpoint,
+}
+
+func (e ErrStatusCode) Error() string {
+	return fmt.Sprintf("status code: %d", e.code)
+}
+
+func (e ErrRequestFailed) Error() string {
+	return fmt.Sprintf("request failed: %v", e.err)
+}
+
+func (e Endpoint) Id() string {
+	return endpointsIds[e]
+}
+
+// GetDepartures from Endpoint for stop with given shortName.
+func (e Endpoint) GetDepartures(shortName uint) ([]pb.Departure, error) {
+	resp, err := http.DefaultClient.Get(fmt.Sprintf(strings.Join([]string{string(e), departuresPath}, "/"), shortName))
 	if err != nil {
-		return departures, err
+		return nil, ErrRequestFailed{err: err}
 	}
-	q := req.URL.Query()
-	q.Add("stop", fmt.Sprint(stop.ShortName))
-	q.Add("mode", "departure")
-	q.Add("language", "pl")
-	req.URL.RawQuery = q.Encode()
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return departures, err
-	}
+	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
-		body, _ := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			return departures, err
-		}
-		return departures, errors.New(string(body))
+		return nil, ErrStatusCode{code: resp.StatusCode}
 	}
-	var stopDepartures StopDepartures
+	var ttssDepartures stopDepartures
 	decoder := json.NewDecoder(resp.Body)
-	err = decoder.Decode(&stopDepartures)
+	err = decoder.Decode(&ttssDepartures)
 	if err != nil {
-		return departures, err
+		return nil, err
 	}
-	for _, dep := range stopDepartures.Actual {
-		departure.PatternText = dep.PatternText
-		departure.Direction = dep.Direction
-		departure.PlannedTime = dep.PlannedTime
-		departure.RelativeTime = dep.ActualRelativeTime
-		departure.Predicted = dep.Status == "PREDICTED"
-		departures = append(departures, departure)
+	departures := make([]pb.Departure, len(ttssDepartures.Actual))
+	for i, dep := range ttssDepartures.Actual {
+		departures[i].PatternText = dep.PatternText
+		departures[i].Direction = dep.Direction
+		departures[i].PlannedTime = dep.PlannedTime
+		departures[i].RelativeTime = dep.ActualRelativeTime
+		departures[i].Predicted = dep.Status == "PREDICTED"
 	}
-	err = resp.Body.Close()
-	return departures, err
+	return departures, nil
 }
 
-// GetStopDepartures returns bus and tram StopDepartures from given Stop.
-func GetStopDepartures(stop *pb.Stop) ([]pb.Departure, error) {
-	departures := make([]pb.Departure, 0, 40)
-	c := make(chan []pb.Departure)
-	for endp := range TtssStopDearturesURLs {
-		go func(endp Endpoint) {
-			deps, err := GetStopDeparturesByURL(endp, stop)
+// GetDepartures for range of endpoints. When one endpoint fails, valid departures are returned and error is send via chan.
+// When request is finished, error channel is closed.
+func GetDepartures(e []Endpointer, shortName uint) (chan []pb.Departure, chan error) {
+	errC := make(chan error, len(e))
+	depC := make(chan []pb.Departure, len(e))
+	wg := sync.WaitGroup{}
+	wg.Add(len(e))
+	for _, endpoint := range e {
+		go func(endp Endpointer) {
+			departures, err := endp.GetDepartures(shortName)
+			depC <- departures
 			if err != nil {
-				log.Println(err)
+				errC <- err
 			}
-			c <- deps
-		}(Endpoint(endp))
+			wg.Done()
+
+		}(endpoint)
 	}
-	for range TtssStopDearturesURLs {
-		depsTmp := <-c
-		departures = append(departures, depsTmp...)
-	}
-	sort.Slice(departures, func(i, j int) bool {
-		return departures[i].RelativeTime < departures[j].RelativeTime
-	})
-	return departures, nil
+	go func() {
+		wg.Wait()
+		close(errC)
+		close(depC)
+	}()
+	return depC, errC
 }

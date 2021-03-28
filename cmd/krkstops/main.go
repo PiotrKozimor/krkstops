@@ -6,7 +6,9 @@ import (
 	"log"
 	"net"
 	"net/http"
+	_ "net/http/pprof"
 	"os"
+	"strconv"
 
 	"github.com/PiotrKozimor/krkstops/airly"
 	"github.com/PiotrKozimor/krkstops/cache"
@@ -14,11 +16,14 @@ import (
 	"github.com/PiotrKozimor/krkstops/stops"
 	"github.com/PiotrKozimor/krkstops/ttss"
 	"github.com/RediSearch/redisearch-go/redisearch"
-	"github.com/go-redis/redis/v7"
+	"github.com/go-redis/redis/v8"
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 )
+
+var ctx = context.Background()
 
 type krkStopsServer struct {
 	pb.UnimplementedKrkStopsServer
@@ -56,14 +61,23 @@ func (s *krkStopsServer) GetDepartures(stop *pb.Stop, stream pb.KrkStops_GetDepa
 		isCached = false
 	}
 	if !isCached {
-		deps, err = ttss.GetStopDepartures(stop)
-		if err != nil {
+		depsC, errC := ttss.GetDepartures(ttss.KrkStopsEndpoints, uint(stop.Id))
+		for d := range depsC {
+			for _, departure := range d {
+				err := stream.Send(&departure)
+				if err != nil {
+					return err
+				}
+			}
+			deps = append(deps, d...)
+		}
+		for err := range errC {
 			return err
 		}
 		go cache.CacheDepartures(s.c.Redis, deps, stop)
 	} else {
 		deps, err = cache.GetCachedDepartures(s.c.Redis, stop)
-		ttl, err := s.c.Redis.TTL(cache.DepsPrefix + stop.ShortName).Result()
+		ttl, err := s.c.Redis.TTL(ctx, cache.DepsPrefix+strconv.Itoa(int(stop.Id))).Result()
 		livedFor := int32(cache.DepsExpire.Seconds() - ttl.Seconds())
 		for index := range deps {
 			if deps[index].RelativeTime != 0 {
@@ -73,11 +87,10 @@ func (s *krkStopsServer) GetDepartures(stop *pb.Stop, stream pb.KrkStops_GetDepa
 		if err != nil {
 			return err
 		}
-	}
-
-	for _, dep := range deps {
-		if err := stream.Send(&dep); err != nil {
-			return err
+		for _, dep := range deps {
+			if err := stream.Send(&dep); err != nil {
+				return err
+			}
 		}
 	}
 	return nil
@@ -95,11 +108,14 @@ func (s *krkStopsServer) SearchStops(search *pb.StopSearch, stream pb.KrkStops_S
 		return err
 	}
 	for _, stop := range stops {
-		name, err := s.c.Redis.Get(stop.Payload).Result()
+		name, err := s.c.Redis.Get(ctx, stop.Payload).Result()
 		if err != nil {
 			return err
 		}
-		if err := stream.Send(&pb.Stop{Name: name, ShortName: stop.Payload}); err != nil {
+		id, err := strconv.Atoi(stop.Payload)
+		if err != nil {
+			logrus.Errorf("failed to parse %d to int", stop.Payload)
+		} else if err := stream.Send(&pb.Stop{Name: name, Id: uint32(id)}); err != nil {
 			return err
 		}
 	}
@@ -107,12 +123,12 @@ func (s *krkStopsServer) SearchStops(search *pb.StopSearch, stream pb.KrkStops_S
 }
 
 func (s *krkStopsServer) FindNearestAirlyInstallation(ctx context.Context, location *pb.InstallationLocation) (*pb.Installation, error) {
-	inst, err := airly.FindAirlyInstallation(location)
+	inst, err := airly.NearestInstallation(location)
 	return inst, err
 }
 
 func (s *krkStopsServer) GetAirlyInstallation(ctx context.Context, installation *pb.Installation) (*pb.Installation, error) {
-	inst, err := airly.GetAirlyInstallation(installation)
+	inst, err := airly.GetInstallation(uint(installation.Id))
 	return inst, err
 }
 
@@ -140,5 +156,6 @@ func main() {
 			log.Fatal(err)
 		}
 	}()
+
 	log.Fatal(grpcServer.Serve(lis))
 }

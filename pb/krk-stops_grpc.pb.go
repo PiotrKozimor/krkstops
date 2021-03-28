@@ -11,6 +11,7 @@ import (
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
+// Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
 // KrkStopsClient is the client API for KrkStops service.
@@ -60,7 +61,7 @@ func (c *krkStopsClient) GetAirlyInstallation(ctx context.Context, in *Installat
 }
 
 func (c *krkStopsClient) GetDepartures(ctx context.Context, in *Stop, opts ...grpc.CallOption) (KrkStops_GetDeparturesClient, error) {
-	stream, err := c.cc.NewStream(ctx, &_KrkStops_serviceDesc.Streams[0], "/KrkStops/GetDepartures", opts...)
+	stream, err := c.cc.NewStream(ctx, &KrkStops_ServiceDesc.Streams[0], "/KrkStops/GetDepartures", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -92,7 +93,7 @@ func (x *krkStopsGetDeparturesClient) Recv() (*Departure, error) {
 }
 
 func (c *krkStopsClient) SearchStops(ctx context.Context, in *StopSearch, opts ...grpc.CallOption) (KrkStops_SearchStopsClient, error) {
-	stream, err := c.cc.NewStream(ctx, &_KrkStops_serviceDesc.Streams[1], "/KrkStops/SearchStops", opts...)
+	stream, err := c.cc.NewStream(ctx, &KrkStops_ServiceDesc.Streams[1], "/KrkStops/SearchStops", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -163,8 +164,8 @@ type UnsafeKrkStopsServer interface {
 	mustEmbedUnimplementedKrkStopsServer()
 }
 
-func RegisterKrkStopsServer(s *grpc.Server, srv KrkStopsServer) {
-	s.RegisterService(&_KrkStops_serviceDesc, srv)
+func RegisterKrkStopsServer(s grpc.ServiceRegistrar, srv KrkStopsServer) {
+	s.RegisterService(&KrkStops_ServiceDesc, srv)
 }
 
 func _KrkStops_GetAirly_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -263,7 +264,10 @@ func (x *krkStopsSearchStopsServer) Send(m *Stop) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-var _KrkStops_serviceDesc = grpc.ServiceDesc{
+// KrkStops_ServiceDesc is the grpc.ServiceDesc for KrkStops service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var KrkStops_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "KrkStops",
 	HandlerType: (*KrkStopsServer)(nil),
 	Methods: []grpc.MethodDesc{

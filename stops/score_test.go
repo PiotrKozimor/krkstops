@@ -1,12 +1,12 @@
 package stops
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+)
 
 func Test_scoreByTotalDepartures(t *testing.T) {
-	if scoreByTotalDepartures(0) != 1 {
-		t.Error()
-	}
-	if scoreByTotalDepartures(64) != 2 {
-		t.Error()
-	}
+	assert.Equal(t, float64(1), scoreByTotalDepartures(0))
+	assert.Equal(t, float64(5), scoreByTotalDepartures(64))
 }

@@ -16,7 +16,7 @@ var deleteCmd = &cobra.Command{
 	Short: "Delete stops in Redis and suggestions in Redisearch",
 	Run: func(cmd *cobra.Command, args []string) {
 		initializeRedisClients()
-		_, err := redisClient.FlushAll().Result()
+		_, err := redisClient.FlushAll(ctx).Result()
 		if err != nil {
 			log.Fatal(err)
 		}

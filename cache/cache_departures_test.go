@@ -1,14 +1,16 @@
 package cache
 
 import (
+	"context"
 	"log"
 	"testing"
 	"time"
 
 	"github.com/PiotrKozimor/krkstops/pb"
-	"github.com/go-redis/redis/v7"
+	"github.com/go-redis/redis/v8"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestCacheDepartures(t *testing.T) {
@@ -30,27 +32,18 @@ func TestCacheDepartures(t *testing.T) {
 			PlannedTime: "4:32",
 		},
 	}
-	_, err := client.Del(getDeparturesKey(&testStop)).Result()
-	if err != nil {
-		t.Fatal(err)
-	}
+	_, err := client.Del(context.Background(), getDeparturesKey(&testStop)).Result()
+	assert.NoError(t, err)
 	isCached, err := IsDepartureCached(client, &testStop)
-	if err != nil {
-		t.Fatal(err)
-	} else if isCached != false {
-		t.Fatal("Stops cached")
-	}
+	assert.NoError(t, err)
+	assert.False(t, isCached)
 	err = CacheDepartures(client, testDepartures, &testStop)
-	if err != nil {
-		t.Fatal(err)
-	}
+	assert.NoError(t, err)
 	isCached, err = IsDepartureCached(client, &testStop)
-	if err != nil {
-		t.Fatal(err)
-	} else if isCached != true {
-		t.Fatal("Stops not cached")
-	}
+	assert.NoError(t, err)
+	assert.True(t, isCached)
 	cachedDeps, err := GetCachedDepartures(client, &testStop)
+	assert.NoError(t, err)
 	for index, cachedDep := range cachedDeps {
 		if diff := cmp.Diff(cachedDep, testDepartures[index], cmpopts.IgnoreUnexported(cachedDep)); diff != "" {
 			t.Errorf(diff)
@@ -58,9 +51,6 @@ func TestCacheDepartures(t *testing.T) {
 	}
 	time.Sleep(time.Millisecond * 1001)
 	isCached, err = IsDepartureCached(client, &testStop)
-	if err != nil {
-		t.Fatal(err)
-	} else if isCached != false {
-		t.Fatal("Stops not expired")
-	}
+	assert.NoError(t, err)
+	assert.False(t, isCached)
 }

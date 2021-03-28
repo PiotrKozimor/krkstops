@@ -1,14 +1,16 @@
 package cache
 
 import (
+	"context"
 	"log"
 	"testing"
 	"time"
 
 	"github.com/PiotrKozimor/krkstops/pb"
-	"github.com/go-redis/redis/v7"
+	"github.com/go-redis/redis/v8"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestCacheAirly(t *testing.T) {
@@ -21,42 +23,26 @@ func TestCacheAirly(t *testing.T) {
 	testAirly := pb.Airly{
 		Caqi:        32,
 		Humidity:    45,
-		Color:       "435",
+		Color:       435,
 		Temperature: 45.6,
 	}
-	_, err := client.Del(getAirlyKey(&testInst)).Result()
-	if err != nil {
-		t.Fatal(err)
-	}
+	_, err := client.Del(context.Background(), getAirlyKey(&testInst)).Result()
+	assert.NoError(t, err)
 	isCached, err := IsAirlyCached(client, &testInst)
-	if err != nil {
-		t.Fatal(err)
-	} else if isCached != false {
-		t.Fatal("Instalation cached")
-	}
+	assert.NoError(t, err)
+	assert.False(t, isCached)
 	err = CacheAirly(client, &testAirly, &testInst)
-	if err != nil {
-		t.Fatal(err)
-	}
+	assert.NoError(t, err)
 	isCached, err = IsAirlyCached(client, &testInst)
-	if err != nil {
-		t.Fatal(err)
-	} else if isCached != true {
-		t.Fatal("Installation not cached")
-	}
+	assert.NoError(t, err)
+	assert.True(t, isCached)
 	cachedAirly, err := GetCachedAirly(client, &testInst)
-	if err != nil {
-		t.Fatal(err)
-	}
+	assert.NoError(t, err)
 	if diff := cmp.Diff(*cachedAirly, testAirly, cmpopts.IgnoreUnexported(*cachedAirly)); diff != "" {
 		t.Errorf(diff)
 	}
-
 	time.Sleep(time.Millisecond * 1001)
 	isCached, err = IsAirlyCached(client, &testInst)
-	if err != nil {
-		t.Fatal(err)
-	} else if isCached != false {
-		t.Fatal("Installation not expired")
-	}
+	assert.NoError(t, err)
+	assert.False(t, isCached)
 }

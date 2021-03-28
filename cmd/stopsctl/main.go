@@ -1,8 +1,10 @@
 package main
 
 import (
+	"context"
+
 	"github.com/RediSearch/redisearch-go/redisearch"
-	"github.com/go-redis/redis/v7"
+	"github.com/go-redis/redis/v8"
 	"github.com/spf13/cobra"
 )
 
@@ -14,6 +16,7 @@ var (
 	redisClient      *redis.Client
 	redisearchClient *redisearch.Autocompleter
 	url              string
+	ctx              = context.Background()
 )
 
 func initializeRedisClients() {

@@ -5,5 +5,4 @@ then
 fi
 echo $TAG
 bash .ci/build_ctl.sh
-.build/envoy.sh $TAG
 .build/krkstops.sh $TAG

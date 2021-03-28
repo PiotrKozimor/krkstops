@@ -6,15 +6,16 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/PiotrKozimor/krkstops"
 	"github.com/PiotrKozimor/krkstops/pb"
 	"github.com/PiotrKozimor/krkstops/stops"
-	"github.com/go-redis/redis/v7"
+	"github.com/go-redis/redis/v8"
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
 )
 
 func init() {
-	scoreCmd.Flags().StringVar(&endpoint, "krk-endpoint", "krk-stops.pl:8080", "url address of krk-stops backend to connect to")
+	scoreCmd.Flags().StringVar(&endpoint, "krk-endpoint", krkstops.ENDPOINT, "url address of krk-stops backend to connect to")
 	scoreCmd.Flags().BoolVar(&restartScoring, "reset", false, "restart scoring")
 	rootCmd.AddCommand(scoreCmd)
 

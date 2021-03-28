@@ -1,33 +1,31 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"time"
 
-	"github.com/PiotrKozimor/krkstops/pb"
 	"github.com/PiotrKozimor/krkstops/ttss"
-	"github.com/PiotrKozimor/krkstops/ttssmonitor"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
 )
 
-var stopsPool = []pb.Stop{
-	{
-		ShortName: "610",
-	},
-	{
-		ShortName: "125",
-	},
+var stopsPool = []uint{
+	610,
+	125,
 }
 
-var errorCodes = []int{
-	ttss.BUS:  0,
-	ttss.TRAM: 0,
+var errorCodes = map[string]int{
+	ttss.BusEndpoint.Id():  0,
+	ttss.TramEndpoint.Id(): 0,
 }
+
+var (
+	BUS  = ttss.BusEndpoint.Id()
+	TRAM = ttss.TramEndpoint.Id()
+)
 
 func main() {
 	l, err := logrus.ParseLevel(os.Getenv("LOGLEVEL"))
@@ -42,29 +40,29 @@ func main() {
 		prometheus.NewGaugeFunc(prometheus.GaugeOpts{
 			Name: "departures_error_code",
 			ConstLabels: prometheus.Labels{
-				"endpoint": fmt.Sprint(ttss.BUS),
+				"endpoint": BUS,
 			},
 		}, func() float64 {
-			errorCodeRet := errorCodes[ttss.BUS]
+			errorCodeRet := errorCodes[BUS]
 			logrus.WithFields(logrus.Fields{
-				"endpoint": ttss.BUS,
+				"endpoint": BUS,
 				"code":     errorCodeRet,
 			}).Info("Prometheus pull")
-			errorCodes[ttss.BUS] = 0
+			errorCodes[BUS] = 0
 			return float64(errorCodeRet)
 		}),
 		prometheus.NewGaugeFunc(prometheus.GaugeOpts{
 			Name: "departures_error_code",
 			ConstLabels: prometheus.Labels{
-				"endpoint": fmt.Sprint(ttss.TRAM),
+				"endpoint": TRAM,
 			},
 		}, func() float64 {
-			errorCodeRet := errorCodes[ttss.TRAM]
+			errorCodeRet := errorCodes[TRAM]
 			logrus.WithFields(logrus.Fields{
-				"endpoint": ttss.TRAM,
+				"endpoint": TRAM,
 				"code":     errorCodeRet,
 			}).Info("Prometheus pull")
-			errorCodes[ttss.TRAM] = 0
+			errorCodes[TRAM] = 0
 			return float64(errorCodeRet)
 		}),
 	}
@@ -76,14 +74,14 @@ func main() {
 	go func() {
 		for {
 			<-t.C
-			for endpoint := range ttss.TtssStopDearturesURLs {
+			for _, endpoint := range ttss.KrkStopsEndpoints {
 				for _, stop := range stopsPool {
-					errCodeTmp := ttssmonitor.GetStopDeparturesErrorCode(ttss.Endpoint(endpoint), &stop)
+					errCodeTmp := ttss.GetDeparturesErrorCode(endpoint, stop)
 					// Any successfull request for Endpoint will erase other errors
 					if errCodeTmp == 0 {
-						errorCodes[endpoint] = 0
-					} else if errCodeTmp > errorCodes[endpoint] {
-						errorCodes[endpoint] = errCodeTmp
+						errorCodes[endpoint.Id()] = 0
+					} else if errCodeTmp > errorCodes[endpoint.Id()] {
+						errorCodes[endpoint.Id()] = errCodeTmp
 					}
 				}
 			}
