@@ -32,8 +32,8 @@ func main() {
 	)
 	server := krkstops.KrkStopsServer{
 		C: krkstops.Clients{
-			RedisAutocompleter: redisearch.NewAutocompleter(os.Getenv("REDIS_ENDPOINT"), "search-stops"),
-			Redis:              redis.NewClient(&redis.Options{Addr: os.Getenv("REDIS_ENDPOINT")})}}
+			RedisAutocompleter: redisearch.NewAutocompleter(os.Getenv("REDISEARCH_ENDPOINT"), "search-stops"),
+			Redis:              redis.NewClient(&redis.Options{Addr: os.Getenv("REDISEARCH_ENDPOINT")})}}
 	pb.RegisterKrkStopsServer(grpcServer, &server)
 	grpc_prometheus.Register(grpcServer)
 	handler := promhttp.Handler()

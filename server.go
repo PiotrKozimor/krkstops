@@ -101,7 +101,7 @@ func (s *KrkStopsServer) SearchStops(search *pb.StopSearch, stream pb.KrkStops_S
 		}
 		id, err := strconv.Atoi(stop.Payload)
 		if err != nil {
-			logrus.Errorf("failed to parse %d to int", stop.Payload)
+			logrus.Errorf("failed to parse %s to int", stop.Payload)
 		} else if err := stream.Send(&pb.Stop{Name: name, Id: uint32(id)}); err != nil {
 			return err
 		}
