@@ -6,7 +6,6 @@ import (
 	"os"
 
 	"github.com/PiotrKozimor/krkstops"
-	"github.com/PiotrKozimor/krkstops/stops"
 	"github.com/PiotrKozimor/krkstops/ttss"
 	"github.com/spf13/cobra"
 )
@@ -23,7 +22,7 @@ var (
 		Run: func(cmd *cobra.Command, args []string) {
 			initializeRedisClients()
 			reader := bufio.NewReader(os.Stdin)
-			app := stops.Clients{
+			app := krkstops.Clients{
 				Redis:              redisClient,
 				RedisAutocompleter: redisearchClient,
 			}

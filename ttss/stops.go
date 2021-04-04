@@ -50,7 +50,7 @@ func (e Endpoint) GetAllStops() ([]pb.Stop, error) {
 	return parsedStops, err
 }
 
-// GetAllStops returns unique (by shortName) stops from multiple endpoints.
+// GetAllStops returns stops from multiple endpoints.
 // When one endpoint fails, valid stops are returned and error is send via chan.
 // When request is finished, error channel is closed.
 func GetAllStops(e []Endpointer) (chan []pb.Stop, chan error) {

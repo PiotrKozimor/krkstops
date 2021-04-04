@@ -1,4 +1,4 @@
-package cache
+package krkstops
 
 import (
 	"log"
@@ -10,15 +10,15 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-var DepsExpire = time.Second * 15
+var depsExpire = time.Second * 15
 
-const DepsPrefix = "deps-"
+const depsPrefix = "deps-"
 
 func getDeparturesKey(d *pb.Stop) string {
-	return DepsPrefix + strconv.Itoa(int(d.Id))
+	return depsPrefix + strconv.Itoa(int(d.Id))
 }
 
-func IsDepartureCached(c *redis.Client, stop *pb.Stop) (cached bool, err error) {
+func isDepartureCached(c *redis.Client, stop *pb.Stop) (cached bool, err error) {
 	var exist int64
 	exist, err = c.Exists(ctx, getDeparturesKey(stop)).Result()
 	if err != nil {
@@ -32,7 +32,7 @@ func IsDepartureCached(c *redis.Client, stop *pb.Stop) (cached bool, err error) 
 	return
 }
 
-func CacheDepartures(c *redis.Client, deps []pb.Departure, stop *pb.Stop) (err error) {
+func cacheDepartures(c *redis.Client, deps []pb.Departure, stop *pb.Stop) (err error) {
 	pipe := c.Pipeline()
 	executePipe := true
 	pipe.Del(ctx, getDeparturesKey(stop))
@@ -45,7 +45,7 @@ func CacheDepartures(c *redis.Client, deps []pb.Departure, stop *pb.Stop) (err e
 		}
 	}
 	pipe.RPush(ctx, getDeparturesKey(stop), rawDeps...)
-	pipe.Expire(ctx, getDeparturesKey(stop), DepsExpire)
+	pipe.Expire(ctx, getDeparturesKey(stop), depsExpire)
 	if executePipe {
 		_, err = pipe.Exec(ctx)
 		if err != nil {
@@ -56,7 +56,7 @@ func CacheDepartures(c *redis.Client, deps []pb.Departure, stop *pb.Stop) (err e
 	return
 }
 
-func GetCachedDepartures(c *redis.Client, stop *pb.Stop) (departures []pb.Departure, err error) {
+func getCachedDepartures(c *redis.Client, stop *pb.Stop) (departures []pb.Departure, err error) {
 	countDepartures, err := c.LLen(ctx, getDeparturesKey(stop)).Result()
 	if err != nil {
 		return

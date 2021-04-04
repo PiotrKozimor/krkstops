@@ -1,4 +1,4 @@
-package cache
+package krkstops
 
 import (
 	"context"
@@ -28,21 +28,21 @@ func TestCacheAirly(t *testing.T) {
 	}
 	_, err := client.Del(context.Background(), getAirlyKey(&testInst)).Result()
 	assert.NoError(t, err)
-	isCached, err := IsAirlyCached(client, &testInst)
+	isCached, err := isAirlyCached(client, &testInst)
 	assert.NoError(t, err)
 	assert.False(t, isCached)
-	err = CacheAirly(client, &testAirly, &testInst)
+	err = cacheAirly(client, &testAirly, &testInst)
 	assert.NoError(t, err)
-	isCached, err = IsAirlyCached(client, &testInst)
+	isCached, err = isAirlyCached(client, &testInst)
 	assert.NoError(t, err)
 	assert.True(t, isCached)
-	cachedAirly, err := GetCachedAirly(client, &testInst)
+	cachedAirly, err := getCachedAirly(client, &testInst)
 	assert.NoError(t, err)
 	if diff := cmp.Diff(*cachedAirly, testAirly, cmpopts.IgnoreUnexported(*cachedAirly)); diff != "" {
 		t.Errorf(diff)
 	}
 	time.Sleep(time.Millisecond * 1001)
-	isCached, err = IsAirlyCached(client, &testInst)
+	isCached, err = isAirlyCached(client, &testInst)
 	assert.NoError(t, err)
 	assert.False(t, isCached)
 }
