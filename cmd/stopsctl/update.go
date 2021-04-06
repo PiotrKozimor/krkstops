@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/PiotrKozimor/krkstops"
+	"github.com/PiotrKozimor/krkstops/pb"
 	"github.com/PiotrKozimor/krkstops/ttss"
 	"github.com/spf13/cobra"
 )
@@ -40,7 +41,7 @@ var (
 			if err != nil {
 				log.Fatal(err)
 			}
-			pp := krkstops.NewPrettyPrint()
+			pp := pb.NewPrettyPrint()
 			print("New stops:\n")
 			pp.StopsMap(newStops)
 			print("Old stops:\n")

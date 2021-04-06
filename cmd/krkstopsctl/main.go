@@ -28,7 +28,7 @@ var (
 			if err != nil {
 				log.Fatalf("fail to get airly: %v", err)
 			}
-			pp := krkstops.NewPrettyPrint()
+			pp := pb.NewPrettyPrint()
 			pp.Airly(airly)
 		},
 	}

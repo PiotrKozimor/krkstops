@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/PiotrKozimor/krkstops"
+	"github.com/PiotrKozimor/krkstops/pb"
 	"github.com/PiotrKozimor/krkstops/ttss"
 	"github.com/spf13/cobra"
 )
@@ -20,7 +20,7 @@ var (
 		Short: "Query departures from given stop for bus and tram",
 		Run: func(cmd *cobra.Command, args []string) {
 			depsC, errC := ttss.GetDepartures(ttss.KrkStopsEndpoints, stopId)
-			pprint := krkstops.NewPrettyPrint()
+			pprint := pb.NewPrettyPrint()
 			for dep := range depsC {
 				pprint.Departures(dep)
 			}
@@ -34,7 +34,7 @@ var (
 		Short: "Query all stops in Cracov",
 		Run: func(cmd *cobra.Command, args []string) {
 			stopsC, errC := ttss.GetAllStops(ttss.KrkStopsEndpoints)
-			pprint := krkstops.NewPrettyPrint()
+			pprint := pb.NewPrettyPrint()
 			for stop := range stopsC {
 				pprint.Stops(stop)
 			}
@@ -51,7 +51,7 @@ var (
 			if err != nil {
 				log.Fatal(err)
 			}
-			pprint := krkstops.NewPrettyPrint()
+			pprint := pb.NewPrettyPrint()
 			pprint.Departures(deps)
 		},
 	}
@@ -63,7 +63,7 @@ var (
 			if err != nil {
 				log.Fatal(err)
 			}
-			pprint := krkstops.NewPrettyPrint()
+			pprint := pb.NewPrettyPrint()
 			pprint.Departures(deps)
 		},
 	}

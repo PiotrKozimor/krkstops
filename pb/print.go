@@ -1,15 +1,10 @@
-package krkstops
+package pb
 
 import (
 	"fmt"
 	"os"
 	"text/tabwriter"
-
-	"github.com/PiotrKozimor/krkstops/pb"
-	"github.com/PiotrKozimor/krkstops/ttss"
 )
-
-var ENDPOINT = "krkstops.germanywestcentral.cloudapp.azure.com:8080"
 
 type PrettyPrint struct {
 	*tabwriter.Writer
@@ -22,30 +17,30 @@ func NewPrettyPrint() PrettyPrint {
 }
 
 // PrettyPrint Airly data
-func (p PrettyPrint) Airly(airly *pb.Airly) {
+func (p PrettyPrint) Airly(airly *Airly) {
 	fmt.Fprintf(p, "CAQI\tHUMIDITY[%%]\tTEMP [°C]\tCOLOR\t\n")
 	fmt.Fprintf(p, "%d\t%d\t%2.1f\t%X\t\n", airly.Caqi, airly.Humidity, airly.Temperature, airly.Color)
 	p.Flush()
 }
 
 // PrettyPrint stops
-func (p *PrettyPrint) Stops(stops []pb.Stop) {
+func (p *PrettyPrint) Stops(stops []Stop) {
 	for i, stop := range stops {
 		fmt.Fprintf(p, "%d\t%d\t%s\t\n", i, stop.Id, stop.Name)
 	}
 	p.Flush()
 }
 
-// PrettyPrint stopsMap
-func (p *PrettyPrint) StopsMap(stops ttss.Stops) {
-	for id, name := range stops {
-		fmt.Fprintf(p, "%d\t%s\t\n", id, name)
-	}
-	p.Flush()
-}
+// // PrettyPrint stopsMap
+// func (p *PrettyPrint) StopsMap(stops ttss.Stops) {
+// 	for id, name := range stops {
+// 		fmt.Fprintf(p, "%d\t%s\t\n", id, name)
+// 	}
+// 	p.Flush()
+// }
 
 // PrettyPrint departures
-func (p *PrettyPrint) Departures(deps []pb.Departure) {
+func (p *PrettyPrint) Departures(deps []Departure) {
 	for _, dep := range deps {
 		fmt.Fprintf(p, "%s\t%s\t%d\t%s\t\n", dep.PatternText, dep.Direction, dep.RelativeTime, dep.PlannedTime)
 	}
