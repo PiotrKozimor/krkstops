@@ -79,5 +79,5 @@ func Ttss(ctx context.Context) {
 	<-ctx.Done()
 	srvBus.Shutdown(ctx)
 	srvTram.Shutdown(ctx)
-	log.Printf("airly server shutdown")
+	log.Printf("ttss server shutdown")
 }

@@ -26,7 +26,7 @@ type Stops map[uint32]string
 
 // GetAllStops fetches Stops from given endpoint.
 func (e Endpoint) GetAllStops() ([]pb.Stop, error) {
-	resp, err := http.DefaultClient.Get(strings.Join([]string{string(e), stopsPath}, "/"))
+	resp, err := http.DefaultClient.Get(strings.Join([]string{e.URL, stopsPath}, "/"))
 	if err != nil {
 		return nil, ErrRequestFailed{err: err}
 	}
@@ -45,6 +45,7 @@ func (e Endpoint) GetAllStops() ([]pb.Stop, error) {
 		parsedStops[i] = pb.Stop{
 			Name: stop.Name,
 			Id:   stop.Uid,
+			Type: e.Type,
 		}
 	}
 	return parsedStops, err

@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/PiotrKozimor/krkstops/pb"
 )
@@ -41,14 +42,18 @@ type installation struct {
 	Location location
 }
 
-const airlyMeasurementsURL = "https://airapi.airly.eu/v2/measurements/installation"
-const airlyNearestInstallationsURL = "https://airapi.airly.eu/v2/installations/nearest"
-const airlyInstallationsURL = "https://airapi.airly.eu/v2/installations/"
+type Endpoint string
+
+const measurementsPath = "v2/measurements/installation"
+const nearestInstallationsPath = "v2/installations/nearest"
+const installationsPath = "v2/installations/%d"
+
+var Airly = Endpoint("https://airapi.airly.eu")
 
 // GetAirly queries external API and parses response
-func GetAirly(installation *pb.Installation) (*pb.Airly, error) {
+func (e Endpoint) GetAirly(installation *pb.Installation) (*pb.Airly, error) {
 	airly := pb.Airly{}
-	req, err := http.NewRequest("GET", airlyMeasurementsURL, nil)
+	req, err := http.NewRequest("GET", strings.Join([]string{string(e), measurementsPath}, "/"), nil)
 	if err != nil {
 		return &airly, err
 	}
@@ -90,10 +95,10 @@ func GetAirly(installation *pb.Installation) (*pb.Airly, error) {
 }
 
 // NearestInstallation for given location.
-func NearestInstallation(location *pb.InstallationLocation) (*pb.Installation, error) {
+func (e Endpoint) NearestInstallation(location *pb.InstallationLocation) (*pb.Installation, error) {
 	airlyInstallation := make([]installation, 1)
 	var installation pb.Installation
-	req, err := http.NewRequest("GET", airlyNearestInstallationsURL, nil)
+	req, err := http.NewRequest("GET", strings.Join([]string{string(e), nearestInstallationsPath}, "/"), nil)
 	if err != nil {
 		return &installation, err
 	}
@@ -120,9 +125,9 @@ func NearestInstallation(location *pb.InstallationLocation) (*pb.Installation, e
 }
 
 // GetInstallation returns full details about installation with given ID
-func GetInstallation(id uint) (*pb.Installation, error) {
+func (e Endpoint) GetInstallation(id uint) (*pb.Installation, error) {
 	var airlyInstallation installation
-	req, err := http.NewRequest("GET", airlyInstallationsURL+fmt.Sprint(id), nil)
+	req, err := http.NewRequest("GET", fmt.Sprintf(strings.Join([]string{string(e), installationsPath}, "/"), id), nil)
 	if err != nil {
 		return nil, err
 	}

@@ -10,7 +10,10 @@ import (
 	"github.com/PiotrKozimor/krkstops/pb"
 )
 
-type Endpoint string
+type Endpoint struct {
+	URL  string
+	Type pb.Endpoint
+}
 
 type ErrStatusCode struct {
 	code int
@@ -38,10 +41,16 @@ type Endpointer interface {
 	Id() string
 }
 
-const (
+var (
 	departuresPath = "services/passageInfo/stopPassages/stop?stop=%d&mode=departure&language=pl"
-	BusEndpoint    = Endpoint("http://91.223.13.70/internetservice")
-	TramEndpoint   = Endpoint("http://185.70.182.51/internetservice")
+	BusEndpoint    = Endpoint{
+		URL:  "http://91.223.13.70/internetservice",
+		Type: pb.Endpoint_BUS,
+	}
+	TramEndpoint = Endpoint{
+		URL:  "http://185.70.182.51/internetservice",
+		Type: pb.Endpoint_TRAM,
+	}
 )
 
 var endpointsIds = map[Endpoint]string{
@@ -68,7 +77,7 @@ func (e Endpoint) Id() string {
 
 // GetDepartures from Endpoint for stop with given shortName.
 func (e Endpoint) GetDepartures(shortName uint) ([]pb.Departure, error) {
-	resp, err := http.DefaultClient.Get(fmt.Sprintf(strings.Join([]string{string(e), departuresPath}, "/"), shortName))
+	resp, err := http.DefaultClient.Get(fmt.Sprintf(strings.Join([]string{e.URL, departuresPath}, "/"), shortName))
 	if err != nil {
 		return nil, ErrRequestFailed{err: err}
 	}
@@ -89,6 +98,7 @@ func (e Endpoint) GetDepartures(shortName uint) ([]pb.Departure, error) {
 		departures[i].PlannedTime = dep.PlannedTime
 		departures[i].RelativeTime = dep.ActualRelativeTime
 		departures[i].Predicted = dep.Status == "PREDICTED"
+		departures[i].Type = e.Type
 	}
 	return departures, nil
 }

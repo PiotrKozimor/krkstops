@@ -1,22 +1,37 @@
 package ttss
 
 import (
+	"context"
 	"testing"
+	"time"
 
+	"github.com/PiotrKozimor/krkstops/mock"
+	"github.com/PiotrKozimor/krkstops/pb"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestStops(t *testing.T) {
-	stops, errC := GetAllStops(KrkStopsEndpoints)
-	var cnt int
-	for s := range stops {
-		cnt++
-		assert.Greater(t, len(s), 100)
-		assert.Greater(t, len(s[0].Name), 2)
-		assert.Greater(t, s[0].Id, uint32(0))
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	go mock.Ttss(ctx)
+	time.Sleep(10 * time.Millisecond)
+	stopsC, errC := GetAllStops([]Endpointer{
+		Endpoint{
+			URL:  "http://localhost:8080/internetservice",
+			Type: pb.Endpoint_BUS},
+		Endpoint{
+			URL:  "http://localhost:8070/internetservice",
+			Type: pb.Endpoint_TRAM},
+	})
+	for s := range stopsC {
+		switch s[0].Type {
+		case pb.Endpoint_BUS:
+			assert.Equal(t, 2, len(s))
+		case pb.Endpoint_TRAM:
+			assert.Equal(t, 1, len(s))
+		}
 	}
 	for err := range errC {
-		t.Fatal(err)
+		assert.NoError(t, err)
 	}
-	assert.Equal(t, cnt, 2)
 }
