@@ -12,6 +12,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+var ENDPOINT = "krkstops.germanywestcentral.cloudapp.azure.com:8080"
+
 type KrkStopsServer struct {
 	pb.UnimplementedKrkStopsServer
 	C Clients
@@ -26,7 +28,7 @@ func (s *KrkStopsServer) GetAirly(ctx context.Context, installation *pb.Installa
 		isCached = false
 	}
 	if !isCached {
-		a, err = airly.GetAirly(installation)
+		a, err = airly.Api.GetAirly(installation)
 		if err != nil {
 			return a, err
 		}
@@ -110,11 +112,11 @@ func (s *KrkStopsServer) SearchStops(search *pb.StopSearch, stream pb.KrkStops_S
 }
 
 func (s *KrkStopsServer) FindNearestAirlyInstallation(ctx context.Context, location *pb.InstallationLocation) (*pb.Installation, error) {
-	inst, err := airly.NearestInstallation(location)
+	inst, err := airly.Api.NearestInstallation(location)
 	return inst, err
 }
 
 func (s *KrkStopsServer) GetAirlyInstallation(ctx context.Context, installation *pb.Installation) (*pb.Installation, error) {
-	inst, err := airly.GetInstallation(uint(installation.Id))
+	inst, err := airly.Api.GetInstallation(uint(installation.Id))
 	return inst, err
 }
