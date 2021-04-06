@@ -25,7 +25,7 @@ then
         docker stop $redisearch
         echo "😵 Redisearch is stopped"
     fi
-    redisearch=$(docker run -p 6379:6379 redislabs/redisearch:$REDISEARCH_TAG)
+    redisearch=$(docker run -d -p 6380:6379 redislabs/redisearch:$REDISEARCH_TAG)
     echo "🙌 Redisearch is setup"
 fi
 
