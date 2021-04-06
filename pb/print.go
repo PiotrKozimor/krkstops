@@ -31,14 +31,6 @@ func (p *PrettyPrint) Stops(stops []Stop) {
 	p.Flush()
 }
 
-// // PrettyPrint stopsMap
-// func (p *PrettyPrint) StopsMap(stops ttss.Stops) {
-// 	for id, name := range stops {
-// 		fmt.Fprintf(p, "%d\t%s\t\n", id, name)
-// 	}
-// 	p.Flush()
-// }
-
 // PrettyPrint departures
 func (p *PrettyPrint) Departures(deps []Departure) {
 	for _, dep := range deps {
