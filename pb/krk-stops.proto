@@ -10,6 +10,11 @@ service KrkStops {
     rpc SearchStops(StopSearch) returns (stream Stop) {}
 }
 
+enum Endpoint {
+    BUS=0;
+    TRAM=1;
+}
+
 message Installation{
     int32 id = 1;
     float latitude = 2;
@@ -35,11 +40,13 @@ message Departure {
     uint32 color = 5;
     string relativeTimeParsed = 6;
     bool predicted = 7;
+    Endpoint type = 8;
 }
 message Stop {
     string shortName = 1;
     string name = 2;
     uint32 id = 3;
+    Endpoint type = 4;
 }
 message StopSearch {
     string query = 1;

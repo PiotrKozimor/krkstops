@@ -1,4 +1,4 @@
-package stops
+package krkstops
 
 import (
 	"testing"
@@ -11,7 +11,7 @@ import (
 func TestUpdateSuggestionsAndRedis(t *testing.T) {
 	app := Clients{
 		Redis:              redis.NewClient(&redis.Options{}),
-		RedisAutocompleter: redisearch.NewAutocompleter("localhost:6379", "bar"),
+		RedisAutocompleter: redisearch.NewAutocompleter("localhost:6380", "bar"),
 	}
 	newStops := ttss.Stops{
 		3: "Budzyń Plaża Główna (nż)",

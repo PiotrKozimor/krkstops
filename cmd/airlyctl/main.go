@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 
-	"github.com/PiotrKozimor/krkstops"
 	"github.com/PiotrKozimor/krkstops/airly"
 	"github.com/PiotrKozimor/krkstops/pb"
 	"github.com/spf13/cobra"
@@ -16,11 +15,11 @@ var (
 		Run: func(cmd *cobra.Command, args []string) {
 			inst := pb.Installation{}
 			inst.Id = id
-			airly, err := airly.GetAirly(&inst)
+			airly, err := airly.Api.GetAirly(&inst)
 			if err != nil {
 				log.Fatal(err)
 			}
-			pp := krkstops.NewPrettyPrint()
+			pp := pb.NewPrettyPrint()
 			pp.Airly(airly)
 		},
 	}

@@ -1,0 +1,19 @@
+{"stops": [
+
+  {
+    "category": "bus",
+    "id": "8095258838875242928",
+    "latitude": 180131411,
+    "longitude": 71785703,
+    "name": "Rondo Matecznego",
+    "shortName": "610"
+  },
+  {
+    "category": "bus",
+    "id": "8095258838875242553",
+    "latitude": 180239668,
+    "longitude": 71719756,
+    "name": "Czarnowiejska",
+    "shortName": "81"
+  }
+]}

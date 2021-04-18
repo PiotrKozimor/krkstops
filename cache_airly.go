@@ -1,7 +1,6 @@
-package cache
+package krkstops
 
 import (
-	"context"
 	"log"
 	"time"
 
@@ -11,13 +10,14 @@ import (
 )
 
 var AirlyExpire = time.Minute * 10
-var ctx = context.Background()
 
-const AirlyPrefix = "airly-"
+// var ctx = context.Background()
 
-func IsAirlyCached(c *redis.Client, installation *pb.Installation) (cached bool, err error) {
+const airlyPrefix = "airly-"
+
+func isAirlyCached(c *redis.Client, installation *pb.Installation) (cached bool, err error) {
 	var exist int64
-	exist, err = c.Exists(ctx, AirlyPrefix+string(installation.Id)).Result()
+	exist, err = c.Exists(ctx, airlyPrefix+string(installation.Id)).Result()
 	if err != nil {
 		return
 	}
@@ -30,9 +30,9 @@ func IsAirlyCached(c *redis.Client, installation *pb.Installation) (cached bool,
 }
 
 func getAirlyKey(i *pb.Installation) string {
-	return AirlyPrefix + string(i.Id)
+	return airlyPrefix + string(i.Id)
 }
-func CacheAirly(c *redis.Client, airly *pb.Airly, installation *pb.Installation) (err error) {
+func cacheAirly(c *redis.Client, airly *pb.Airly, installation *pb.Installation) (err error) {
 	pipe := c.Pipeline()
 	executePipe := true
 	pipe.Del(ctx, getAirlyKey(installation))
@@ -52,7 +52,7 @@ func CacheAirly(c *redis.Client, airly *pb.Airly, installation *pb.Installation)
 	return
 }
 
-func GetCachedAirly(c *redis.Client, installation *pb.Installation) (*pb.Airly, error) {
+func getCachedAirly(c *redis.Client, installation *pb.Installation) (*pb.Airly, error) {
 	var airly pb.Airly
 	airlyRaw, err := c.Get(ctx, getAirlyKey(installation)).Result()
 	if err != nil {

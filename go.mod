@@ -1,6 +1,6 @@
 module github.com/PiotrKozimor/krkstops
 
-go 1.14
+go 1.16
 
 require (
 	github.com/RediSearch/redisearch-go v1.1.0

@@ -1,4 +1,4 @@
-package stops
+package krkstops
 
 import (
 	"context"
@@ -14,6 +14,7 @@ import (
 type Clients struct {
 	Redis              *redis.Client
 	RedisAutocompleter *redisearch.Autocompleter
+	ctx                context.Context
 }
 
 var ctx = context.Background()

@@ -1,4 +1,4 @@
-package cache
+package krkstops
 
 import (
 	"context"
@@ -14,11 +14,11 @@ import (
 )
 
 func TestCacheDepartures(t *testing.T) {
-	DepsExpire = time.Second * 1
+	depsExpire = time.Second * 1
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	client := redis.NewClient(
 		&redis.Options{
-			Addr: "localhost:6379"})
+			Addr: "localhost:6380"})
 	testStop := pb.Stop{Name: "Nor", ShortName: "45"}
 	testDepartures := []pb.Departure{
 		{
@@ -34,15 +34,15 @@ func TestCacheDepartures(t *testing.T) {
 	}
 	_, err := client.Del(context.Background(), getDeparturesKey(&testStop)).Result()
 	assert.NoError(t, err)
-	isCached, err := IsDepartureCached(client, &testStop)
+	isCached, err := isDepartureCached(client, &testStop)
 	assert.NoError(t, err)
 	assert.False(t, isCached)
-	err = CacheDepartures(client, testDepartures, &testStop)
+	err = cacheDepartures(client, testDepartures, &testStop)
 	assert.NoError(t, err)
-	isCached, err = IsDepartureCached(client, &testStop)
+	isCached, err = isDepartureCached(client, &testStop)
 	assert.NoError(t, err)
 	assert.True(t, isCached)
-	cachedDeps, err := GetCachedDepartures(client, &testStop)
+	cachedDeps, err := getCachedDepartures(client, &testStop)
 	assert.NoError(t, err)
 	for index, cachedDep := range cachedDeps {
 		if diff := cmp.Diff(cachedDep, testDepartures[index], cmpopts.IgnoreUnexported(cachedDep)); diff != "" {
@@ -50,7 +50,7 @@ func TestCacheDepartures(t *testing.T) {
 		}
 	}
 	time.Sleep(time.Millisecond * 1001)
-	isCached, err = IsDepartureCached(client, &testStop)
+	isCached, err = isDepartureCached(client, &testStop)
 	assert.NoError(t, err)
 	assert.False(t, isCached)
 }

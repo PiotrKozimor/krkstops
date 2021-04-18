@@ -17,3 +17,4 @@
 cmd/**
 !cmd/**.go
 KRKSTOPS
+.env.priv

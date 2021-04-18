@@ -2,11 +2,12 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"log"
 	"os"
+	"text/tabwriter"
 
 	"github.com/PiotrKozimor/krkstops"
-	"github.com/PiotrKozimor/krkstops/stops"
 	"github.com/PiotrKozimor/krkstops/ttss"
 	"github.com/spf13/cobra"
 )
@@ -16,14 +17,22 @@ func init() {
 	rootCmd.AddCommand(updateCmd)
 }
 
+func ppStops(stops ttss.Stops) {
+	for id, name := range stops {
+		fmt.Fprintf(pp, "%d\t%s\t\n", id, name)
+	}
+	pp.Flush()
+}
+
 var (
+	pp        = tabwriter.NewWriter(os.Stdout, 1, 2, 2, ' ', 0)
 	updateCmd = &cobra.Command{
 		Use:   "update",
 		Short: "Update stops in Redis and suggestions in Redisearch",
 		Run: func(cmd *cobra.Command, args []string) {
 			initializeRedisClients()
 			reader := bufio.NewReader(os.Stdin)
-			app := stops.Clients{
+			app := krkstops.Clients{
 				Redis:              redisClient,
 				RedisAutocompleter: redisearchClient,
 			}
@@ -41,11 +50,10 @@ var (
 			if err != nil {
 				log.Fatal(err)
 			}
-			pp := krkstops.NewPrettyPrint()
 			print("New stops:\n")
-			pp.StopsMap(newStops)
+			ppStops(newStops)
 			print("Old stops:\n")
-			pp.StopsMap(oldStops)
+			ppStops(oldStops)
 			if !nonInteractive {
 				print("Apply new changes?[y/N]\n")
 				text, _ := reader.ReadString('\n')

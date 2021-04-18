@@ -1,0 +1,298 @@
+{
+  "actual": [
+    {
+      "actualRelativeTime": 36,
+      "actualTime": "14:50",
+      "direction": "Os. Kurdwanów",
+      "mixedTime": "0 %UNIT_MIN%",
+      "passageid": "-1152921503903696238",
+      "patternText": "179",
+      "plannedTime": "14:48",
+      "routeId": "8095257447305839198",
+      "status": "PREDICTED",
+      "tripId": "8095261304190575381",
+      "vehicleId": "-1152921493531094200"
+    },
+    {
+      "actualRelativeTime": 336,
+      "direction": "Wieliczka Miasto",
+      "mixedTime": "14:55",
+      "passageid": "-1152921503903689862",
+      "patternText": "304",
+      "plannedTime": "14:55",
+      "routeId": "8095257447305838718",
+      "status": "PLANNED",
+      "tripId": "8095261304190980876"
+    },
+    {
+      "actualRelativeTime": 396,
+      "actualTime": "14:56",
+      "direction": "Nowy Bieżanów Południe",
+      "mixedTime": "6 %UNIT_MIN%",
+      "passageid": "-1152921503903696187",
+      "patternText": "173",
+      "plannedTime": "14:55",
+      "routeId": "8095257447305839194",
+      "status": "PREDICTED",
+      "tripId": "8095261304190518027",
+      "vehicleId": "-1152921493531093294"
+    },
+    {
+      "actualRelativeTime": 456,
+      "actualTime": "14:57",
+      "direction": "Górka Narodowa",
+      "mixedTime": "7 %UNIT_MIN%",
+      "passageid": "-1152921503903688739",
+      "patternText": "164",
+      "plannedTime": "14:57",
+      "routeId": "8095257447305839188",
+      "status": "PREDICTED",
+      "tripId": "8095261304190452492",
+      "vehicleId": "-1152921493531093751"
+    },
+    {
+      "actualRelativeTime": 456,
+      "actualTime": "14:57",
+      "direction": "Górka Narodowa Wschód",
+      "mixedTime": "7 %UNIT_MIN%",
+      "passageid": "-1152921503903691335",
+      "patternText": "503",
+      "plannedTime": "14:55",
+      "routeId": "8095257447305838728",
+      "status": "PREDICTED",
+      "tripId": "8095261304191034122",
+      "vehicleId": "-1152921493531093006"
+    },
+    {
+      "actualRelativeTime": 636,
+      "direction": "Dworzec Główny Zachód",
+      "mixedTime": "15:00",
+      "passageid": "-1152921503903689861",
+      "patternText": "304",
+      "plannedTime": "15:00",
+      "routeId": "8095257447305838718",
+      "status": "PLANNED",
+      "tripId": "8095261304190968588"
+    },
+    {
+      "actualRelativeTime": 756,
+      "actualTime": "15:02",
+      "direction": "Zajezdnia Wola Duchacka",
+      "mixedTime": "12 %UNIT_MIN%",
+      "passageid": "-1152921503903695803",
+      "patternText": "169",
+      "plannedTime": "14:59",
+      "routeId": "8095257447305839191",
+      "status": "PREDICTED",
+      "tripId": "8095261304190485257",
+      "vehicleId": "-1152921493531093026"
+    },
+    {
+      "actualRelativeTime": 996,
+      "actualTime": "15:06",
+      "direction": "Dworzec Główny Zachód",
+      "mixedTime": "16 %UNIT_MIN%",
+      "passageid": "-1152921503903687678",
+      "patternText": "179",
+      "plannedTime": "15:06",
+      "routeId": "8095257447305839198",
+      "status": "PREDICTED",
+      "tripId": "8095261304190571285",
+      "vehicleId": "-1152921493531094204"
+    },
+    {
+      "actualRelativeTime": 1056,
+      "actualTime": "15:07",
+      "direction": "Azory",
+      "mixedTime": "17 %UNIT_MIN%",
+      "passageid": "-1152921503903688362",
+      "patternText": "144",
+      "plannedTime": "15:06",
+      "routeId": "8095257447305839179",
+      "status": "PREDICTED",
+      "tripId": "8095261304190345996",
+      "vehicleId": "-1152921493531093070"
+    },
+    {
+      "actualRelativeTime": 1056,
+      "actualTime": "15:07",
+      "direction": "Nowy Bieżanów Południe",
+      "mixedTime": "17 %UNIT_MIN%",
+      "passageid": "-1152921503903690925",
+      "patternText": "503",
+      "plannedTime": "15:07",
+      "routeId": "8095257447305838728",
+      "status": "PREDICTED",
+      "tripId": "8095261304191046409",
+      "vehicleId": "-1152921493531094296"
+    },
+    {
+      "actualRelativeTime": 1356,
+      "actualTime": "15:12",
+      "direction": "Piaski Nowe",
+      "mixedTime": "22 %UNIT_MIN%",
+      "passageid": "-1152921503903689860",
+      "patternText": "164",
+      "plannedTime": "15:11",
+      "routeId": "8095257447305839188",
+      "status": "PREDICTED",
+      "tripId": "8095261304190444299",
+      "vehicleId": "-1152921493531093432"
+    },
+    {
+      "actualRelativeTime": 1476,
+      "actualTime": "15:14",
+      "direction": "Azory",
+      "mixedTime": "24 %UNIT_MIN%",
+      "passageid": "-1152921503903684235",
+      "patternText": "173",
+      "plannedTime": "15:14",
+      "routeId": "8095257447305839194",
+      "status": "PREDICTED",
+      "tripId": "8095261304190513932",
+      "vehicleId": "-1152921493531093197"
+    },
+    {
+      "actualRelativeTime": 1536,
+      "direction": "Wieliczka Miasto",
+      "mixedTime": "15:15",
+      "passageid": "-1152921503903679797",
+      "patternText": "304",
+      "plannedTime": "15:15",
+      "routeId": "8095257447305838718",
+      "status": "PLANNED",
+      "tripId": "8095261304190960392"
+    },
+    {
+      "actualRelativeTime": 1536,
+      "actualTime": "15:15",
+      "direction": "Górka Narodowa",
+      "mixedTime": "25 %UNIT_MIN%",
+      "passageid": "-1152921503903681850",
+      "patternText": "169",
+      "plannedTime": "15:15",
+      "routeId": "8095257447305839191",
+      "status": "PREDICTED",
+      "tripId": "8095261304190477066",
+      "vehicleId": "-1152921493531093046"
+    }
+  ],
+  "directions": [],
+  "firstPassageTime": 1617538764000,
+  "generalAlerts": [],
+  "lastPassageTime": 1617545460000,
+  "old": [
+    {
+      "actualRelativeTime": -264,
+      "direction": "Azory",
+      "mixedTime": "0 %UNIT_MIN%",
+      "passageid": "-1152921503903696846",
+      "patternText": "173",
+      "plannedTime": "14:44",
+      "routeId": "8095257447305839194",
+      "status": "DEPARTED",
+      "tripId": "8095261304190509836",
+      "vehicleId": "-1152921493531093201"
+    },
+    {
+      "actualRelativeTime": -84,
+      "direction": "Rżąka",
+      "mixedTime": "0 %UNIT_MIN%",
+      "passageid": "-1152921503903698263",
+      "patternText": "144",
+      "plannedTime": "14:47",
+      "routeId": "8095257447305839179",
+      "status": "DEPARTED",
+      "tripId": "8095261304190350091",
+      "vehicleId": "-1152921493531093221"
+    }
+  ],
+  "routes": [
+    {
+      "alerts": [],
+      "authority": "MPKBUS",
+      "directions": [
+        "Azory",
+        "Rżąka"
+      ],
+      "id": "8095257447305839179",
+      "name": "144",
+      "routeType": "bus",
+      "shortName": "144"
+    },
+    {
+      "alerts": [],
+      "authority": "MPKBUS",
+      "directions": [
+        "Górka Narodowa",
+        "Piaski Nowe"
+      ],
+      "id": "8095257447305839188",
+      "name": "164",
+      "routeType": "bus",
+      "shortName": "164"
+    },
+    {
+      "alerts": [],
+      "authority": "MPKBUS",
+      "directions": [
+        "Górka Narodowa",
+        "Zajezdnia Wola Duchacka"
+      ],
+      "id": "8095257447305839191",
+      "name": "169",
+      "routeType": "bus",
+      "shortName": "169"
+    },
+    {
+      "alerts": [],
+      "authority": "MPKBUS",
+      "directions": [
+        "Azory",
+        "Nowy Bieżanów Południe"
+      ],
+      "id": "8095257447305839194",
+      "name": "173",
+      "routeType": "bus",
+      "shortName": "173"
+    },
+    {
+      "alerts": [],
+      "authority": "MPKBUS",
+      "directions": [
+        "Dworzec Główny Zachód",
+        "Os. Kurdwanów"
+      ],
+      "id": "8095257447305839198",
+      "name": "179",
+      "routeType": "bus",
+      "shortName": "179"
+    },
+    {
+      "alerts": [],
+      "authority": "MPKBUS",
+      "directions": [
+        "Wieliczka Miasto",
+        "Dworzec Główny Zachód"
+      ],
+      "id": "8095257447305838718",
+      "name": "304",
+      "routeType": "bus",
+      "shortName": "304"
+    },
+    {
+      "alerts": [],
+      "authority": "MPKBUS",
+      "directions": [
+        "Górka Narodowa Wschód",
+        "Nowy Bieżanów Południe"
+      ],
+      "id": "8095257447305838728",
+      "name": "503",
+      "routeType": "bus",
+      "shortName": "503"
+    }
+  ],
+  "stopName": "Rondo Matecznego",
+  "stopShortName": "610"
+}

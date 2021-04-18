@@ -8,7 +8,6 @@ import (
 
 	"github.com/PiotrKozimor/krkstops"
 	"github.com/PiotrKozimor/krkstops/pb"
-	"github.com/PiotrKozimor/krkstops/stops"
 	"github.com/go-redis/redis/v8"
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
@@ -44,7 +43,7 @@ var scoreCmd = &cobra.Command{
 		}
 		client := pb.NewKrkStopsClient(conn)
 		initializeRedisClients()
-		cl := stops.Clients{
+		cl := krkstops.Clients{
 			Redis:              redisClient,
 			RedisAutocompleter: redisearchClient,
 		}
@@ -53,7 +52,7 @@ var scoreCmd = &cobra.Command{
 		} else {
 			err = cl.InitializeScoring()
 		}
-		if err == stops.ScoringInitialized {
+		if err == krkstops.ScoringInitialized {
 			log.Println("Scoring is already initialized, continuing")
 		} else if err != nil {
 			log.Fatal(err)
