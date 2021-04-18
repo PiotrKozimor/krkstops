@@ -10,7 +10,9 @@ import (
 	"os"
 
 	"github.com/PiotrKozimor/krkstops"
+	"github.com/PiotrKozimor/krkstops/airly"
 	"github.com/PiotrKozimor/krkstops/pb"
+	"github.com/PiotrKozimor/krkstops/ttss"
 	"github.com/RediSearch/redisearch-go/redisearch"
 	"github.com/go-redis/redis/v8"
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
@@ -33,7 +35,10 @@ func main() {
 	server := krkstops.KrkStopsServer{
 		C: krkstops.Clients{
 			RedisAutocompleter: redisearch.NewAutocompleter(os.Getenv("REDISEARCH_ENDPOINT"), "search-stops"),
-			Redis:              redis.NewClient(&redis.Options{Addr: os.Getenv("REDISEARCH_ENDPOINT")})}}
+			Redis:              redis.NewClient(&redis.Options{Addr: os.Getenv("REDISEARCH_ENDPOINT")})},
+		Airly: airly.Api,
+		Ttss:  ttss.KrkStopsEndpoints,
+	}
 	pb.RegisterKrkStopsServer(grpcServer, &server)
 	grpc_prometheus.Register(grpcServer)
 	handler := promhttp.Handler()

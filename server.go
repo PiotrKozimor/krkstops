@@ -16,7 +16,9 @@ var ENDPOINT = "krkstops.germanywestcentral.cloudapp.azure.com:8080"
 
 type KrkStopsServer struct {
 	pb.UnimplementedKrkStopsServer
-	C Clients
+	C     Clients
+	Airly airly.Endpoint
+	Ttss  []ttss.Endpointer
 }
 
 func (s *KrkStopsServer) GetAirly(ctx context.Context, installation *pb.Installation) (*pb.Airly, error) {
@@ -28,7 +30,7 @@ func (s *KrkStopsServer) GetAirly(ctx context.Context, installation *pb.Installa
 		isCached = false
 	}
 	if !isCached {
-		a, err = airly.Api.GetAirly(installation)
+		a, err = s.Airly.GetAirly(installation)
 		if err != nil {
 			return a, err
 		}
@@ -50,7 +52,7 @@ func (s *KrkStopsServer) GetDepartures(stop *pb.Stop, stream pb.KrkStops_GetDepa
 		isCached = false
 	}
 	if !isCached {
-		depsC, errC := ttss.GetDepartures(ttss.KrkStopsEndpoints, uint(stop.Id))
+		depsC, errC := ttss.GetDepartures(s.Ttss, uint(stop.Id))
 		for d := range depsC {
 			for _, departure := range d {
 				err := stream.Send(&departure)
@@ -112,11 +114,11 @@ func (s *KrkStopsServer) SearchStops(search *pb.StopSearch, stream pb.KrkStops_S
 }
 
 func (s *KrkStopsServer) FindNearestAirlyInstallation(ctx context.Context, location *pb.InstallationLocation) (*pb.Installation, error) {
-	inst, err := airly.Api.NearestInstallation(location)
+	inst, err := s.Airly.NearestInstallation(location)
 	return inst, err
 }
 
 func (s *KrkStopsServer) GetAirlyInstallation(ctx context.Context, installation *pb.Installation) (*pb.Installation, error) {
-	inst, err := airly.Api.GetInstallation(uint(installation.Id))
+	inst, err := s.Airly.GetInstallation(uint(installation.Id))
 	return inst, err
 }
