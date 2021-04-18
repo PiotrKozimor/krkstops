@@ -18,7 +18,7 @@ func TestCacheDepartures(t *testing.T) {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	client := redis.NewClient(
 		&redis.Options{
-			Addr: "localhost:6379"})
+			Addr: "localhost:6380"})
 	testStop := pb.Stop{Name: "Nor", ShortName: "45"}
 	testDepartures := []pb.Departure{
 		{

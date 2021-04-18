@@ -29,13 +29,17 @@ then
     echo "🙌 Redisearch is setup"
 fi
 
+echo "🚊 Running TTSS test"
 cd ttss
 go test -v
 cd ../airly
+echo "🌧️ Running airly test"
 go test -v
 cd ..
+echo "👊 Running krkstops test"
 go test -v
 
+echo "🍪 Running airlyctl and ttssctl"
 cd cmd/airlyctl
 go build
 ./airlyctl

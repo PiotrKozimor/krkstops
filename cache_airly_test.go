@@ -18,7 +18,7 @@ func TestCacheAirly(t *testing.T) {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	client := redis.NewClient(
 		&redis.Options{
-			Addr: "localhost:6379"})
+			Addr: "localhost:6380"})
 	testInst := pb.Installation{Id: 9914}
 	testAirly := pb.Airly{
 		Caqi:        32,
