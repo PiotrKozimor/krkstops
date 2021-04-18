@@ -27,8 +27,14 @@ func TestDepartures(t *testing.T) {
 		switch d[0].Type {
 		case pb.Endpoint_BUS:
 			assert.Equal(t, 14, len(d))
+			for _, dep := range d {
+				assert.Equal(t, pb.Endpoint_BUS, dep.Type)
+			}
 		case pb.Endpoint_TRAM:
 			assert.Equal(t, 7, len(d))
+			for _, dep := range d {
+				assert.Equal(t, pb.Endpoint_TRAM, dep.Type)
+			}
 		}
 	}
 	for err := range errC {
