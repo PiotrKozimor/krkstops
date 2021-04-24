@@ -10,11 +10,6 @@ import (
 	"github.com/PiotrKozimor/krkstops/pb"
 )
 
-type Endpoint struct {
-	URL  string
-	Type pb.Endpoint
-}
-
 type ErrStatusCode struct {
 	code int
 }
@@ -35,33 +30,9 @@ type stopDepartures struct {
 	Actual []departure
 }
 
-type Endpointer interface {
-	GetDepartures(uint) ([]pb.Departure, error)
-	GetAllStops() ([]pb.Stop, error)
-	Id() string
-}
-
 var (
 	departuresPath = "services/passageInfo/stopPassages/stop?stop=%d&mode=departure&language=pl"
-	BusEndpoint    = Endpoint{
-		URL:  "http://91.223.13.70/internetservice",
-		Type: pb.Endpoint_BUS,
-	}
-	TramEndpoint = Endpoint{
-		URL:  "http://185.70.182.51/internetservice",
-		Type: pb.Endpoint_TRAM,
-	}
 )
-
-var endpointsIds = map[Endpoint]string{
-	BusEndpoint:  "bus",
-	TramEndpoint: "tram",
-}
-
-var KrkStopsEndpoints = []Endpointer{
-	BusEndpoint,
-	TramEndpoint,
-}
 
 func (e ErrStatusCode) Error() string {
 	return fmt.Sprintf("status code: %d", e.code)

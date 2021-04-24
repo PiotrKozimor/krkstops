@@ -32,10 +32,12 @@ func main() {
 		grpc.StreamInterceptor(grpc_prometheus.StreamServerInterceptor),
 		grpc.UnaryInterceptor(grpc_prometheus.UnaryServerInterceptor),
 	)
+	redisearchEndpoint := os.Getenv("REDISEARCH_ENDPOINT")
+	log.Printf("REDISEARCH_ENDPOINT: %s\n", redisearchEndpoint)
 	server := krkstops.KrkStopsServer{
 		C: krkstops.Clients{
-			RedisAutocompleter: redisearch.NewAutocompleter(os.Getenv("REDISEARCH_ENDPOINT"), "search-stops"),
-			Redis:              redis.NewClient(&redis.Options{Addr: os.Getenv("REDISEARCH_ENDPOINT")})},
+			RedisAutocompleter: redisearch.NewAutocompleter(redisearchEndpoint, "search-stops"),
+			Redis:              redis.NewClient(&redis.Options{Addr: redisearchEndpoint})},
 		Airly: airly.Api,
 		Ttss:  ttss.KrkStopsEndpoints,
 	}
