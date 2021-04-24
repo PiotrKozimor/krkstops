@@ -7,11 +7,11 @@ if [ -z $1 ]
 then
     :
 else
-    echo "👌 Building $1"
+    echo "👌 Tag nad push $1"
     buildah tag krkstops docker.io/narciarz96/krkstops:$1
     buildah push docker.io/narciarz96/krkstops:$1
 fi
-echo "🌝 Building only latest"
+echo "🌝 Tag and push only latest"
 buildah tag krkstops docker.io/narciarz96/krkstops:latest
 buildah push docker.io/narciarz96/krkstops:latest
 buildah rm $cont
