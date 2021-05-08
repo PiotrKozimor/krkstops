@@ -11,7 +11,7 @@ else
     buildah tag krkstops docker.io/narciarz96/krkstops:$1
     buildah push docker.io/narciarz96/krkstops:$1
 fi
-echo "🌝 Tag and push only latest"
+echo "🌝 Tag and push latest"
 buildah tag krkstops docker.io/narciarz96/krkstops:latest
 buildah push docker.io/narciarz96/krkstops:latest
 buildah rm $cont
