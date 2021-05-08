@@ -12,6 +12,7 @@ const (
 	REQUEST_FAILED   // Request failed
 	REQUEST_NON_200  // Request returned non 200 status code
 	EMPTY_DEPARTURES // No departures received (with 200 status code)
+	STOP_NOT_FOUND   // Stop was not found
 )
 
 func log(endpointId string, stopId uint) *logrus.Entry {
@@ -26,6 +27,8 @@ func GetDeparturesErrorCode(e Endpointer, id uint) (errorCode int) {
 	dep, err := e.GetDepartures(id)
 	if err != nil {
 		switch err.(type) {
+		case ErrStopNotFound:
+			errorCode = STOP_NOT_FOUND
 		case ErrRequestFailed:
 			errorCode = REQUEST_FAILED
 		case ErrStatusCode:
