@@ -11,6 +11,19 @@
             "mode": "debug",
             "program": "${file}",
             "envFile": "${workspaceFolder}/cmd/krkstops/.env"
+        },
+        {
+            "name": "Stopsctl",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/stopsctl",
+            "args": [
+                "score",
+                "--reset",
+                "--krk-endpoint",
+                "localhost:8080"
+            ]
         }
     ]
 }

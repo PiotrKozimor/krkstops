@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io"
 	"math"
+	"strconv"
 
 	"github.com/PiotrKozimor/krkstops/pb"
 )
@@ -19,7 +20,11 @@ const (
 var ScoringInitialized = errors.New("scoring is already initialized")
 
 func (c *Clients) ScoreStop(krk pb.KrkStopsClient, shortName string) (float64, error) {
-	stream, err := krk.GetDepartures(context.Background(), &pb.Stop{ShortName: shortName})
+	id, err := strconv.Atoi(shortName)
+	if err != nil {
+		return 0, err
+	}
+	stream, err := krk.GetDepartures(context.Background(), &pb.Stop{Id: uint32(id)})
 	if err != nil {
 		return 0, err
 	}
