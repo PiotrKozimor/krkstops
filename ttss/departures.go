@@ -14,6 +14,9 @@ type ErrStatusCode struct {
 	code int
 }
 
+type ErrStopNotFound struct {
+}
+
 type ErrRequestFailed struct {
 	err error
 }
@@ -38,6 +41,10 @@ func (e ErrStatusCode) Error() string {
 	return fmt.Sprintf("status code: %d", e.code)
 }
 
+func (e ErrStopNotFound) Error() string {
+	return "stop not found"
+}
+
 func (e ErrRequestFailed) Error() string {
 	return fmt.Sprintf("request failed: %v", e.err)
 }
@@ -54,6 +61,9 @@ func (e Endpoint) GetDepartures(shortName uint) ([]pb.Departure, error) {
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
+		if resp.StatusCode == 404 {
+			return nil, ErrStopNotFound{}
+		}
 		return nil, ErrStatusCode{code: resp.StatusCode}
 	}
 	var ttssDepartures stopDepartures
@@ -85,7 +95,12 @@ func GetDepartures(e []Endpointer, shortName uint) (chan []pb.Departure, chan er
 		go func(endp Endpointer) {
 			departures, err := endp.GetDepartures(shortName)
 			depC <- departures
-			if err != nil {
+			switch err.(type) {
+			case ErrStopNotFound:
+				break
+			case nil:
+				break
+			default:
 				errC <- err
 			}
 			wg.Done()
