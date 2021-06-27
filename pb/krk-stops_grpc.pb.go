@@ -22,7 +22,9 @@ type KrkStopsClient interface {
 	FindNearestAirlyInstallation(ctx context.Context, in *InstallationLocation, opts ...grpc.CallOption) (*Installation, error)
 	GetAirlyInstallation(ctx context.Context, in *Installation, opts ...grpc.CallOption) (*Installation, error)
 	GetDepartures(ctx context.Context, in *Stop, opts ...grpc.CallOption) (KrkStops_GetDeparturesClient, error)
+	GetDepartures2(ctx context.Context, in *Stop, opts ...grpc.CallOption) (*Departures, error)
 	SearchStops(ctx context.Context, in *StopSearch, opts ...grpc.CallOption) (KrkStops_SearchStopsClient, error)
+	SearchStops2(ctx context.Context, in *StopSearch, opts ...grpc.CallOption) (*Stops, error)
 }
 
 type krkStopsClient struct {
@@ -92,6 +94,15 @@ func (x *krkStopsGetDeparturesClient) Recv() (*Departure, error) {
 	return m, nil
 }
 
+func (c *krkStopsClient) GetDepartures2(ctx context.Context, in *Stop, opts ...grpc.CallOption) (*Departures, error) {
+	out := new(Departures)
+	err := c.cc.Invoke(ctx, "/KrkStops/GetDepartures2", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *krkStopsClient) SearchStops(ctx context.Context, in *StopSearch, opts ...grpc.CallOption) (KrkStops_SearchStopsClient, error) {
 	stream, err := c.cc.NewStream(ctx, &KrkStops_ServiceDesc.Streams[1], "/KrkStops/SearchStops", opts...)
 	if err != nil {
@@ -124,6 +135,15 @@ func (x *krkStopsSearchStopsClient) Recv() (*Stop, error) {
 	return m, nil
 }
 
+func (c *krkStopsClient) SearchStops2(ctx context.Context, in *StopSearch, opts ...grpc.CallOption) (*Stops, error) {
+	out := new(Stops)
+	err := c.cc.Invoke(ctx, "/KrkStops/SearchStops2", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // KrkStopsServer is the server API for KrkStops service.
 // All implementations must embed UnimplementedKrkStopsServer
 // for forward compatibility
@@ -132,7 +152,9 @@ type KrkStopsServer interface {
 	FindNearestAirlyInstallation(context.Context, *InstallationLocation) (*Installation, error)
 	GetAirlyInstallation(context.Context, *Installation) (*Installation, error)
 	GetDepartures(*Stop, KrkStops_GetDeparturesServer) error
+	GetDepartures2(context.Context, *Stop) (*Departures, error)
 	SearchStops(*StopSearch, KrkStops_SearchStopsServer) error
+	SearchStops2(context.Context, *StopSearch) (*Stops, error)
 	mustEmbedUnimplementedKrkStopsServer()
 }
 
@@ -152,8 +174,14 @@ func (UnimplementedKrkStopsServer) GetAirlyInstallation(context.Context, *Instal
 func (UnimplementedKrkStopsServer) GetDepartures(*Stop, KrkStops_GetDeparturesServer) error {
 	return status.Errorf(codes.Unimplemented, "method GetDepartures not implemented")
 }
+func (UnimplementedKrkStopsServer) GetDepartures2(context.Context, *Stop) (*Departures, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetDepartures2 not implemented")
+}
 func (UnimplementedKrkStopsServer) SearchStops(*StopSearch, KrkStops_SearchStopsServer) error {
 	return status.Errorf(codes.Unimplemented, "method SearchStops not implemented")
+}
+func (UnimplementedKrkStopsServer) SearchStops2(context.Context, *StopSearch) (*Stops, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SearchStops2 not implemented")
 }
 func (UnimplementedKrkStopsServer) mustEmbedUnimplementedKrkStopsServer() {}
 
@@ -243,6 +271,24 @@ func (x *krkStopsGetDeparturesServer) Send(m *Departure) error {
 	return x.ServerStream.SendMsg(m)
 }
 
+func _KrkStops_GetDepartures2_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Stop)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KrkStopsServer).GetDepartures2(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/KrkStops/GetDepartures2",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KrkStopsServer).GetDepartures2(ctx, req.(*Stop))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _KrkStops_SearchStops_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(StopSearch)
 	if err := stream.RecvMsg(m); err != nil {
@@ -264,6 +310,24 @@ func (x *krkStopsSearchStopsServer) Send(m *Stop) error {
 	return x.ServerStream.SendMsg(m)
 }
 
+func _KrkStops_SearchStops2_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StopSearch)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KrkStopsServer).SearchStops2(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/KrkStops/SearchStops2",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KrkStopsServer).SearchStops2(ctx, req.(*StopSearch))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // KrkStops_ServiceDesc is the grpc.ServiceDesc for KrkStops service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -282,6 +346,14 @@ var KrkStops_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAirlyInstallation",
 			Handler:    _KrkStops_GetAirlyInstallation_Handler,
+		},
+		{
+			MethodName: "GetDepartures2",
+			Handler:    _KrkStops_GetDepartures2_Handler,
+		},
+		{
+			MethodName: "SearchStops2",
+			Handler:    _KrkStops_SearchStops2_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
