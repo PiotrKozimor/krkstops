@@ -5,8 +5,6 @@ help () {
 }
 while getopts rh opts; do
    case ${opts} in
-    #   f) FILE=${OPTARG} ;;
-    #   l) USE_LATEST=true ;;
 	  h) help; exit 0;;
 	  r) RESTART=true;;
    esac
