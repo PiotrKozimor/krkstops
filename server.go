@@ -87,6 +87,52 @@ func (s *KrkStopsServer) GetDepartures(stop *pb.Stop, stream pb.KrkStops_GetDepa
 	return nil
 }
 
+func (s *KrkStopsServer) GetDepartures2(ctx context.Context, stop *pb.Stop) (*pb.Departures, error) {
+	var deps []pb.Departure
+	var returnedDepartures []*pb.Departure
+	isCached, err := isDepartureCached(s.C.Redis, stop)
+	if err != nil {
+		log.Println(err)
+		isCached = false
+	}
+	if !isCached {
+		depsC, errC := ttss.GetDepartures(s.Ttss, uint(stop.Id))
+		for d := range depsC {
+			deps = append(deps, d...)
+		}
+		returnedDepartures = make([]*pb.Departure, len(deps))
+		for i := range deps {
+			returnedDepartures[i] = &deps[i]
+		}
+		for err := range errC {
+			return nil, err
+		}
+		go cacheDepartures(s.C.Redis, deps, stop)
+	} else {
+		deps, err = getCachedDepartures(s.C.Redis, stop)
+		if err != nil {
+			return nil, err
+		}
+		ttl, err := s.C.Redis.TTL(ctx, depsPrefix+strconv.Itoa(int(stop.Id))).Result()
+		if err != nil {
+			return nil, err
+		}
+		livedFor := int32(depsExpire.Seconds() - ttl.Seconds())
+		for index := range deps {
+			if deps[index].RelativeTime != 0 {
+				deps[index].RelativeTime -= livedFor
+			}
+		}
+		returnedDepartures = make([]*pb.Departure, len(deps))
+		for i := range deps {
+			returnedDepartures[i] = &deps[i]
+		}
+	}
+	return &pb.Departures{
+		Departures: returnedDepartures,
+	}, nil
+}
+
 func (s *KrkStopsServer) SearchStops(search *pb.StopSearch, stream pb.KrkStops_SearchStopsServer) error {
 	stops, err := s.C.RedisAutocompleter.SuggestOpts(
 		search.Query, redisearch.SuggestOptions{
@@ -111,6 +157,35 @@ func (s *KrkStopsServer) SearchStops(search *pb.StopSearch, stream pb.KrkStops_S
 		}
 	}
 	return nil
+}
+
+func (s *KrkStopsServer) SearchStops2(ctx context.Context, search *pb.StopSearch) (*pb.Stops, error) {
+	stops, err := s.C.RedisAutocompleter.SuggestOpts(
+		search.Query, redisearch.SuggestOptions{
+			Num:          10,
+			Fuzzy:        true,
+			WithPayloads: true,
+			WithScores:   false,
+		})
+	if err != nil {
+		return nil, err
+	}
+	stopsP := make([]*pb.Stop, len(stops))
+	for i, stop := range stops {
+		name, err := s.C.Redis.Get(ctx, stop.Payload).Result()
+		if err != nil {
+			return nil, err
+		}
+		id, err := strconv.Atoi(stop.Payload)
+		if err != nil {
+			logrus.Errorf("failed to parse %s to int", stop.Payload)
+		} else {
+			stopsP[i] = &pb.Stop{Name: name, Id: uint32(id)}
+		}
+	}
+	return &pb.Stops{
+		Stops: stopsP,
+	}, nil
 }
 
 func (s *KrkStopsServer) FindNearestAirlyInstallation(ctx context.Context, location *pb.InstallationLocation) (*pb.Installation, error) {
