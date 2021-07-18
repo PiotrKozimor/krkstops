@@ -9,18 +9,20 @@ import (
 )
 
 func TestUpdateSuggestionsAndRedis(t *testing.T) {
-	app := Clients{
-		Redis:              redis.NewClient(&redis.Options{}),
-		RedisAutocompleter: redisearch.NewAutocompleter("localhost:6380", "bar"),
+	if !testing.Short() {
+		app := Clients{
+			Redis:              redis.NewClient(&redis.Options{}),
+			RedisAutocompleter: redisearch.NewAutocompleter("localhost:6380", "bar"),
+		}
+		newStops := ttss.Stops{
+			3: "Budzyń Plaża Główna (nż)",
+			4: "Poczta Główna",
+			5: "Plac Wolnica",
+			6: "Plac Bohaterów Getta",
+		}
+		oldStops := ttss.Stops{
+			0: "Foo",
+		}
+		app.UpdateSuggestionsAndRedis(newStops, oldStops)
 	}
-	newStops := ttss.Stops{
-		3: "Budzyń Plaża Główna (nż)",
-		4: "Poczta Główna",
-		5: "Plac Wolnica",
-		6: "Plac Bohaterów Getta",
-	}
-	oldStops := ttss.Stops{
-		0: "Foo",
-	}
-	app.UpdateSuggestionsAndRedis(newStops, oldStops)
 }
