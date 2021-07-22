@@ -9,9 +9,14 @@ import (
 )
 
 var (
-	busOnly  bool
-	tramOnly bool
-	rootCmd  = &cobra.Command{
+	// tramURL      string
+	// busURL       string
+	local        bool
+	stopId       uint
+	endpoints    = ttss.KrkStopsEndpoints
+	busEndpoint  = ttss.BusEndpoint
+	tramEndpoint = ttss.TramEndpoint
+	rootCmd      = &cobra.Command{
 		Use:  "ttssctl",
 		Long: `ttssctl queries stops and departures from TTSS API of MPK in Cracow.`,
 	}
@@ -20,7 +25,7 @@ var (
 		Short: "Query departures from given stop for bus and tram",
 		Run: func(cmd *cobra.Command, args []string) {
 			depsC, errC := ttss.GetDepartures(ttss.KrkStopsEndpoints, stopId)
-			pprint := pb.NewPrettyPrint()
+			pprint := pb.NewPrettyPrint(cmd)
 			for dep := range depsC {
 				pprint.Departures(dep)
 			}
@@ -34,7 +39,8 @@ var (
 		Short: "Query all stops in Cracov",
 		Run: func(cmd *cobra.Command, args []string) {
 			stopsC, errC := ttss.GetAllStops(ttss.KrkStopsEndpoints)
-			pprint := pb.NewPrettyPrint()
+			cmd.Print()
+			pprint := pb.NewPrettyPrint(cmd)
 			for stop := range stopsC {
 				pprint.Stops(stop)
 			}
@@ -51,7 +57,7 @@ var (
 			if err != nil {
 				log.Fatal(err)
 			}
-			pprint := pb.NewPrettyPrint()
+			pprint := pb.NewPrettyPrint(cmd)
 			pprint.Departures(deps)
 		},
 	}
@@ -63,15 +69,14 @@ var (
 			if err != nil {
 				log.Fatal(err)
 			}
-			pprint := pb.NewPrettyPrint()
+			pprint := pb.NewPrettyPrint(cmd)
 			pprint.Departures(deps)
 		},
 	}
-	stopId uint
 )
 
 func init() {
-	depsCmd.Flags().UintVar(&stopId, "id", 610, "id of stop to query departures from")
+	depsCmd.PersistentFlags().UintVar(&stopId, "id", 610, "id of stop to query departures from")
 	depsCmd.AddCommand(busCmd, tramCmd)
 	rootCmd.AddCommand(stopsCmd, depsCmd)
 }

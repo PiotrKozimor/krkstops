@@ -61,11 +61,11 @@ func tramHandler(w http.ResponseWriter, r *http.Request) {
 
 func Ttss(ctx context.Context) {
 	srvBus := http.Server{
-		Addr:    "localhost:8080",
+		Addr:    "0.0.0.0:8080",
 		Handler: HandlerFunc(busHandler),
 	}
 	srvTram := http.Server{
-		Addr:    "localhost:8070",
+		Addr:    "0.0.0.0:8070",
 		Handler: HandlerFunc(tramHandler),
 	}
 	go func() {

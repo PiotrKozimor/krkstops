@@ -9,7 +9,7 @@ import (
 	"github.com/PiotrKozimor/krkstops/pb"
 )
 
-const stopsPath = "geoserviceDispatcher/services/stopinfo/stops?left=-648000000&bottom=-324000000&right=648000000&top=324000000"
+const stopsPath = "internetservice/geoserviceDispatcher/services/stopinfo/stops?left=-648000000&bottom=-324000000&right=648000000&top=324000000"
 
 // TtssStops describes all stops returned by TTSS API
 type ttssStops struct {

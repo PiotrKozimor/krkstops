@@ -5,15 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Launch file",
-            "type": "go",
-            "request": "launch",
-            "mode": "debug",
-            "program": "${file}",
-            "envFile": "${workspaceFolder}/cmd/krkstops/.env"
-        },
-        {
-            "name": "Stopsctl",
+            "name": "stopsctl",
             "type": "go",
             "request": "launch",
             "mode": "auto",
@@ -24,6 +16,35 @@
                 "--krk-endpoint",
                 "localhost:8080"
             ]
-        }
+        },
+        {
+            "name": "ttssctl",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/ttssctl",
+            "args": [
+                "deps", "--bus", "http://localhost:8080", "--tram", "http://localhost:8070"
+            ]
+        },
+        {
+            "name": "mock",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/mock"
+        },
+        {
+            "name": "krkstops",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/krkstops",
+            "envFile": "${workspaceFolder}/.env.dev",
+            "args": [
+                "deps", "--bus", "http://localhost:8080", "--tram", "http://localhost:8070"
+            ]
+        },
+
     ]
 }

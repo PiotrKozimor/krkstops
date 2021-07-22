@@ -2,17 +2,18 @@ package pb
 
 import (
 	"fmt"
-	"os"
 	"text/tabwriter"
+
+	"github.com/spf13/cobra"
 )
 
 type PrettyPrint struct {
 	*tabwriter.Writer
 }
 
-func NewPrettyPrint() PrettyPrint {
+func NewPrettyPrint(cmd *cobra.Command) PrettyPrint {
 	return PrettyPrint{
-		tabwriter.NewWriter(os.Stdout, 1, 2, 2, ' ', 0),
+		tabwriter.NewWriter(cmd.OutOrStdout(), 1, 2, 2, ' ', 0),
 	}
 }
 
@@ -25,8 +26,8 @@ func (p PrettyPrint) Airly(airly *Airly) {
 
 // PrettyPrint stops
 func (p *PrettyPrint) Stops(stops []Stop) {
-	for i, stop := range stops {
-		fmt.Fprintf(p, "%d\t%d\t%s\t\n", i, stop.Id, stop.Name)
+	for i := range stops {
+		fmt.Fprintf(p, "%d\t%d\t%s\t\n", i, stops[i].Id, stops[i].Name)
 	}
 	p.Flush()
 }

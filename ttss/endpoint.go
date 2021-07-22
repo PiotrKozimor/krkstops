@@ -1,6 +1,10 @@
 package ttss
 
-import "github.com/PiotrKozimor/krkstops/pb"
+import (
+	"os"
+
+	"github.com/PiotrKozimor/krkstops/pb"
+)
 
 type Endpoint struct {
 	URL  string
@@ -15,11 +19,11 @@ type Endpointer interface {
 
 var (
 	BusEndpoint = Endpoint{
-		URL:  "http://91.223.13.70/internetservice",
+		URL:  os.Getenv("TTSS_BUS"),
 		Type: pb.Endpoint_BUS,
 	}
 	TramEndpoint = Endpoint{
-		URL:  "http://185.70.182.51/internetservice",
+		URL:  os.Getenv("TTSS_TRAM"),
 		Type: pb.Endpoint_TRAM,
 	}
 	endpointsIds = map[Endpoint]string{

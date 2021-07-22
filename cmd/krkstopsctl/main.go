@@ -28,7 +28,7 @@ var (
 			if err != nil {
 				log.Fatalf("fail to get airly: %v", err)
 			}
-			pp := pb.NewPrettyPrint()
+			pp := pb.NewPrettyPrint(cmd)
 			pp.Airly(airly)
 		},
 	}
@@ -50,7 +50,7 @@ var (
 				if err != nil {
 					log.Fatal(err)
 				}
-				log.Println(departure)
+				fmt.Println(departure)
 			}
 		},
 	}
@@ -104,14 +104,7 @@ func init() {
 	rootCmd.AddCommand(depsCmd)
 	rootCmd.AddCommand(airlyCmd)
 	rootCmd.AddCommand(stopsCmd)
-}
 
-func krkstopsUsage() {
-	fmt.Printf(`Query KrkStops API
-	deps           	fetch departures
-	stops [QEURY]  	search stops by query
-	airly   		air quality for given installation
-`)
 }
 
 func main() {

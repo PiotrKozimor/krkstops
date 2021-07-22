@@ -17,10 +17,10 @@ func TestStops(t *testing.T) {
 	time.Sleep(10 * time.Millisecond)
 	stopsC, errC := GetAllStops([]Endpointer{
 		Endpoint{
-			URL:  "http://localhost:8080/internetservice",
+			URL:  "http://localhost:8080",
 			Type: pb.Endpoint_BUS},
 		Endpoint{
-			URL:  "http://localhost:8070/internetservice",
+			URL:  "http://localhost:8070",
 			Type: pb.Endpoint_TRAM},
 	})
 	for s := range stopsC {

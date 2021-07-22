@@ -1,13 +1,11 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"log"
 	"net"
 	"net/http"
 	_ "net/http/pprof"
-	"os"
 
 	"github.com/PiotrKozimor/krkstops"
 	"github.com/PiotrKozimor/krkstops/airly"
@@ -17,10 +15,9 @@ import (
 	"github.com/go-redis/redis/v8"
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 )
-
-var ctx = context.Background()
 
 func main() {
 	flag.Parse()
@@ -32,12 +29,14 @@ func main() {
 		grpc.StreamInterceptor(grpc_prometheus.StreamServerInterceptor),
 		grpc.UnaryInterceptor(grpc_prometheus.UnaryServerInterceptor),
 	)
-	redisearchEndpoint := os.Getenv("REDISEARCH_ENDPOINT")
-	log.Printf("REDISEARCH_ENDPOINT: %s\n", redisearchEndpoint)
+	viper.SetDefault("REDISEARCH_URI", "localhost:6379")
+	viper.AutomaticEnv()
+	redisearchUri := viper.GetString("REDISEARCH_URI")
+	log.Printf("CONFIG: %+v\n", viper.AllSettings())
 	server := krkstops.KrkStopsServer{
 		C: krkstops.Clients{
-			RedisAutocompleter: redisearch.NewAutocompleter(redisearchEndpoint, "search-stops"),
-			Redis:              redis.NewClient(&redis.Options{Addr: redisearchEndpoint})},
+			RedisAutocompleter: redisearch.NewAutocompleter(redisearchUri, "search-stops"),
+			Redis:              redis.NewClient(&redis.Options{Addr: redisearchUri})},
 		Airly: airly.Api,
 		Ttss:  ttss.KrkStopsEndpoints,
 	}

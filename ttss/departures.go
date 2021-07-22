@@ -34,7 +34,7 @@ type stopDepartures struct {
 }
 
 var (
-	departuresPath = "services/passageInfo/stopPassages/stop?stop=%d&mode=departure&language=pl"
+	departuresPath = "internetservice/services/passageInfo/stopPassages/stop?stop=%d&mode=departure&language=pl"
 )
 
 func (e ErrStatusCode) Error() string {
