@@ -15,14 +15,7 @@ func TestStops(t *testing.T) {
 	defer cancel()
 	go mock.Ttss(ctx)
 	time.Sleep(10 * time.Millisecond)
-	stopsC, errC := GetAllStops([]Endpointer{
-		Endpoint{
-			URL:  "http://localhost:8080",
-			Type: pb.Endpoint_BUS},
-		Endpoint{
-			URL:  "http://localhost:8070",
-			Type: pb.Endpoint_TRAM},
-	})
+	stopsC, errC := GetAllStops(KrkStopsEndpoints)
 	for s := range stopsC {
 		switch s[0].Type {
 		case pb.Endpoint_BUS:

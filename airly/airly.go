@@ -3,6 +3,7 @@ package airly
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -53,6 +54,7 @@ var Api = Endpoint("https://airapi.airly.eu")
 func init() {
 	airly := os.Getenv("OVERRIDE_AIRLY")
 	if airly != "" {
+		log.Printf("OVERRIDE_AIRLY: %s\n", airly)
 		Api = Endpoint(airly)
 	}
 }

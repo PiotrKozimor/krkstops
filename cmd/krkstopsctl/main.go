@@ -42,6 +42,7 @@ var (
 			if err != nil {
 				log.Fatalf("fail to get departures: %v", err)
 			}
+			out := cmd.OutOrStdout()
 			for {
 				departure, err := depsStrem.Recv()
 				if err == io.EOF {
@@ -50,7 +51,7 @@ var (
 				if err != nil {
 					log.Fatal(err)
 				}
-				fmt.Println(departure)
+				fmt.Fprintln(out, departure)
 			}
 		},
 	}
@@ -64,6 +65,7 @@ var (
 			if err != nil {
 				log.Fatalf("fail to search stops: %v", err)
 			}
+			out := cmd.OutOrStdout()
 			for {
 				stop, err := stopsStream.Recv()
 				if err == io.EOF {
@@ -72,7 +74,7 @@ var (
 				if err != nil {
 					log.Fatal(err)
 				}
-				log.Println(stop)
+				fmt.Fprintln(out, stop)
 			}
 		},
 		Args: cobra.ExactArgs(1),

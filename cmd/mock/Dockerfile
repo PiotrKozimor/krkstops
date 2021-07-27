@@ -7,5 +7,5 @@ RUN go build -o /bin/mock cmd/mock/main.go
 
 FROM alpine
 COPY --from=base /bin/mock /bin/mock
-EXPOSE 8080 8070 8090
+EXPOSE 8070 8071 8072
 CMD /bin/mock

@@ -35,7 +35,7 @@
             "mode": "auto",
             "program": "${workspaceFolder}/cmd/ttssctl",
             "args": [
-                "deps", "--bus", "http://localhost:8080", "--tram", "http://localhost:8070"
+                "deps",
             ]
         },
         {

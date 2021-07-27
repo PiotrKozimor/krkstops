@@ -1,6 +1,7 @@
 package ttss
 
 import (
+	"log"
 	"os"
 
 	"github.com/PiotrKozimor/krkstops/pb"
@@ -39,6 +40,7 @@ var (
 func init() {
 	bus := os.Getenv("OVERRIDE_TTSS_BUS")
 	if bus != "" {
+		log.Printf("OVERRIDE_TTSS_BUS: %s\n", bus)
 		BusEndpoint = Endpoint{
 			URL:  bus,
 			Type: pb.Endpoint_BUS,
@@ -46,6 +48,7 @@ func init() {
 	}
 	tram := os.Getenv("OVERRIDE_TTSS_TRAM")
 	if tram != "" {
+		log.Printf("OVERRIDE_TTSS_TRAM: %s\n", tram)
 		TramEndpoint = Endpoint{
 			URL:  tram,
 			Type: pb.Endpoint_TRAM,

@@ -15,14 +15,7 @@ func TestDepartures(t *testing.T) {
 	defer cancel()
 	go mock.Ttss(ctx)
 	time.Sleep(10 * time.Millisecond)
-	departures, errC := GetDepartures([]Endpointer{
-		Endpoint{
-			URL:  "http://localhost:8080",
-			Type: pb.Endpoint_BUS},
-		Endpoint{
-			URL:  "http://localhost:8070",
-			Type: pb.Endpoint_TRAM},
-	}, 610)
+	departures, errC := GetDepartures(KrkStopsEndpoints, 610)
 	for d := range departures {
 		switch d[0].Type {
 		case pb.Endpoint_BUS:

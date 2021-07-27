@@ -61,7 +61,7 @@ func tramHandler(w http.ResponseWriter, r *http.Request) {
 
 func Ttss(ctx context.Context) {
 	srvBus := http.Server{
-		Addr:    "0.0.0.0:8080",
+		Addr:    "0.0.0.0:8071",
 		Handler: HandlerFunc(busHandler),
 	}
 	srvTram := http.Server{
