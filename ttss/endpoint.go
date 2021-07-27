@@ -19,11 +19,11 @@ type Endpointer interface {
 
 var (
 	BusEndpoint = Endpoint{
-		URL:  os.Getenv("TTSS_BUS"),
+		URL:  "http://91.223.13.70",
 		Type: pb.Endpoint_BUS,
 	}
 	TramEndpoint = Endpoint{
-		URL:  os.Getenv("TTSS_TRAM"),
+		URL:  "http://185.70.182.51",
 		Type: pb.Endpoint_TRAM,
 	}
 	endpointsIds = map[Endpoint]string{
@@ -35,3 +35,24 @@ var (
 		TramEndpoint,
 	}
 )
+
+func init() {
+	bus := os.Getenv("OVERRIDE_TTSS_BUS")
+	if bus != "" {
+		BusEndpoint = Endpoint{
+			URL:  bus,
+			Type: pb.Endpoint_BUS,
+		}
+	}
+	tram := os.Getenv("OVERRIDE_TTSS_TRAM")
+	if tram != "" {
+		TramEndpoint = Endpoint{
+			URL:  tram,
+			Type: pb.Endpoint_TRAM,
+		}
+	}
+	KrkStopsEndpoints = []Endpointer{
+		BusEndpoint,
+		TramEndpoint,
+	}
+}

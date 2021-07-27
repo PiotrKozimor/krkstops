@@ -8,15 +8,14 @@ import (
 	"github.com/PiotrKozimor/krkstops/airly"
 	"github.com/PiotrKozimor/krkstops/pb"
 	"github.com/PiotrKozimor/krkstops/ttss"
-	"github.com/RediSearch/redisearch-go/redisearch"
-	"github.com/sirupsen/logrus"
+	"github.com/go-redis/redis/v8"
 )
 
 var ENDPOINT = "krkstops.germanywestcentral.cloudapp.azure.com:8080"
 
 type KrkStopsServer struct {
 	pb.UnimplementedKrkStopsServer
-	C     Clients
+	C     *Cache
 	Airly airly.Endpoint
 	Ttss  []ttss.Endpointer
 }
@@ -24,19 +23,13 @@ type KrkStopsServer struct {
 func (s *KrkStopsServer) GetAirly(ctx context.Context, installation *pb.Installation) (*pb.Airly, error) {
 	var a *pb.Airly
 	var err error
-	isCached, err := isAirlyCached(s.C.Redis, installation)
-	if err != nil {
-		log.Println(err)
-		isCached = false
-	}
-	if !isCached {
+	a, err = getCachedAirly(s.C.Redis, installation)
+	if err == redis.Nil {
 		a, err = s.Airly.GetAirly(installation)
 		if err != nil {
 			return a, err
 		}
 		go cacheAirly(s.C.Redis, a, installation)
-	} else {
-		a, err = getCachedAirly(s.C.Redis, installation)
 	}
 	return a, err
 
@@ -134,25 +127,12 @@ func (s *KrkStopsServer) GetDepartures2(ctx context.Context, stop *pb.Stop) (*pb
 }
 
 func (s *KrkStopsServer) SearchStops(search *pb.StopSearch, stream pb.KrkStops_SearchStopsServer) error {
-	stops, err := s.C.RedisAutocompleter.SuggestOpts(
-		search.Query, redisearch.SuggestOptions{
-			Num:          10,
-			Fuzzy:        true,
-			WithPayloads: true,
-			WithScores:   false,
-		})
+	stops, err := s.C.Search(search.Query)
 	if err != nil {
 		return err
 	}
 	for _, stop := range stops {
-		name, err := s.C.Redis.Get(ctx, stop.Payload).Result()
-		if err != nil {
-			return err
-		}
-		id, err := strconv.Atoi(stop.Payload)
-		if err != nil {
-			logrus.Errorf("failed to parse %s to int", stop.Payload)
-		} else if err := stream.Send(&pb.Stop{Name: name, Id: uint32(id)}); err != nil {
+		if err := stream.Send(stop); err != nil {
 			return err
 		}
 	}
@@ -160,32 +140,10 @@ func (s *KrkStopsServer) SearchStops(search *pb.StopSearch, stream pb.KrkStops_S
 }
 
 func (s *KrkStopsServer) SearchStops2(ctx context.Context, search *pb.StopSearch) (*pb.Stops, error) {
-	stops, err := s.C.RedisAutocompleter.SuggestOpts(
-		search.Query, redisearch.SuggestOptions{
-			Num:          10,
-			Fuzzy:        true,
-			WithPayloads: true,
-			WithScores:   false,
-		})
-	if err != nil {
-		return nil, err
-	}
-	stopsP := make([]*pb.Stop, len(stops))
-	for i, stop := range stops {
-		name, err := s.C.Redis.Get(ctx, stop.Payload).Result()
-		if err != nil {
-			return nil, err
-		}
-		id, err := strconv.Atoi(stop.Payload)
-		if err != nil {
-			logrus.Errorf("failed to parse %s to int", stop.Payload)
-		} else {
-			stopsP[i] = &pb.Stop{Name: name, Id: uint32(id)}
-		}
-	}
+	stops, err := s.C.Search(search.Query)
 	return &pb.Stops{
-		Stops: stopsP,
-	}, nil
+		Stops: stops,
+	}, err
 }
 
 func (s *KrkStopsServer) FindNearestAirlyInstallation(ctx context.Context, location *pb.InstallationLocation) (*pb.Installation, error) {

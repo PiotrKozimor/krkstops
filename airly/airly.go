@@ -48,7 +48,14 @@ const measurementsPath = "v2/measurements/installation"
 const nearestInstallationsPath = "v2/installations/nearest"
 const installationsPath = "v2/installations/%d"
 
-var Api = Endpoint(os.Getenv("AIRLY"))
+var Api = Endpoint("https://airapi.airly.eu")
+
+func init() {
+	airly := os.Getenv("OVERRIDE_AIRLY")
+	if airly != "" {
+		Api = Endpoint(airly)
+	}
+}
 
 // GetAirly queries external API and parses response
 func (e Endpoint) GetAirly(installation *pb.Installation) (*pb.Airly, error) {
