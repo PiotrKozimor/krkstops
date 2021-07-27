@@ -23,13 +23,13 @@ type KrkStopsServer struct {
 func (s *KrkStopsServer) GetAirly(ctx context.Context, installation *pb.Installation) (*pb.Airly, error) {
 	var a *pb.Airly
 	var err error
-	a, err = getCachedAirly(s.C.Redis, installation)
+	a, err = s.C.getCachedAirly(installation)
 	if err == redis.Nil {
 		a, err = s.Airly.GetAirly(installation)
 		if err != nil {
 			return a, err
 		}
-		go cacheAirly(s.C.Redis, a, installation)
+		go s.C.cacheAirly(a, installation)
 	}
 	return a, err
 
@@ -39,7 +39,7 @@ func (s *KrkStopsServer) GetAirly(ctx context.Context, installation *pb.Installa
 func (s *KrkStopsServer) GetDepartures(stop *pb.Stop, stream pb.KrkStops_GetDeparturesServer) error {
 
 	var deps []pb.Departure
-	isCached, err := isDepartureCached(s.C.Redis, stop)
+	isCached, err := isDepartureCached(s.C.redis, stop)
 	if err != nil {
 		log.Println(err)
 		isCached = false
@@ -58,10 +58,10 @@ func (s *KrkStopsServer) GetDepartures(stop *pb.Stop, stream pb.KrkStops_GetDepa
 		for err := range errC {
 			return err
 		}
-		go cacheDepartures(s.C.Redis, deps, stop)
+		go cacheDepartures(s.C.redis, deps, stop)
 	} else {
-		deps, err = getCachedDepartures(s.C.Redis, stop)
-		ttl, err := s.C.Redis.TTL(ctx, depsPrefix+strconv.Itoa(int(stop.Id))).Result()
+		deps, err = getCachedDepartures(s.C.redis, stop)
+		ttl, err := s.C.redis.TTL(ctx, depsPrefix+strconv.Itoa(int(stop.Id))).Result()
 		livedFor := int32(depsExpire.Seconds() - ttl.Seconds())
 		for index := range deps {
 			if deps[index].RelativeTime != 0 {
@@ -83,7 +83,7 @@ func (s *KrkStopsServer) GetDepartures(stop *pb.Stop, stream pb.KrkStops_GetDepa
 func (s *KrkStopsServer) GetDepartures2(ctx context.Context, stop *pb.Stop) (*pb.Departures, error) {
 	var deps []pb.Departure
 	var returnedDepartures []*pb.Departure
-	isCached, err := isDepartureCached(s.C.Redis, stop)
+	isCached, err := isDepartureCached(s.C.redis, stop)
 	if err != nil {
 		log.Println(err)
 		isCached = false
@@ -100,13 +100,13 @@ func (s *KrkStopsServer) GetDepartures2(ctx context.Context, stop *pb.Stop) (*pb
 		for err := range errC {
 			return nil, err
 		}
-		go cacheDepartures(s.C.Redis, deps, stop)
+		go cacheDepartures(s.C.redis, deps, stop)
 	} else {
-		deps, err = getCachedDepartures(s.C.Redis, stop)
+		deps, err = getCachedDepartures(s.C.redis, stop)
 		if err != nil {
 			return nil, err
 		}
-		ttl, err := s.C.Redis.TTL(ctx, depsPrefix+strconv.Itoa(int(stop.Id))).Result()
+		ttl, err := s.C.redis.TTL(ctx, depsPrefix+strconv.Itoa(int(stop.Id))).Result()
 		if err != nil {
 			return nil, err
 		}

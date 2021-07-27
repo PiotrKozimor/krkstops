@@ -20,7 +20,7 @@ const (
 var ctx = context.Background()
 
 type Cache struct {
-	Redis  *redis.Client
+	redis  *redis.Client
 	conn   redi.Conn
 	sugTmp *redisearch.Autocompleter
 	sug    *redisearch.Autocompleter
@@ -40,7 +40,7 @@ func NewCache(redisURI, sugKey string) (*Cache, error) {
 		conn:   conn,
 		sugTmp: acTmp,
 		sug:    ac,
-		Redis:  r,
+		redis:  r,
 	}
 	return &db, err
 }

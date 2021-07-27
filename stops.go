@@ -25,7 +25,7 @@ func (db *Cache) Search(phrase string) ([]*pb.Stop, error) {
 	}
 	stopsP := make([]*pb.Stop, len(stops))
 	for i, stop := range stops {
-		name, err := db.Redis.HGet(ctx, NAMES, stop.Payload).Result()
+		name, err := db.redis.HGet(ctx, NAMES, stop.Payload).Result()
 		if err != nil {
 			return nil, err
 		}

@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	stopsDB *Cache
+	cache *Cache
 )
 
 func handle(err error) {
@@ -23,12 +23,12 @@ func handle(err error) {
 
 func init() {
 	var err error
-	stopsDB, err = NewCache("localhost:6379", SUG)
+	cache, err = NewCache("localhost:6379", SUG)
 	handle(err)
 }
 
 func mustClearCache(is *is.I) {
-	_, err := stopsDB.conn.Do("FLUSHALL")
+	_, err := cache.conn.Do("FLUSHALL")
 	is.NoErr(err)
 }
 
@@ -40,11 +40,11 @@ func Test_scoreByTotalDepartures(t *testing.T) {
 func TestScore(t *testing.T) {
 	is := is.New(t)
 	mustClearCache(is)
-	err := stopsDB.Update()
+	err := cache.Update()
 	is.NoErr(err)
-	err = stopsDB.Score(make(<-chan os.Signal), mustLocalKrkStopsClient(is))
+	err = cache.Score(make(<-chan os.Signal), mustLocalKrkStopsClient(is))
 	is.NoErr(err)
-	scores, err := stopsDB.Redis.HGetAll(ctx, SCORES).Result()
+	scores, err := cache.redis.HGetAll(ctx, SCORES).Result()
 	is.NoErr(err)
 	is.Equal(scores, map[string]string{
 		"610": "1.0",

@@ -13,42 +13,42 @@ import (
 func TestUpdate(t *testing.T) {
 	is := is.New(t)
 	mustClearCache(is)
-	err := stopsDB.Update()
+	err := cache.Update()
 	is.NoErr(err)
-	busStops, err := stopsDB.Redis.SMembers(ctx, BUS).Result()
+	busStops, err := cache.redis.SMembers(ctx, BUS).Result()
 	is.NoErr(err)
 	mustHaveSameElements(is, busStops, []string{
 		"610",
 		"81",
 	})
-	tramStops, err := stopsDB.Redis.SMembers(ctx, TRAM).Result()
+	tramStops, err := cache.redis.SMembers(ctx, TRAM).Result()
 	is.NoErr(err)
 	mustHaveSameElements(is, tramStops, []string{
 		"610",
 	})
-	names, err := stopsDB.Redis.HGetAll(ctx, NAMES).Result()
+	names, err := cache.redis.HGetAll(ctx, NAMES).Result()
 	is.NoErr(err)
 	is.Equal(names, map[string]string{
 		"610": "Rondo Matecznego",
 		"81":  "Czarnowiejska",
 	})
-	toScore, err := stopsDB.Redis.SMembers(ctx, TO_SCORE).Result()
+	toScore, err := cache.redis.SMembers(ctx, TO_SCORE).Result()
 	is.NoErr(err)
 	mustHaveSameElements(is, toScore, []string{
 		"610",
 		"81",
 	})
-	exists, err := stopsDB.Redis.Exists(ctx, SCORES).Result()
+	exists, err := cache.redis.Exists(ctx, SCORES).Result()
 	is.NoErr(err)
 	is.Equal(exists, int64(0))
-	stops, err := stopsDB.Search("cza")
+	stops, err := cache.Search("cza")
 	is.NoErr(err)
 	is.Equal(len(stops), 1)
 	is.Equal(stops[0], &pb.Stop{
 		Id:   81,
 		Name: "Czarnowiejska",
 	})
-	stops, err = stopsDB.Search("ma")
+	stops, err = cache.Search("ma")
 	is.NoErr(err)
 	is.Equal(len(stops), 1)
 	is.Equal(stops[0], &pb.Stop{
