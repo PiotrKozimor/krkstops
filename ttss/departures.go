@@ -54,8 +54,8 @@ func (e Endpoint) Id() string {
 }
 
 // GetDepartures from Endpoint for stop with given shortName.
-func (e Endpoint) GetDepartures(shortName uint) ([]pb.Departure, error) {
-	resp, err := http.DefaultClient.Get(fmt.Sprintf(strings.Join([]string{e.URL, departuresPath}, "/"), shortName))
+func (e Endpoint) GetDepartures(id uint) ([]pb.Departure, error) {
+	resp, err := http.DefaultClient.Get(fmt.Sprintf(strings.Join([]string{e.URL, departuresPath}, "/"), id))
 	if err != nil {
 		return nil, ErrRequestFailed{err: err}
 	}

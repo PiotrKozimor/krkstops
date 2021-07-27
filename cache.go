@@ -2,10 +2,15 @@ package krkstops
 
 import (
 	"context"
+	"log"
+	"time"
 
+	"github.com/PiotrKozimor/krkstops/ttss"
 	"github.com/RediSearch/redisearch-go/redisearch"
 	"github.com/go-redis/redis/v8"
 	redi "github.com/gomodule/redigo/redis"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
 const (
@@ -47,4 +52,44 @@ func NewCache(redisURI, sugKey string) (*Cache, error) {
 
 func getTmpKey(k string) string {
 	return "tmp." + k
+}
+
+func (c *Cache) get(key string, val protoreflect.ProtoMessage) error {
+	raw, err := redi.Bytes(c.conn.Do("GET", key))
+	if err != nil {
+		return err
+	}
+	return proto.Unmarshal(raw, val)
+}
+
+func (c *Cache) message(key string, val protoreflect.ProtoMessage, exp time.Duration) error {
+	raw, err := proto.Marshal(val)
+	if err != nil {
+		return err
+	}
+	_, err = c.conn.Do("SET", key, raw, "PX", exp.Milliseconds())
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	return nil
+}
+
+func (c *Cache) getEndpoints(id uint32) ([]ttss.Endpoint, error) {
+	var endp []ttss.Endpoint
+	is, err := c.redis.SIsMember(ctx, BUS, id).Result()
+	if err != nil {
+		return nil, err
+	}
+	if is {
+		endp = append(endp, ttss.BusEndpoint)
+	}
+	is, err = c.redis.SIsMember(ctx, TRAM, id).Result()
+	if err != nil {
+		return nil, err
+	}
+	if is {
+		endp = append(endp, ttss.TramEndpoint)
+	}
+	return endp, nil
 }

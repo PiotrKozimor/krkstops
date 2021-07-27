@@ -47,8 +47,8 @@ func TestScore(t *testing.T) {
 	scores, err := cache.redis.HGetAll(ctx, SCORES).Result()
 	is.NoErr(err)
 	is.Equal(scores, map[string]string{
-		"610": "1.0",
-		"81":  "1.0",
+		"610": "3.29128784747792",
+		"81":  "2.6583123951777",
 	})
 }
 

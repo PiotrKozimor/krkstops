@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/PiotrKozimor/krkstops/pb"
-	"github.com/go-redis/redis/v8"
+	redi "github.com/gomodule/redigo/redis"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/matryer/is"
@@ -14,7 +14,7 @@ import (
 func TestCacheAirly(t *testing.T) {
 	is := is.New(t)
 	mustClearCache(is)
-	AirlyExpire = time.Millisecond * 10
+	airlyExpire = time.Millisecond * 10
 	testInst := pb.Installation{Id: 9914}
 	testAirly := pb.Airly{
 		Caqi:        32,
@@ -22,7 +22,7 @@ func TestCacheAirly(t *testing.T) {
 		Color:       435,
 		Temperature: 45.6,
 	}
-	mustNotBeCached(is, &testInst)
+	mustAirlyNotBeCached(is, &testInst)
 	err := cache.cacheAirly(&testAirly, &testInst)
 	is.NoErr(err)
 	cachedAirly, err := cache.getCachedAirly(&testInst)
@@ -31,10 +31,10 @@ func TestCacheAirly(t *testing.T) {
 		t.Errorf(diff)
 	}
 	time.Sleep(time.Millisecond * 11)
-	mustNotBeCached(is, &testInst)
+	mustAirlyNotBeCached(is, &testInst)
 }
 
-func mustNotBeCached(is *is.I, i *pb.Installation) {
+func mustAirlyNotBeCached(is *is.I, i *pb.Installation) {
 	_, err := cache.getCachedAirly(i)
-	is.Equal(err, redis.Nil)
+	is.Equal(err, redi.ErrNil)
 }

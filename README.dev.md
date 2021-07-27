@@ -1,8 +1,9 @@
 # Test
 
-bash .test.setup.sh
-
+```
+. .test.setup.sh
 go test ./...
+```
 
 
 # Stops database

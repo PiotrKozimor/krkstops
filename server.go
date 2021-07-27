@@ -2,13 +2,10 @@ package krkstops
 
 import (
 	"context"
-	"log"
-	"strconv"
 
 	"github.com/PiotrKozimor/krkstops/airly"
 	"github.com/PiotrKozimor/krkstops/pb"
 	"github.com/PiotrKozimor/krkstops/ttss"
-	"github.com/go-redis/redis/v8"
 )
 
 var ENDPOINT = "krkstops.germanywestcentral.cloudapp.azure.com:8080"
@@ -20,11 +17,24 @@ type KrkStopsServer struct {
 	Ttss  []ttss.Endpointer
 }
 
+func NewServer(redisURI string) (*KrkStopsServer, error) {
+	cache, err := NewCache(redisURI, SUG)
+	if err != nil {
+		return nil, err
+	}
+	server := KrkStopsServer{
+		C:     cache,
+		Airly: airly.Api,
+		Ttss:  ttss.KrkStopsEndpoints,
+	}
+	return &server, nil
+}
+
 func (s *KrkStopsServer) GetAirly(ctx context.Context, installation *pb.Installation) (*pb.Airly, error) {
 	var a *pb.Airly
 	var err error
 	a, err = s.C.getCachedAirly(installation)
-	if err == redis.Nil {
+	if err != nil {
 		a, err = s.Airly.GetAirly(installation)
 		if err != nil {
 			return a, err
@@ -32,98 +42,67 @@ func (s *KrkStopsServer) GetAirly(ctx context.Context, installation *pb.Installa
 		go s.C.cacheAirly(a, installation)
 	}
 	return a, err
-
-	// return airly, err
 }
 
 func (s *KrkStopsServer) GetDepartures(stop *pb.Stop, stream pb.KrkStops_GetDeparturesServer) error {
-
-	var deps []pb.Departure
-	isCached, err := isDepartureCached(s.C.redis, stop)
+	deps, err := s.C.getCachedDepartures(stop)
 	if err != nil {
-		log.Println(err)
-		isCached = false
-	}
-	if !isCached {
 		depsC, errC := ttss.GetDepartures(s.Ttss, uint(stop.Id))
 		for d := range depsC {
-			for _, departure := range d {
-				err := stream.Send(&departure)
+			for i := range d {
+				err := stream.Send(&d[i])
 				if err != nil {
 					return err
 				}
+				deps.Departures = append(deps.Departures, &d[i])
 			}
-			deps = append(deps, d...)
 		}
 		for err := range errC {
 			return err
 		}
-		go cacheDepartures(s.C.redis, deps, stop)
+		go s.C.cacheDepartures(deps, stop)
 	} else {
-		deps, err = getCachedDepartures(s.C.redis, stop)
-		ttl, err := s.C.redis.TTL(ctx, depsPrefix+strconv.Itoa(int(stop.Id))).Result()
-		livedFor := int32(depsExpire.Seconds() - ttl.Seconds())
-		for index := range deps {
-			if deps[index].RelativeTime != 0 {
-				deps[index].RelativeTime -= livedFor
-			}
-		}
-		if err != nil {
-			return err
-		}
-		for _, dep := range deps {
-			if err := stream.Send(&dep); err != nil {
+		for _, dep := range deps.Departures {
+			if err := stream.Send(dep); err != nil {
 				return err
 			}
 		}
 	}
+
 	return nil
 }
 
 func (s *KrkStopsServer) GetDepartures2(ctx context.Context, stop *pb.Stop) (*pb.Departures, error) {
-	var deps []pb.Departure
-	var returnedDepartures []*pb.Departure
-	isCached, err := isDepartureCached(s.C.redis, stop)
+	cachedDeps, err := s.C.getCachedDepartures(stop)
 	if err != nil {
-		log.Println(err)
-		isCached = false
-	}
-	if !isCached {
-		depsC, errC := ttss.GetDepartures(s.Ttss, uint(stop.Id))
-		for d := range depsC {
-			deps = append(deps, d...)
+		endpoints, err := s.C.getEndpoints(stop.Id)
+		if err != nil {
+			return nil, err
 		}
-		returnedDepartures = make([]*pb.Departure, len(deps))
+		deps := make([][]pb.Departure, len(endpoints))
+		allDepsLen := 0
+		for i, e := range endpoints {
+			deps[i], err = e.GetDepartures(uint(stop.Id))
+			if err != nil {
+				return nil, err
+			}
+			allDepsLen += len(deps[i])
+		}
+		allDeps := pb.Departures{
+			Departures: make([]*pb.Departure, allDepsLen),
+		}
+		k := 0
 		for i := range deps {
-			returnedDepartures[i] = &deps[i]
-		}
-		for err := range errC {
-			return nil, err
-		}
-		go cacheDepartures(s.C.redis, deps, stop)
-	} else {
-		deps, err = getCachedDepartures(s.C.redis, stop)
-		if err != nil {
-			return nil, err
-		}
-		ttl, err := s.C.redis.TTL(ctx, depsPrefix+strconv.Itoa(int(stop.Id))).Result()
-		if err != nil {
-			return nil, err
-		}
-		livedFor := int32(depsExpire.Seconds() - ttl.Seconds())
-		for index := range deps {
-			if deps[index].RelativeTime != 0 {
-				deps[index].RelativeTime -= livedFor
+			for j := range deps[i] {
+				allDeps.Departures[k] = &deps[i][j]
+				k++
 			}
 		}
-		returnedDepartures = make([]*pb.Departure, len(deps))
-		for i := range deps {
-			returnedDepartures[i] = &deps[i]
-		}
+		go s.C.cacheDepartures(&allDeps, stop)
+		return &allDeps, nil
+	} else {
+		return cachedDeps, nil
 	}
-	return &pb.Departures{
-		Departures: returnedDepartures,
-	}, nil
 }
 
 func (s *KrkStopsServer) SearchStops(search *pb.StopSearch, stream pb.KrkStops_SearchStopsServer) error {
