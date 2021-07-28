@@ -1,10 +1,7 @@
 package main
 
 import (
-	"context"
-
-	"github.com/RediSearch/redisearch-go/redisearch"
-	"github.com/go-redis/redis/v8"
+	"github.com/PiotrKozimor/krkstops"
 	"github.com/spf13/cobra"
 )
 
@@ -13,19 +10,17 @@ var (
 		Use:   "stopsctl",
 		Short: "Manipulate krkstops stops data saved in Redis and stops suggestions saved in Redisearch.",
 	}
-	redisClient      *redis.Client
-	redisearchClient *redisearch.Autocompleter
-	url              string
-	ctx              = context.Background()
+	cache *krkstops.Cache
+	uri   string
 )
 
-func initializeRedisClients() {
-	redisClient = redis.NewClient(&redis.Options{Addr: url})
-	redisearchClient = redisearch.NewAutocompleter(url, "search-stops")
+func initializeDB() (err error) {
+	cache, err = krkstops.NewCache(uri, krkstops.SUG)
+	return
 }
 
 func init() {
-	rootCmd.PersistentFlags().StringVarP(&url, "endpoint", "e", "localhost:6379", "redis url address to connect to")
+	rootCmd.PersistentFlags().StringVarP(&uri, "endpoint", "e", "localhost:6379", "URI of Redis endpoint")
 }
 
 func main() {

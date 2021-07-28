@@ -1,92 +1,102 @@
 package krkstops
 
 import (
-	"context"
-	"errors"
-	"io"
+	"fmt"
 	"math"
+	"os"
 	"strconv"
+	"strings"
+	"time"
 
 	"github.com/PiotrKozimor/krkstops/pb"
+	"github.com/RediSearch/redisearch-go/redisearch"
+	redi "github.com/gomodule/redigo/redis"
+	"golang.org/x/net/context"
 )
 
-const (
-	STOPS_TO_SCORE = "stops.toScore"
-	STOPS          = "stops"
-	STOPS_NEW      = "stops.new"
-	STOPS_TMP      = "stops.tmp"
-)
-
-var ScoringInitialized = errors.New("scoring is already initialized")
-
-func (c *Clients) ScoreStop(krk pb.KrkStopsClient, shortName string) (float64, error) {
-	id, err := strconv.Atoi(shortName)
-	if err != nil {
-		return 0, err
-	}
-	stream, err := krk.GetDepartures(context.Background(), &pb.Stop{Id: uint32(id)})
-	if err != nil {
-		return 0, err
-	}
-	totalDepartures := 0
+func (c *Cache) Score(ctx context.Context, cancel <-chan os.Signal, cli pb.KrkStopsClient, sleep time.Duration) error {
+outer:
 	for {
-		_, err := stream.Recv()
-		if err == nil {
-			totalDepartures += 1
-		} else if err == io.EOF {
-			return scoreByTotalDepartures(totalDepartures), nil
-		} else {
-			return 0, err
+		select {
+		case <-cancel:
+			break outer
+		default:
+			stop, err := c.getStoptoScore()
+			if err != nil {
+				if err == redi.ErrNil {
+					return nil
+				}
+				return err
+			}
+			score, err := c.scoreStop(ctx, stop, cli)
+			if err != nil {
+				return err
+			}
+			err = c.saveScore(stop, score)
+			if err != nil {
+				return err
+			}
+			err = c.addSuggestion(stop, score)
+			if err != nil {
+				return err
+			}
+			fmt.Printf("assigned score %f to stop %d  %s\n", score, stop.Id, stop.ShortName)
+			time.Sleep(sleep)
 		}
-	}
-}
 
-func (c *Clients) GetStopToScore() (shortName string, err error) {
-	shortName, err = c.Redis.SPop(ctx, STOPS_TO_SCORE).Result()
-	return
-}
-
-func (c *Clients) InitializeScoring() error {
-	exist, err := c.Redis.Exists(ctx, STOPS_TO_SCORE).Result()
-	if err != nil {
-		return err
-	}
-	if exist != 0 {
-		return ScoringInitialized
-	}
-	return c.RestartScoring()
-}
-
-func (c *Clients) RestartScoring() error {
-	res, err := c.Redis.SUnionStore(ctx, STOPS_TO_SCORE, STOPS).Result()
-	if err != nil {
-		return err
-	}
-	if res == 0 {
-		return errors.New("stops set not created, please call 'stopctl update' command")
 	}
 	return nil
 }
 
-func (c *Clients) FinishScoring() error {
-	res, err := c.Redis.Del(ctx, STOPS_TO_SCORE).Result()
+func (c *Cache) getStoptoScore() (*pb.Stop, error) {
+	var stop pb.Stop
+	id, err := redi.Int(c.conn.Do("SPOP", TO_SCORE))
 	if err != nil {
-		return err
+		return nil, err
 	}
-	if res != 1 {
-		return errors.New("scoring already finished")
+	stop.Id = uint32(id)
+	name, err := redi.String(c.conn.Do("HGET", NAMES, id))
+	if err != nil {
+		return nil, err
+	}
+	stop.Name = name
+	return &stop, err
+
+}
+
+func (c *Cache) scoreStop(ctx context.Context, stop *pb.Stop, cli pb.KrkStopsClient) (score float64, err error) {
+	deps, err := cli.GetDepartures2(ctx, stop)
+	if err != nil {
+		return 0, err
+	} else {
+		return scoreByTotalDepartures(len(deps.Departures)), nil
+	}
+}
+
+func (c *Cache) saveScore(stop *pb.Stop, score float64) error {
+	_, err := c.conn.Do("HSET", SCORES, stop.Id, score)
+	return err
+}
+
+func (c *Cache) addSuggestion(stop *pb.Stop, score float64) error {
+	splitted := strings.Split(stop.Name, " ")
+	for index, value := range splitted {
+		if value == "(nż)" {
+			splitted = append(splitted[:index], splitted[index+1:]...)
+		}
+	}
+	for i := 0; i < len(splitted); i++ {
+		swapped := append(splitted[i:], splitted[:i]...)
+		term := strings.Join(swapped, " ")
+		err := c.sugTmp.AddTerms(redisearch.Suggestion{Term: term, Score: score, Payload: strconv.Itoa(int(stop.Id))})
+		c.sugTmp.DeleteTerms()
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
 
 func scoreByTotalDepartures(total int) float64 {
 	return 1.0 + 0.5*math.Sqrt(float64(total))
-}
-
-func (c *Clients) ApplyScore(score float64, shortName string) error {
-	name, err := c.Redis.Get(ctx, shortName).Result()
-	if err != nil {
-		return err
-	}
-	return c.AddSuggestion(shortName, name, score)
 }

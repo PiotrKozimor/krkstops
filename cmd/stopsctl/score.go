@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
 	"os/signal"
@@ -8,75 +9,44 @@ import (
 
 	"github.com/PiotrKozimor/krkstops"
 	"github.com/PiotrKozimor/krkstops/pb"
-	"github.com/go-redis/redis/v8"
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
 )
 
 func init() {
-	scoreCmd.Flags().StringVar(&endpoint, "krk-endpoint", krkstops.ENDPOINT, "url address of krk-stops backend to connect to")
-	scoreCmd.Flags().BoolVar(&restartScoring, "reset", false, "restart scoring")
+	scoreCmd.Flags().StringVarP(&endpoint, "krkstops", "k", krkstops.ENDPOINT, "URL of krkstops endpoint")
+	scoreCmd.Flags().DurationVarP(&sleep, "sleep", "s", time.Second, "sleep time between scoring stops")
 	rootCmd.AddCommand(scoreCmd)
 
 }
 
-var endpoint string
-var restartScoring bool
-var stop = false
+var (
+	endpoint string
+	sleep    time.Duration
+)
 
 const STOPS_TO_SCORE = "stops.toScore"
 
+func handle(err error) {
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
 var scoreCmd = &cobra.Command{
-	Use:   "score",
-	Short: "score stop suggestions in Redisearch (by number of departures from stop)",
+	Use: "score",
+	Long: `score stop suggestions in Redisearch (by number of departures from stop). 
+Stop scoring by sending interrupt signal (ctrl+C).`,
 	Run: func(cmd *cobra.Command, args []string) {
-		log.SetFlags(log.LstdFlags | log.Lshortfile)
+		err := initializeDB()
+		handle(err)
+		conn, err := grpc.Dial(endpoint, grpc.WithInsecure())
+		handle(err)
+		client := pb.NewKrkStopsClient(conn)
 		c := make(chan os.Signal, 1)
 		signal.Notify(c, os.Interrupt)
-		go func() {
-			<-c
-			stop = true
-		}()
-		conn, err := grpc.Dial(endpoint, grpc.WithInsecure())
-		if err != nil {
-			log.Fatalf("fail to dial: %v", err)
-		}
-		client := pb.NewKrkStopsClient(conn)
-		initializeRedisClients()
-		cl := krkstops.Clients{
-			Redis:              redisClient,
-			RedisAutocompleter: redisearchClient,
-		}
-		if restartScoring {
-			err = cl.RestartScoring()
-		} else {
-			err = cl.InitializeScoring()
-		}
-		if err == krkstops.ScoringInitialized {
-			log.Println("Scoring is already initialized, continuing")
-		} else if err != nil {
-			log.Fatal(err)
-		}
-		for {
-			if stop {
-				log.Print("Exiting gracefully")
-				break
-			}
-			stop, err := cl.GetStopToScore()
-			if err != nil {
-				log.Fatal(err)
-			}
-			if err == redis.Nil {
-				log.Println("All stops scored")
-				break
-			}
-			score, err := cl.ScoreStop(client, stop)
-			if err != nil {
-				log.Fatal(err)
-			}
-			cl.ApplyScore(score, stop)
-			log.Printf("Score %.3f \t for stop: %s applied\n", score, stop)
-			time.Sleep(time.Second)
-		}
+		err = cache.Score(context.Background(), c, client, sleep)
+		handle(err)
+		println("scoring finished")
 	},
 }

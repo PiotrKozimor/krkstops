@@ -6,41 +6,39 @@ import (
 
 	"github.com/PiotrKozimor/krkstops/mock"
 	"github.com/PiotrKozimor/krkstops/pb"
-	"github.com/stretchr/testify/assert"
+	"github.com/matryer/is"
 )
 
-var mockEndp = Endpoint("http://localhost:8090")
-
 func TestGetAirly(t *testing.T) {
+	is := is.New(t)
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	go mock.Airly(ctx)
-	airly, err := mockEndp.GetAirly(&pb.Installation{Id: 8077})
-	assert.NoError(t, err)
-	assert.Equal(t, int32(12), airly.Caqi)
-	assert.Equal(t, int32(46), airly.Humidity)
-	assert.Equal(t, float32(12.33), airly.Temperature)
-	assert.Equal(t, uint32(7063846), airly.Color)
-	t.Logf("%+v", airly)
+	airly, err := Api.GetAirly(&pb.Installation{Id: 8077})
+	is.NoErr(err)
+	is.Equal(int32(12), airly.Caqi)
+	is.Equal(int32(46), airly.Humidity)
+	is.Equal(float32(12.33), airly.Temperature)
+	is.Equal(uint32(7063846), airly.Color)
 }
 
 func TestFindAirlyInstallation(t *testing.T) {
+	is := is.New(t)
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	go mock.Airly(ctx)
-	inst, err := mockEndp.NearestInstallation(&pb.InstallationLocation{Latitude: 50.0236288, Longitude: 19.942604799999998})
-	assert.NoError(t, err)
-	assert.Equal(t, int32(8077), inst.Id)
-	t.Logf("%+v", inst)
+	inst, err := Api.NearestInstallation(&pb.InstallationLocation{Latitude: 50.0236288, Longitude: 19.942604799999998})
+	is.NoErr(err)
+	is.Equal(int32(8077), inst.Id)
 }
 
 func TestGetAirlyInstallation(t *testing.T) {
+	is := is.New(t)
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	go mock.Airly(ctx)
-	inst, err := mockEndp.GetInstallation(8077)
-	assert.NoError(t, err)
-	t.Logf("%+v", inst)
-	assert.Equal(t, float32(50.062008), inst.Latitude)
-	assert.Equal(t, float32(19.940985), inst.Longitude)
+	inst, err := Api.GetInstallation(8077)
+	is.NoErr(err)
+	is.Equal(float32(50.062008), inst.Latitude)
+	is.Equal(float32(19.940985), inst.Longitude)
 }

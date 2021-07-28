@@ -1,13 +1,11 @@
 package krkstops
 
 import (
-	"log"
 	"strconv"
 	"time"
 
 	"github.com/PiotrKozimor/krkstops/pb"
-	"github.com/go-redis/redis/v8"
-	"google.golang.org/protobuf/proto"
+	"golang.org/x/net/context"
 )
 
 var depsExpire = time.Second * 15
@@ -18,58 +16,25 @@ func getDeparturesKey(d *pb.Stop) string {
 	return depsPrefix + strconv.Itoa(int(d.Id))
 }
 
-func isDepartureCached(c *redis.Client, stop *pb.Stop) (cached bool, err error) {
-	var exist int64
-	exist, err = c.Exists(ctx, getDeparturesKey(stop)).Result()
-	if err != nil {
-		return
-	}
-	if err != nil || exist == 0 {
-		cached = false
-	} else {
-		cached = true
-	}
-	return
+func (c *Cache) departures(deps *pb.Departures, stop *pb.Stop) (err error) {
+	return c.message(getDeparturesKey(stop), deps, depsExpire)
 }
 
-func cacheDepartures(c *redis.Client, deps []pb.Departure, stop *pb.Stop) (err error) {
-	pipe := c.Pipeline()
-	executePipe := true
-	pipe.Del(ctx, getDeparturesKey(stop))
-	rawDeps := make([]interface{}, len(deps))
-	for index := range deps {
-		rawDeps[index], err = proto.Marshal(&(deps[index]))
-		if err != nil {
-			log.Println(err)
-			return
-		}
-	}
-	pipe.RPush(ctx, getDeparturesKey(stop), rawDeps...)
-	pipe.Expire(ctx, getDeparturesKey(stop), depsExpire)
-	if executePipe {
-		_, err = pipe.Exec(ctx)
-		if err != nil {
-			log.Println(err)
-			return
-		}
-	}
-	return
-}
-
-func getCachedDepartures(c *redis.Client, stop *pb.Stop) (departures []pb.Departure, err error) {
-	countDepartures, err := c.LLen(ctx, getDeparturesKey(stop)).Result()
+func (c *Cache) getDepartures(ctx context.Context, stop *pb.Stop) (departures *pb.Departures, err error) {
+	departures = &pb.Departures{}
+	err = c.get(getDeparturesKey(stop), departures)
 	if err != nil {
 		return
 	}
-	rawDepartures, err := c.LRange(ctx, getDeparturesKey(stop), 0, -1).Result()
-	departures = make([]pb.Departure, countDepartures)
+	var ttl time.Duration
+	ttl, err = c.redis.TTL(ctx, depsPrefix+strconv.Itoa(int(stop.Id))).Result()
 	if err != nil {
 		return
 	}
-	for index, rawDep := range rawDepartures {
-		err = proto.Unmarshal([]byte(rawDep), &departures[index])
-		if err != nil {
-			return
+	livedFor := int32(depsExpire.Seconds() - ttl.Seconds())
+	for index := range departures.Departures {
+		if departures.Departures[index].RelativeTime != 0 {
+			departures.Departures[index].RelativeTime -= livedFor
 		}
 	}
 	return

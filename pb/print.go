@@ -2,17 +2,18 @@ package pb
 
 import (
 	"fmt"
-	"os"
 	"text/tabwriter"
+
+	"github.com/spf13/cobra"
 )
 
 type PrettyPrint struct {
 	*tabwriter.Writer
 }
 
-func NewPrettyPrint() PrettyPrint {
+func NewPrettyPrint(cmd *cobra.Command) PrettyPrint {
 	return PrettyPrint{
-		tabwriter.NewWriter(os.Stdout, 1, 2, 2, ' ', 0),
+		tabwriter.NewWriter(cmd.OutOrStdout(), 1, 2, 2, ' ', 0),
 	}
 }
 
@@ -24,17 +25,19 @@ func (p PrettyPrint) Airly(airly *Airly) {
 }
 
 // PrettyPrint stops
-func (p *PrettyPrint) Stops(stops []Stop) {
-	for i, stop := range stops {
-		fmt.Fprintf(p, "%d\t%d\t%s\t\n", i, stop.Id, stop.Name)
+func (p *PrettyPrint) Stops(stops []*Stop) {
+	fmt.Fprintf(p, "NO\tID\tNAME\n")
+	for i := range stops {
+		fmt.Fprintf(p, "%d\t%d\t%s\t\n", i, stops[i].Id, stops[i].Name)
 	}
 	p.Flush()
 }
 
 // PrettyPrint departures
-func (p *PrettyPrint) Departures(deps []Departure) {
+func (p *PrettyPrint) Departures(deps []*Departure) {
+	fmt.Fprintf(p, "ID\tNUMBER\tDIRECTION\tPLANNED\tRELATIVE\n")
 	for _, dep := range deps {
-		fmt.Fprintf(p, "%s\t%s\t%d\t%s\t\n", dep.PatternText, dep.Direction, dep.RelativeTime, dep.PlannedTime)
+		fmt.Fprintf(p, "%s\t%s\t%d\t%s\t%d\n", dep.PatternText, dep.Direction, dep.RelativeTime, dep.PlannedTime, dep.RelativeTime)
 	}
 	p.Flush()
 }

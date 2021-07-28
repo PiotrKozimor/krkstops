@@ -7,7 +7,9 @@ service KrkStops {
     rpc FindNearestAirlyInstallation(InstallationLocation) returns (Installation) {}
     rpc GetAirlyInstallation(Installation) returns (Installation) {}
     rpc GetDepartures(Stop) returns (stream Departure) {}
+    rpc GetDepartures2(Stop) returns (Departures) {}
     rpc SearchStops(StopSearch) returns (stream Stop) {}
+    rpc SearchStops2(StopSearch) returns (Stops) {}
 }
 
 enum Endpoint {
@@ -48,6 +50,15 @@ message Stop {
     uint32 id = 3;
     Endpoint type = 4;
 }
+
+message Stops {
+    repeated Stop stops = 1;
+}
+
+message Departures {
+    repeated Departure departures = 1;
+}
+
 message StopSearch {
     string query = 1;
 }

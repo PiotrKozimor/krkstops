@@ -15,7 +15,7 @@ const (
 	STOP_NOT_FOUND   // Stop was not found
 )
 
-func log(endpointId string, stopId uint) *logrus.Entry {
+func logIt(endpointId string, stopId uint) *logrus.Entry {
 	return logrus.WithFields(logrus.Fields{
 		"endpoint": endpointId,
 		"stop":     stopId,
@@ -36,10 +36,10 @@ func GetDeparturesErrorCode(e Endpointer, id uint) (errorCode int) {
 		default:
 			errorCode = OTHER_ERROR
 		}
-		log(e.Id(), id).Error(err)
+		logIt(e.Id(), id).Error(err)
 	} else if len(dep) == 0 {
 		errorCode = EMPTY_DEPARTURES
-		log(e.Id(), id).Error("got no departures")
+		logIt(e.Id(), id).Error("got no departures")
 	}
 	return
 }

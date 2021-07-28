@@ -14,7 +14,12 @@
 
 .lock 
 *.pem
-cmd/**
-!cmd/**.go
-KRKSTOPS
+**/__debug_bin
+cmd/airlyctl/airlyctl
+cmd/krkstopsctl/krkstopsctl
+cmd/ttssctl/ttssctl
+cmd/stopsctl/stopsctl
+cmd/krkstops/krkstops
+cmd/mock/mock
+cmd/ttssmonitord/ttssmonitord
 .env.priv

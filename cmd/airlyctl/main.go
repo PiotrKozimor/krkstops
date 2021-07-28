@@ -19,15 +19,17 @@ var (
 			if err != nil {
 				log.Fatal(err)
 			}
-			pp := pb.NewPrettyPrint()
+			pp := pb.NewPrettyPrint(cmd)
 			pp.Airly(airly)
 		},
 	}
-	id int32
+	id  int32
+	url string
 )
 
 func init() {
 	rootCmd.Flags().Int32Var(&id, "id", 9895, "id of installation to query. Find it from map on https://airly.eu/map/pl/")
+	rootCmd.Flags().StringVar(&url, "airly", "https://airapi.airly.eu", "URL of airly endpoint")
 }
 
 func main() {

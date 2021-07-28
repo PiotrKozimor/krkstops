@@ -1,56 +1,53 @@
 package krkstops
 
 import (
-	"context"
-	"log"
 	"testing"
 	"time"
 
 	"github.com/PiotrKozimor/krkstops/pb"
-	"github.com/go-redis/redis/v8"
+	redi "github.com/gomodule/redigo/redis"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
-	"github.com/stretchr/testify/assert"
+	"github.com/matryer/is"
 )
 
 func TestCacheDepartures(t *testing.T) {
-	depsExpire = time.Second * 1
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	client := redis.NewClient(
-		&redis.Options{
-			Addr: "localhost:6380"})
-	testStop := pb.Stop{Name: "Nor", ShortName: "45"}
-	testDepartures := []pb.Departure{
-		{
-			Direction:   "Czerwone Maki Żółć",
-			PatternText: "52",
-			PlannedTime: "21:43",
-		},
-		{
-			Direction:   "Rząka",
-			PatternText: "139",
-			PlannedTime: "4:32",
-		},
-	}
-	_, err := client.Del(context.Background(), getDeparturesKey(&testStop)).Result()
-	assert.NoError(t, err)
-	isCached, err := isDepartureCached(client, &testStop)
-	assert.NoError(t, err)
-	assert.False(t, isCached)
-	err = cacheDepartures(client, testDepartures, &testStop)
-	assert.NoError(t, err)
-	isCached, err = isDepartureCached(client, &testStop)
-	assert.NoError(t, err)
-	assert.True(t, isCached)
-	cachedDeps, err := getCachedDepartures(client, &testStop)
-	assert.NoError(t, err)
-	for index, cachedDep := range cachedDeps {
-		if diff := cmp.Diff(cachedDep, testDepartures[index], cmpopts.IgnoreUnexported(cachedDep)); diff != "" {
-			t.Errorf(diff)
+	if !testing.Short() {
+		is := is.New(t)
+		mustClearCache(is)
+		depsExpire = time.Millisecond * 10
+		testStop := pb.Stop{Name: "Nor", ShortName: "45"}
+		testDepartures := pb.Departures{
+			Departures: []*pb.Departure{
+				{
+					Direction:   "Czerwone Maki Żółć",
+					PatternText: "52",
+					PlannedTime: "21:43",
+				},
+				{
+					Direction:   "Rząka",
+					PatternText: "139",
+					PlannedTime: "4:32",
+				},
+			},
 		}
+		mustDepsNotBeCached(is, &testStop)
+		err := cache.departures(&testDepartures, &testStop)
+		is.NoErr(err)
+		cachedDeps, err := cache.getDepartures(ctx, &testStop)
+		is.NoErr(err)
+		opts := cmpopts.IgnoreUnexported(*testDepartures.Departures[0])
+		for i := range cachedDeps.Departures {
+			if diff := cmp.Diff(*cachedDeps.Departures[i], *testDepartures.Departures[i], opts); diff != "" {
+				t.Errorf(diff)
+			}
+		}
+		time.Sleep(time.Millisecond * 11)
+		mustDepsNotBeCached(is, &testStop)
 	}
-	time.Sleep(time.Millisecond * 1001)
-	isCached, err = isDepartureCached(client, &testStop)
-	assert.NoError(t, err)
-	assert.False(t, isCached)
+}
+
+func mustDepsNotBeCached(is *is.I, s *pb.Stop) {
+	_, err := cache.getDepartures(ctx, s)
+	is.Equal(err, redi.ErrNil)
 }

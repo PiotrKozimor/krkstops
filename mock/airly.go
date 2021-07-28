@@ -34,7 +34,7 @@ func airlyHandler(w http.ResponseWriter, r *http.Request) {
 
 func Airly(ctx context.Context) {
 	srv := http.Server{
-		Addr:    "localhost:8090",
+		Addr:    "0.0.0.0:8072",
 		Handler: HandlerFunc(airlyHandler),
 	}
 	go func() {
@@ -43,5 +43,4 @@ func Airly(ctx context.Context) {
 	}()
 	<-ctx.Done()
 	srv.Shutdown(ctx)
-	log.Printf("airly server shutdown")
 }
