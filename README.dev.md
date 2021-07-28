@@ -1,12 +1,20 @@
 # Test
 
+Run krkstops:
+```
+. .test.setup.sh
+go run cmd/krkstops.go
+```
+or debug using `krkstops` configuration in VS Code.
+
+In other terminal run tests:
 ```
 . .test.setup.sh
 go test ./...
 ```
 
 
-# Stops database
+# Cache
 
 `bus` - SET holding ids of bus stops
 
@@ -26,13 +34,14 @@ go test ./...
 
 Please note that data exposed to client will only be affected in last step, when we execute key renaming.
 
-1. Featch bus and tram 
-2. Add id to `tmp.bus` and/or `tmp.tram`.
-3. Filter out non-unique stops (by id, using e.g. map).
-4. Add stops names to `tmp.names`.
-5. Try to get score for stop from `scores`.
-6. Create suggestion in `tmp.sug` for each score. If score was not available, apply temporary score `1` and add stop id to `tmp.to.score`.
-7. Remove `tmp.` prefix from all keys above (with `RENAME` operation).
+1. Featch bus and tram.
+2. Remove `to.score` key. 
+3. Add id to `tmp.bus` and/or `tmp.tram`.
+4. Filter out non-unique stops (by id, using e.g. map).
+5. Add stops names to `tmp.names`.
+6. Try to get score for stop from `scores`.
+7. Create suggestion in `tmp.sug` for each score. If score was not available, apply temporary score `1` and add stop id to `to.score`.
+8. Remove `tmp.` prefix from all keys above (with `RENAME` operation).
 
 ### Score stops
 
