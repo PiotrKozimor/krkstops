@@ -14,7 +14,7 @@ var (
 		Short: "Update stops in Redis and suggestions in Redisearch",
 		Run: func(cmd *cobra.Command, args []string) {
 			initializeDB()
-			err := db.Update()
+			err := cache.Update()
 			handle(err)
 			println("stops updated sucessfully.")
 		},

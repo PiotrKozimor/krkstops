@@ -32,9 +32,9 @@ func TestCacheDepartures(t *testing.T) {
 			},
 		}
 		mustDepsNotBeCached(is, &testStop)
-		err := cache.cacheDepartures(&testDepartures, &testStop)
+		err := cache.departures(&testDepartures, &testStop)
 		is.NoErr(err)
-		cachedDeps, err := cache.getCachedDepartures(ctx, &testStop)
+		cachedDeps, err := cache.getDepartures(ctx, &testStop)
 		is.NoErr(err)
 		opts := cmpopts.IgnoreUnexported(*testDepartures.Departures[0])
 		for i := range cachedDeps.Departures {
@@ -48,6 +48,6 @@ func TestCacheDepartures(t *testing.T) {
 }
 
 func mustDepsNotBeCached(is *is.I, s *pb.Stop) {
-	_, err := cache.getCachedDepartures(ctx, s)
+	_, err := cache.getDepartures(ctx, s)
 	is.Equal(err, redi.ErrNil)
 }

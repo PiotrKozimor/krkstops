@@ -14,29 +14,29 @@ import (
 	"golang.org/x/net/context"
 )
 
-func (db *Cache) Score(ctx context.Context, c <-chan os.Signal, cli pb.KrkStopsClient, sleep time.Duration) error {
+func (c *Cache) Score(ctx context.Context, cancel <-chan os.Signal, cli pb.KrkStopsClient, sleep time.Duration) error {
 outer:
 	for {
 		select {
-		case <-c:
+		case <-cancel:
 			break outer
 		default:
-			stop, err := db.getStoptoScore()
+			stop, err := c.getStoptoScore()
 			if err != nil {
 				if err == redi.ErrNil {
 					return nil
 				}
 				return err
 			}
-			score, err := db.scoreStop(ctx, stop, cli)
+			score, err := c.scoreStop(ctx, stop, cli)
 			if err != nil {
 				return err
 			}
-			err = db.saveScore(stop, score)
+			err = c.saveScore(stop, score)
 			if err != nil {
 				return err
 			}
-			err = db.addSuggestion(stop, score)
+			err = c.addSuggestion(stop, score)
 			if err != nil {
 				return err
 			}
@@ -48,14 +48,14 @@ outer:
 	return nil
 }
 
-func (db *Cache) getStoptoScore() (*pb.Stop, error) {
+func (c *Cache) getStoptoScore() (*pb.Stop, error) {
 	var stop pb.Stop
-	id, err := redi.Int(db.conn.Do("SPOP", TO_SCORE))
+	id, err := redi.Int(c.conn.Do("SPOP", TO_SCORE))
 	if err != nil {
 		return nil, err
 	}
 	stop.Id = uint32(id)
-	name, err := redi.String(db.conn.Do("HGET", NAMES, id))
+	name, err := redi.String(c.conn.Do("HGET", NAMES, id))
 	if err != nil {
 		return nil, err
 	}
@@ -73,8 +73,8 @@ func (c *Cache) scoreStop(ctx context.Context, stop *pb.Stop, cli pb.KrkStopsCli
 	}
 }
 
-func (db *Cache) saveScore(stop *pb.Stop, score float64) error {
-	_, err := db.conn.Do("HSET", SCORES, stop.Id, score)
+func (c *Cache) saveScore(stop *pb.Stop, score float64) error {
+	_, err := c.conn.Do("HSET", SCORES, stop.Id, score)
 	return err
 }
 

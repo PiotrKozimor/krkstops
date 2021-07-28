@@ -13,8 +13,8 @@ import (
 
 type uniqueStops map[uint32]string
 
-func (db *Cache) Search(ctx context.Context, phrase string) ([]*pb.Stop, error) {
-	stops, err := db.sug.SuggestOpts(
+func (c *Cache) Search(ctx context.Context, phrase string) ([]*pb.Stop, error) {
+	stops, err := c.sug.SuggestOpts(
 		phrase, redisearch.SuggestOptions{
 			Num:          10,
 			Fuzzy:        true,
@@ -26,7 +26,7 @@ func (db *Cache) Search(ctx context.Context, phrase string) ([]*pb.Stop, error) 
 	}
 	stopsP := make([]*pb.Stop, len(stops))
 	for i, stop := range stops {
-		name, err := db.redis.HGet(ctx, NAMES, stop.Payload).Result()
+		name, err := c.redis.HGet(ctx, NAMES, stop.Payload).Result()
 		if err != nil {
 			return nil, err
 		}
@@ -40,8 +40,8 @@ func (db *Cache) Search(ctx context.Context, phrase string) ([]*pb.Stop, error) 
 	return stopsP, nil
 }
 
-func (db *Cache) Update() error {
-	_, err := db.conn.Do("DEL", TO_SCORE)
+func (c *Cache) Update() error {
+	_, err := c.conn.Do("DEL", TO_SCORE)
 	if err != nil {
 		return err
 	}
@@ -49,12 +49,12 @@ func (db *Cache) Update() error {
 	if err != nil {
 		return err
 	}
-	db.fillIdSet(BUS, busStops)
+	c.fillIdSet(BUS, busStops)
 	tramStops, err := ttss.TramEndpoint.GetAllStops()
 	if err != nil {
 		return err
 	}
-	db.fillIdSet(TRAM, tramStops)
+	c.fillIdSet(TRAM, tramStops)
 	uniqueStops := make(map[uint32]string, len(busStops))
 	for i := range busStops {
 		uniqueStops[busStops[i].Id] = busStops[i].Name
@@ -62,18 +62,18 @@ func (db *Cache) Update() error {
 	for i := range tramStops {
 		uniqueStops[tramStops[i].Id] = tramStops[i].Name
 	}
-	err = db.fillNamesHash(uniqueStops)
+	err = c.fillNamesHash(uniqueStops)
 	if err != nil {
 		return err
 	}
-	err = db.fillSuggestions(uniqueStops)
+	err = c.fillSuggestions(uniqueStops)
 	if err != nil {
 		return err
 	}
-	return db.finishUpdate()
+	return c.finishUpdate()
 }
 
-func (db *Cache) fillIdSet(key string, stops []pb.Stop) error {
+func (c *Cache) fillIdSet(key string, stops []pb.Stop) error {
 	ids := make([]interface{}, len(stops))
 	for i := range stops {
 		ids[i] = stops[i].Id
@@ -82,11 +82,11 @@ func (db *Cache) fillIdSet(key string, stops []pb.Stop) error {
 		[]interface{}{getTmpKey(key)},
 		ids...,
 	)
-	_, err := db.conn.Do("SADD", args...)
+	_, err := c.conn.Do("SADD", args...)
 	return err
 }
 
-func (db *Cache) fillNamesHash(stops uniqueStops) error {
+func (c *Cache) fillNamesHash(stops uniqueStops) error {
 	args := make([]interface{}, 2*len(stops))
 	i := 0
 	for id, name := range stops {
@@ -94,7 +94,7 @@ func (db *Cache) fillNamesHash(stops uniqueStops) error {
 		args[i+1] = name
 		i += 2
 	}
-	_, err := db.conn.Do("HSET", append([]interface{}{getTmpKey(NAMES)}, args...)...)
+	_, err := c.conn.Do("HSET", append([]interface{}{getTmpKey(NAMES)}, args...)...)
 	return err
 }
 
@@ -123,7 +123,7 @@ func (c *Cache) fillSuggestions(stops uniqueStops) error {
 	return nil
 }
 
-func (db *Cache) finishUpdate() error {
+func (c *Cache) finishUpdate() error {
 	commands := []string{
 		BUS,
 		TRAM,
@@ -131,17 +131,17 @@ func (db *Cache) finishUpdate() error {
 		SUG,
 	}
 	for _, cmd := range commands {
-		err := db.conn.Send("RENAME", getTmpKey(cmd), cmd)
+		err := c.conn.Send("RENAME", getTmpKey(cmd), cmd)
 		if err != nil {
 			return err
 		}
 	}
-	err := db.conn.Flush()
+	err := c.conn.Flush()
 	if err != nil {
 		return err
 	}
 	for i := 0; i < len(commands); i++ {
-		_, err = db.conn.Receive()
+		_, err = c.conn.Receive()
 		if err != nil {
 			return err
 		}

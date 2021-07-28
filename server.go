@@ -12,7 +12,7 @@ var ENDPOINT = "krkstops.germanywestcentral.cloudapp.azure.com:8080"
 
 type KrkStopsServer struct {
 	pb.UnimplementedKrkStopsServer
-	C     *Cache
+	cache *Cache
 	Airly airly.Endpoint
 	Ttss  []ttss.Endpointer
 }
@@ -23,7 +23,7 @@ func NewServer(redisURI string) (*KrkStopsServer, error) {
 		return nil, err
 	}
 	server := KrkStopsServer{
-		C:     cache,
+		cache: cache,
 		Airly: airly.Api,
 		Ttss:  ttss.KrkStopsEndpoints,
 	}
@@ -33,19 +33,19 @@ func NewServer(redisURI string) (*KrkStopsServer, error) {
 func (s *KrkStopsServer) GetAirly(ctx context.Context, installation *pb.Installation) (*pb.Airly, error) {
 	var a *pb.Airly
 	var err error
-	a, err = s.C.getCachedAirly(installation)
+	a, err = s.cache.getAirly(installation)
 	if err != nil {
 		a, err = s.Airly.GetAirly(installation)
 		if err != nil {
 			return a, err
 		}
-		go s.C.cacheAirly(a, installation)
+		go s.cache.airly(a, installation)
 	}
 	return a, err
 }
 
 func (s *KrkStopsServer) GetDepartures(stop *pb.Stop, stream pb.KrkStops_GetDeparturesServer) error {
-	deps, err := s.C.getCachedDepartures(context.Background(), stop)
+	deps, err := s.cache.getDepartures(context.Background(), stop)
 	if err != nil {
 		depsC, errC := ttss.GetDepartures(s.Ttss, uint(stop.Id))
 		for d := range depsC {
@@ -60,7 +60,7 @@ func (s *KrkStopsServer) GetDepartures(stop *pb.Stop, stream pb.KrkStops_GetDepa
 		for err := range errC {
 			return err
 		}
-		go s.C.cacheDepartures(deps, stop)
+		go s.cache.departures(deps, stop)
 	} else {
 		for _, dep := range deps.Departures {
 			if err := stream.Send(dep); err != nil {
@@ -73,9 +73,9 @@ func (s *KrkStopsServer) GetDepartures(stop *pb.Stop, stream pb.KrkStops_GetDepa
 }
 
 func (s *KrkStopsServer) GetDepartures2(ctx context.Context, stop *pb.Stop) (*pb.Departures, error) {
-	cachedDeps, err := s.C.getCachedDepartures(ctx, stop)
+	cachedDeps, err := s.cache.getDepartures(ctx, stop)
 	if err != nil {
-		endpoints, err := s.C.getEndpoints(ctx, stop.Id)
+		endpoints, err := s.cache.getEndpoints(ctx, stop.Id)
 		if err != nil {
 			return nil, err
 		}
@@ -98,7 +98,7 @@ func (s *KrkStopsServer) GetDepartures2(ctx context.Context, stop *pb.Stop) (*pb
 				k++
 			}
 		}
-		go s.C.cacheDepartures(&allDeps, stop)
+		go s.cache.departures(&allDeps, stop)
 		return &allDeps, nil
 	} else {
 		return cachedDeps, nil
@@ -106,7 +106,7 @@ func (s *KrkStopsServer) GetDepartures2(ctx context.Context, stop *pb.Stop) (*pb
 }
 
 func (s *KrkStopsServer) SearchStops(search *pb.StopSearch, stream pb.KrkStops_SearchStopsServer) error {
-	stops, err := s.C.Search(context.Background(), search.Query)
+	stops, err := s.cache.Search(context.Background(), search.Query)
 	if err != nil {
 		return err
 	}
@@ -119,7 +119,7 @@ func (s *KrkStopsServer) SearchStops(search *pb.StopSearch, stream pb.KrkStops_S
 }
 
 func (s *KrkStopsServer) SearchStops2(ctx context.Context, search *pb.StopSearch) (*pb.Stops, error) {
-	stops, err := s.C.Search(ctx, search.Query)
+	stops, err := s.cache.Search(ctx, search.Query)
 	return &pb.Stops{
 		Stops: stops,
 	}, err

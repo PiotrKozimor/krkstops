@@ -45,7 +45,7 @@ Stop scoring by sending interrupt signal (ctrl+C).`,
 		client := pb.NewKrkStopsClient(conn)
 		c := make(chan os.Signal, 1)
 		signal.Notify(c, os.Interrupt)
-		err = db.Score(context.Background(), c, client, sleep)
+		err = cache.Score(context.Background(), c, client, sleep)
 		handle(err)
 		println("scoring finished")
 	},

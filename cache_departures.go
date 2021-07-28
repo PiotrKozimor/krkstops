@@ -16,11 +16,11 @@ func getDeparturesKey(d *pb.Stop) string {
 	return depsPrefix + strconv.Itoa(int(d.Id))
 }
 
-func (c *Cache) cacheDepartures(deps *pb.Departures, stop *pb.Stop) (err error) {
+func (c *Cache) departures(deps *pb.Departures, stop *pb.Stop) (err error) {
 	return c.message(getDeparturesKey(stop), deps, depsExpire)
 }
 
-func (c *Cache) getCachedDepartures(ctx context.Context, stop *pb.Stop) (departures *pb.Departures, err error) {
+func (c *Cache) getDepartures(ctx context.Context, stop *pb.Stop) (departures *pb.Departures, err error) {
 	departures = &pb.Departures{}
 	err = c.get(getDeparturesKey(stop), departures)
 	if err != nil {

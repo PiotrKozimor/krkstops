@@ -41,13 +41,13 @@ func NewCache(redisURI, sugKey string) (*Cache, error) {
 	r := redis.NewClient(&redis.Options{
 		Addr: redisURI,
 	})
-	db := Cache{
+	c := Cache{
 		conn:   conn,
 		sugTmp: acTmp,
 		sug:    ac,
 		redis:  r,
 	}
-	return &db, err
+	return &c, err
 }
 
 func getTmpKey(k string) string {

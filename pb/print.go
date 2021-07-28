@@ -25,7 +25,8 @@ func (p PrettyPrint) Airly(airly *Airly) {
 }
 
 // PrettyPrint stops
-func (p *PrettyPrint) Stops(stops []Stop) {
+func (p *PrettyPrint) Stops(stops []*Stop) {
+	fmt.Fprintf(p, "NO\tID\tNAME\n")
 	for i := range stops {
 		fmt.Fprintf(p, "%d\t%d\t%s\t\n", i, stops[i].Id, stops[i].Name)
 	}
@@ -33,9 +34,10 @@ func (p *PrettyPrint) Stops(stops []Stop) {
 }
 
 // PrettyPrint departures
-func (p *PrettyPrint) Departures(deps []Departure) {
+func (p *PrettyPrint) Departures(deps []*Departure) {
+	fmt.Fprintf(p, "ID\tNUMBER\tDIRECTION\tPLANNED\tRELATIVE\n")
 	for _, dep := range deps {
-		fmt.Fprintf(p, "%s\t%s\t%d\t%s\t\n", dep.PatternText, dep.Direction, dep.RelativeTime, dep.PlannedTime)
+		fmt.Fprintf(p, "%s\t%s\t%d\t%s\t%d\n", dep.PatternText, dep.Direction, dep.RelativeTime, dep.PlannedTime, dep.RelativeTime)
 	}
 	p.Flush()
 }

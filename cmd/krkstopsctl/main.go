@@ -2,8 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
-	"io"
 	"log"
 	"time"
 
@@ -12,6 +10,12 @@ import (
 	"github.com/spf13/cobra"
 	grpc "google.golang.org/grpc"
 )
+
+func handle(err error) {
+	if err != nil {
+		log.Fatal(err)
+	}
+}
 
 var (
 	rootCmd = &cobra.Command{
@@ -25,9 +29,7 @@ var (
 			initClient()
 			defer cancel()
 			airly, err := client.GetAirly(ctx, &pb.Installation{Id: airlyId})
-			if err != nil {
-				log.Fatalf("fail to get airly: %v", err)
-			}
+			handle(err)
 			pp := pb.NewPrettyPrint(cmd)
 			pp.Airly(airly)
 		},
@@ -38,21 +40,10 @@ var (
 		Run: func(cmd *cobra.Command, args []string) {
 			initClient()
 			defer cancel()
-			depsStrem, err := client.GetDepartures(ctx, &pb.Stop{Id: uint32(stopId)})
-			if err != nil {
-				log.Fatalf("fail to get departures: %v", err)
-			}
-			out := cmd.OutOrStdout()
-			for {
-				departure, err := depsStrem.Recv()
-				if err == io.EOF {
-					break
-				}
-				if err != nil {
-					log.Fatal(err)
-				}
-				fmt.Fprintf(out, "%v\n", departure)
-			}
+			deps, err := client.GetDepartures2(ctx, &pb.Stop{Id: uint32(stopId)})
+			handle(err)
+			pp := pb.NewPrettyPrint(cmd)
+			pp.Departures(deps.Departures)
 		},
 	}
 	stopsCmd = &cobra.Command{
@@ -61,21 +52,10 @@ var (
 		Run: func(cmd *cobra.Command, args []string) {
 			initClient()
 			defer cancel()
-			stopsStream, err := client.SearchStops(ctx, &pb.StopSearch{Query: args[0]})
-			if err != nil {
-				log.Fatalf("fail to search stops: %v", err)
-			}
-			out := cmd.OutOrStdout()
-			for {
-				stop, err := stopsStream.Recv()
-				if err == io.EOF {
-					break
-				}
-				if err != nil {
-					log.Fatal(err)
-				}
-				fmt.Fprintf(out, "%s %d\n", stop.Name, stop.Id)
-			}
+			stops, err := client.SearchStops2(ctx, &pb.StopSearch{Query: args[0]})
+			handle(err)
+			pp := pb.NewPrettyPrint(cmd)
+			pp.Stops(stops.Stops)
 		},
 		Args: cobra.ExactArgs(1),
 	}

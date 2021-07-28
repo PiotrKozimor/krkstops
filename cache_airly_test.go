@@ -23,9 +23,9 @@ func TestCacheAirly(t *testing.T) {
 		Temperature: 45.6,
 	}
 	mustAirlyNotBeCached(is, &testInst)
-	err := cache.cacheAirly(&testAirly, &testInst)
+	err := cache.airly(&testAirly, &testInst)
 	is.NoErr(err)
-	cachedAirly, err := cache.getCachedAirly(&testInst)
+	cachedAirly, err := cache.getAirly(&testInst)
 	is.NoErr(err)
 	if diff := cmp.Diff(*cachedAirly, testAirly, cmpopts.IgnoreUnexported(*cachedAirly)); diff != "" {
 		t.Errorf(diff)
@@ -35,6 +35,6 @@ func TestCacheAirly(t *testing.T) {
 }
 
 func mustAirlyNotBeCached(is *is.I, i *pb.Installation) {
-	_, err := cache.getCachedAirly(i)
+	_, err := cache.getAirly(i)
 	is.Equal(err, redi.ErrNil)
 }
