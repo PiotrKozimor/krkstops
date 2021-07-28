@@ -43,5 +43,4 @@ func Airly(ctx context.Context) {
 	}()
 	<-ctx.Done()
 	srv.Shutdown(ctx)
-	log.Printf("airly server shutdown")
 }

@@ -7,10 +7,11 @@ import (
 
 	"github.com/PiotrKozimor/krkstops/mock"
 	"github.com/PiotrKozimor/krkstops/pb"
-	"github.com/stretchr/testify/assert"
+	"github.com/matryer/is"
 )
 
 func TestStops(t *testing.T) {
+	is := is.New(t)
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	go mock.Ttss(ctx)
@@ -19,12 +20,12 @@ func TestStops(t *testing.T) {
 	for s := range stopsC {
 		switch s[0].Type {
 		case pb.Endpoint_BUS:
-			assert.Equal(t, 2, len(s))
+			is.Equal(2, len(s))
 		case pb.Endpoint_TRAM:
-			assert.Equal(t, 1, len(s))
+			is.Equal(1, len(s))
 		}
 	}
 	for err := range errC {
-		assert.NoError(t, err)
+		is.NoErr(err)
 	}
 }

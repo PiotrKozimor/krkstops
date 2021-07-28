@@ -7,7 +7,6 @@ import (
 
 	"github.com/PiotrKozimor/krkstops/pb"
 	"github.com/matryer/is"
-	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc"
 )
 
@@ -33,8 +32,9 @@ func mustClearCache(is *is.I) {
 }
 
 func Test_scoreByTotalDepartures(t *testing.T) {
-	assert.Equal(t, float64(1), scoreByTotalDepartures(0))
-	assert.Equal(t, float64(5), scoreByTotalDepartures(64))
+	is := is.New(t)
+	is.Equal(float64(1), scoreByTotalDepartures(0))
+	is.Equal(float64(5), scoreByTotalDepartures(64))
 }
 
 func TestScore(t *testing.T) {

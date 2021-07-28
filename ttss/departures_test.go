@@ -7,10 +7,11 @@ import (
 
 	"github.com/PiotrKozimor/krkstops/mock"
 	"github.com/PiotrKozimor/krkstops/pb"
-	"github.com/stretchr/testify/assert"
+	"github.com/matryer/is"
 )
 
 func TestDepartures(t *testing.T) {
+	is := is.New(t)
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	go mock.Ttss(ctx)
@@ -19,18 +20,18 @@ func TestDepartures(t *testing.T) {
 	for d := range departures {
 		switch d[0].Type {
 		case pb.Endpoint_BUS:
-			assert.Equal(t, 14, len(d))
+			is.Equal(14, len(d))
 			for _, dep := range d {
-				assert.Equal(t, pb.Endpoint_BUS, dep.Type)
+				is.Equal(pb.Endpoint_BUS, dep.Type)
 			}
 		case pb.Endpoint_TRAM:
-			assert.Equal(t, 7, len(d))
+			is.Equal(7, len(d))
 			for _, dep := range d {
-				assert.Equal(t, pb.Endpoint_TRAM, dep.Type)
+				is.Equal(pb.Endpoint_TRAM, dep.Type)
 			}
 		}
 	}
 	for err := range errC {
-		assert.NoError(t, err)
+		is.NoErr(err)
 	}
 }
