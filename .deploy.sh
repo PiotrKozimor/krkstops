@@ -1,4 +1,3 @@
-# .build/ctl.sh
 TAG=$(git tag --points-at HEAD)
 if [ -z $TAG ] 
 then
@@ -10,6 +9,7 @@ help () {
 	echo "Deploy"
 	echo "	-k krkstops"
 	echo "	-t ttssmonitor"
+	echo "	-c ctls"
 }
 
 set -e
@@ -26,13 +26,19 @@ deploy_ttssmonitor () {
     scp .deploy/ttssmonitor.sh azure:krkstops
     scp .build/prometheus.yml azure:krkstops
     ssh azure sudo bash /home/piotr/krkstops/ttssmonitor.sh $TAG
+}
+
+deploy_ctls () {
+    .build/ctl.sh
     rsync -a cmd/*ctl/*ctl azure:krkstops
 }
 
-while getopts hpk opts; do
+while getopts hktc opts; do
    case ${opts} in
     h) help; exit 0;;
     k) deploy_krkstops;;
+    t) deploy_ttssmonitor;;
+    c) deploy_ctls;;
    esac
 done
 
