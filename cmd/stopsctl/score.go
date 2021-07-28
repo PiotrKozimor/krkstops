@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"time"
 
 	"github.com/PiotrKozimor/krkstops"
 	"github.com/PiotrKozimor/krkstops/pb"
@@ -14,15 +15,15 @@ import (
 
 func init() {
 	scoreCmd.Flags().StringVarP(&endpoint, "krkstops", "k", krkstops.ENDPOINT, "URL of krkstops endpoint")
-	// scoreCmd.Flags().BoolVar(&restartScoring, "reset", false, "restart scoring")
+	scoreCmd.Flags().DurationVarP(&sleep, "sleep", "s", time.Second, "sleep time between scoring stops")
 	rootCmd.AddCommand(scoreCmd)
 
 }
 
-var endpoint string
-
-// var restartScoring bool
-var stop = false
+var (
+	endpoint string
+	sleep    time.Duration
+)
 
 const STOPS_TO_SCORE = "stops.toScore"
 
@@ -44,7 +45,7 @@ Stop scoring by sending interrupt signal (ctrl+C).`,
 		client := pb.NewKrkStopsClient(conn)
 		c := make(chan os.Signal, 1)
 		signal.Notify(c, os.Interrupt)
-		err = db.Score(context.Background(), c, client)
+		err = db.Score(context.Background(), c, client, sleep)
 		handle(err)
 		println("scoring finished")
 	},

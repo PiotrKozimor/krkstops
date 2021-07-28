@@ -6,6 +6,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/PiotrKozimor/krkstops/pb"
 	"github.com/RediSearch/redisearch-go/redisearch"
@@ -13,7 +14,7 @@ import (
 	"golang.org/x/net/context"
 )
 
-func (db *Cache) Score(ctx context.Context, c <-chan os.Signal, cli pb.KrkStopsClient) error {
+func (db *Cache) Score(ctx context.Context, c <-chan os.Signal, cli pb.KrkStopsClient, sleep time.Duration) error {
 outer:
 	for {
 		select {
@@ -40,6 +41,7 @@ outer:
 				return err
 			}
 			fmt.Printf("assigned score %f to stop %d  %s\n", score, stop.Id, stop.ShortName)
+			time.Sleep(sleep)
 		}
 
 	}
