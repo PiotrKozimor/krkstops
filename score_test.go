@@ -42,7 +42,7 @@ func TestScore(t *testing.T) {
 	mustClearCache(is)
 	err := cache.Update()
 	is.NoErr(err)
-	err = cache.Score(make(<-chan os.Signal), mustLocalKrkStopsClient(is))
+	err = cache.Score(ctx, make(<-chan os.Signal), mustLocalKrkStopsClient(is))
 	is.NoErr(err)
 	scores, err := cache.redis.HGetAll(ctx, SCORES).Result()
 	is.NoErr(err)

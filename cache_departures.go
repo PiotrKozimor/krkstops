@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/PiotrKozimor/krkstops/pb"
+	"golang.org/x/net/context"
 )
 
 var depsExpire = time.Second * 15
@@ -19,7 +20,7 @@ func (c *Cache) cacheDepartures(deps *pb.Departures, stop *pb.Stop) (err error) 
 	return c.message(getDeparturesKey(stop), deps, depsExpire)
 }
 
-func (c *Cache) getCachedDepartures(stop *pb.Stop) (departures *pb.Departures, err error) {
+func (c *Cache) getCachedDepartures(ctx context.Context, stop *pb.Stop) (departures *pb.Departures, err error) {
 	departures = &pb.Departures{}
 	err = c.get(getDeparturesKey(stop), departures)
 	if err != nil {

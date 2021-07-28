@@ -1,6 +1,7 @@
 package krkstops
 
 import (
+	"context"
 	"strconv"
 
 	"github.com/PiotrKozimor/krkstops/pb"
@@ -12,7 +13,7 @@ import (
 
 type uniqueStops map[uint32]string
 
-func (db *Cache) Search(phrase string) ([]*pb.Stop, error) {
+func (db *Cache) Search(ctx context.Context, phrase string) ([]*pb.Stop, error) {
 	stops, err := db.sug.SuggestOpts(
 		phrase, redisearch.SuggestOptions{
 			Num:          10,

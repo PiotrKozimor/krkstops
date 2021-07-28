@@ -41,14 +41,14 @@ func TestUpdate(t *testing.T) {
 	exists, err := cache.redis.Exists(ctx, SCORES).Result()
 	is.NoErr(err)
 	is.Equal(exists, int64(0))
-	stops, err := cache.Search("cza")
+	stops, err := cache.Search(ctx, "cza")
 	is.NoErr(err)
 	is.Equal(len(stops), 1)
 	is.Equal(stops[0], &pb.Stop{
 		Id:   81,
 		Name: "Czarnowiejska",
 	})
-	stops, err = cache.Search("ma")
+	stops, err = cache.Search(ctx, "ma")
 	is.NoErr(err)
 	is.Equal(len(stops), 1)
 	is.Equal(stops[0], &pb.Stop{

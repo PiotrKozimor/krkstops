@@ -51,7 +51,7 @@ var (
 				if err != nil {
 					log.Fatal(err)
 				}
-				fmt.Fprintln(out, departure)
+				fmt.Fprintf(out, "%v\n", departure)
 			}
 		},
 	}
@@ -74,7 +74,7 @@ var (
 				if err != nil {
 					log.Fatal(err)
 				}
-				fmt.Fprintln(out, stop)
+				fmt.Fprintf(out, "%s %d\n", stop.Name, stop.Id)
 			}
 		},
 		Args: cobra.ExactArgs(1),

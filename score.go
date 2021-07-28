@@ -10,9 +10,10 @@ import (
 	"github.com/PiotrKozimor/krkstops/pb"
 	"github.com/RediSearch/redisearch-go/redisearch"
 	redi "github.com/gomodule/redigo/redis"
+	"golang.org/x/net/context"
 )
 
-func (db *Cache) Score(c <-chan os.Signal, cli pb.KrkStopsClient) error {
+func (db *Cache) Score(ctx context.Context, c <-chan os.Signal, cli pb.KrkStopsClient) error {
 outer:
 	for {
 		select {
@@ -26,7 +27,7 @@ outer:
 				}
 				return err
 			}
-			score, err := db.scoreStop(stop, cli)
+			score, err := db.scoreStop(ctx, stop, cli)
 			if err != nil {
 				return err
 			}
@@ -61,7 +62,7 @@ func (db *Cache) getStoptoScore() (*pb.Stop, error) {
 
 }
 
-func (c *Cache) scoreStop(stop *pb.Stop, cli pb.KrkStopsClient) (score float64, err error) {
+func (c *Cache) scoreStop(ctx context.Context, stop *pb.Stop, cli pb.KrkStopsClient) (score float64, err error) {
 	deps, err := cli.GetDepartures2(ctx, stop)
 	if err != nil {
 		return 0, err

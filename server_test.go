@@ -1,6 +1,7 @@
 package krkstops
 
 import (
+	"context"
 	"testing"
 
 	"github.com/PiotrKozimor/krkstops/pb"
@@ -14,6 +15,7 @@ var (
 	testStop = pb.Stop{
 		Id: 610,
 	}
+	ctx = context.Background()
 )
 
 func TestGetAirly(t *testing.T) {

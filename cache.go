@@ -1,7 +1,6 @@
 package krkstops
 
 import (
-	"context"
 	"log"
 	"time"
 
@@ -9,6 +8,7 @@ import (
 	"github.com/RediSearch/redisearch-go/redisearch"
 	"github.com/go-redis/redis/v8"
 	redi "github.com/gomodule/redigo/redis"
+	"golang.org/x/net/context"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
 )
@@ -22,7 +22,7 @@ const (
 	SCORES   = "scores"
 )
 
-var ctx = context.Background()
+// var ctx = context.Background()
 
 type Cache struct {
 	redis  *redis.Client
@@ -75,7 +75,7 @@ func (c *Cache) message(key string, val protoreflect.ProtoMessage, exp time.Dura
 	return nil
 }
 
-func (c *Cache) getEndpoints(id uint32) ([]ttss.Endpoint, error) {
+func (c *Cache) getEndpoints(ctx context.Context, id uint32) ([]ttss.Endpoint, error) {
 	var endp []ttss.Endpoint
 	is, err := c.redis.SIsMember(ctx, BUS, id).Result()
 	if err != nil {
