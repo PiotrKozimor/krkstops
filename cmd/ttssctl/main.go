@@ -27,7 +27,7 @@ var (
 			depsC, errC := ttss.GetDepartures(ttss.KrkStopsEndpoints, stopId)
 			pprint := pb.NewPrettyPrint(cmd)
 			for dep := range depsC {
-				pprint.Departures(dep)
+				pprint.Departures(getDepsPSlice(dep))
 			}
 			for err := range errC {
 				log.Fatal(err)
@@ -42,7 +42,7 @@ var (
 			cmd.Print()
 			pprint := pb.NewPrettyPrint(cmd)
 			for stop := range stopsC {
-				pprint.Stops(stop)
+				pprint.Stops(getStopsPSlice(stop))
 			}
 			for err := range errC {
 				log.Fatal(err)
@@ -58,7 +58,7 @@ var (
 				log.Fatal(err)
 			}
 			pprint := pb.NewPrettyPrint(cmd)
-			pprint.Departures(deps)
+			pprint.Departures(getDepsPSlice(deps))
 		},
 	}
 	tramCmd = &cobra.Command{
@@ -70,10 +70,26 @@ var (
 				log.Fatal(err)
 			}
 			pprint := pb.NewPrettyPrint(cmd)
-			pprint.Departures(deps)
+			pprint.Departures(getDepsPSlice(deps))
 		},
 	}
 )
+
+func getDepsPSlice(deps []pb.Departure) []*pb.Departure {
+	depsP := make([]*pb.Departure, len(deps))
+	for i := range deps {
+		depsP[i] = &deps[i]
+	}
+	return depsP
+}
+
+func getStopsPSlice(stops []pb.Stop) []*pb.Stop {
+	stopsP := make([]*pb.Stop, len(stops))
+	for i := range stops {
+		stopsP[i] = &stops[i]
+	}
+	return stopsP
+}
 
 func init() {
 	depsCmd.PersistentFlags().UintVar(&stopId, "id", 610, "id of stop to query departures from")
