@@ -1,4 +1,2 @@
-source .env
-podman pull docker.io/redislabs/redisearch:$REDISEARCH_TAG
-redis=$(podman create --ip 10.88.0.7 docker.io/redislabs/redisearch:v1.6.15)
+redis=$(podman create --ip 10.88.0.7 docker.io/redislabs/redisearch:v2.0.10)
 podman start $redis
