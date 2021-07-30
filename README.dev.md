@@ -56,3 +56,10 @@ For each stop from `to.score`:
 
 1. Execute [`FT.SUGADD`](https://oss.redislabs.com/redisearch/Commands/#ftsugadd) against `sug` key.
 2. Get stop name from `names` hash.
+
+# Code gen
+
+```
+go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@vlatest
+```
