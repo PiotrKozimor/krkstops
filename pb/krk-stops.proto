@@ -6,9 +6,7 @@ service KrkStops {
     rpc GetAirly(Installation) returns (Airly) {}
     rpc FindNearestAirlyInstallation(InstallationLocation) returns (Installation) {}
     rpc GetAirlyInstallation(Installation) returns (Installation) {}
-    rpc GetDepartures(Stop) returns (stream Departure) {}
     rpc GetDepartures2(Stop) returns (Departures) {}
-    rpc SearchStops(StopSearch) returns (stream Stop) {}
     rpc SearchStops2(StopSearch) returns (Stops) {}
 }
 

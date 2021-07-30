@@ -44,34 +44,6 @@ func (s *KrkStopsServer) GetAirly(ctx context.Context, installation *pb.Installa
 	return a, err
 }
 
-func (s *KrkStopsServer) GetDepartures(stop *pb.Stop, stream pb.KrkStops_GetDeparturesServer) error {
-	deps, err := s.cache.getDepartures(context.Background(), stop)
-	if err != nil {
-		depsC, errC := ttss.GetDepartures(s.Ttss, uint(stop.Id))
-		for d := range depsC {
-			for i := range d {
-				err := stream.Send(&d[i])
-				if err != nil {
-					return err
-				}
-				deps.Departures = append(deps.Departures, &d[i])
-			}
-		}
-		for err := range errC {
-			return err
-		}
-		go s.cache.departures(deps, stop)
-	} else {
-		for _, dep := range deps.Departures {
-			if err := stream.Send(dep); err != nil {
-				return err
-			}
-		}
-	}
-
-	return nil
-}
-
 func (s *KrkStopsServer) GetDepartures2(ctx context.Context, stop *pb.Stop) (*pb.Departures, error) {
 	cachedDeps, err := s.cache.getDepartures(ctx, stop)
 	if err != nil {
@@ -103,19 +75,6 @@ func (s *KrkStopsServer) GetDepartures2(ctx context.Context, stop *pb.Stop) (*pb
 	} else {
 		return cachedDeps, nil
 	}
-}
-
-func (s *KrkStopsServer) SearchStops(search *pb.StopSearch, stream pb.KrkStops_SearchStopsServer) error {
-	stops, err := s.cache.Search(context.Background(), search.Query)
-	if err != nil {
-		return err
-	}
-	for _, stop := range stops {
-		if err := stream.Send(stop); err != nil {
-			return err
-		}
-	}
-	return nil
 }
 
 func (s *KrkStopsServer) SearchStops2(ctx context.Context, search *pb.StopSearch) (*pb.Stops, error) {
