@@ -21,9 +21,6 @@ type stop struct {
 	Uid  uint32 `json:"shortName,string"`
 }
 
-// Stops ShortName to Name
-type Stops map[uint32]string
-
 // GetAllStops fetches Stops from given endpoint.
 func (e Endpoint) GetAllStops() ([]pb.Stop, error) {
 	resp, err := http.DefaultClient.Get(strings.Join([]string{e.URL, stopsPath}, "/"))

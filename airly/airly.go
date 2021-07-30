@@ -29,8 +29,8 @@ type airlyParameters struct {
 	FromDateTime string      `json:"fromDateTime"`
 }
 
-// AirlyResp describes response from installation
-type AirlyResp struct {
+// airlyResp describes response from installation
+type airlyResp struct {
 	Current airlyParameters `json:"current"`
 }
 
@@ -78,13 +78,13 @@ func (e Endpoint) GetAirly(installation *pb.Installation) (*pb.Airly, error) {
 	if resp.StatusCode != 200 {
 		return &airly, fmt.Errorf("get airly status code: %d", resp.StatusCode)
 	}
-	var airlyResp AirlyResp
+	var airlyR airlyResp
 	enc := json.NewDecoder(resp.Body)
-	err = enc.Decode(&airlyResp)
+	err = enc.Decode(&airlyR)
 	if err != nil {
 		return &airly, err
 	}
-	for _, index := range airlyResp.Current.Indexes {
+	for _, index := range airlyR.Current.Indexes {
 		if index.Name == "AIRLY_CAQI" {
 			airly.Caqi = int32(index.Value)
 			var color int64
@@ -92,7 +92,7 @@ func (e Endpoint) GetAirly(installation *pb.Installation) (*pb.Airly, error) {
 			airly.Color = uint32(color)
 		}
 	}
-	for _, indicator := range airlyResp.Current.Values {
+	for _, indicator := range airlyR.Current.Values {
 		switch indicator.Name {
 		case "HUMIDITY":
 			airly.Humidity = int32(indicator.Value)

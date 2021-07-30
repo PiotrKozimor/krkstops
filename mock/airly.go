@@ -35,7 +35,7 @@ func airlyHandler(w http.ResponseWriter, r *http.Request) {
 func Airly(ctx context.Context) {
 	srv := http.Server{
 		Addr:    "0.0.0.0:8072",
-		Handler: HandlerFunc(airlyHandler),
+		Handler: handlerFunc(airlyHandler),
 	}
 	go func() {
 		err := srv.ListenAndServe()

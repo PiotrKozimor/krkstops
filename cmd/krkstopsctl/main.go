@@ -62,8 +62,6 @@ var (
 
 	airlyId  int32
 	stopId   int32
-	query    string
-	conn     grpc.ClientConn
 	client   pb.KrkStopsClient
 	ctx      context.Context
 	endpoint string

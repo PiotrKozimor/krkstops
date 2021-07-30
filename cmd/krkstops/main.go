@@ -15,12 +15,16 @@ import (
 	"google.golang.org/grpc"
 )
 
+func handle(err error) {
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
 func main() {
 	flag.Parse()
 	lis, err := net.Listen("tcp", ":8080")
-	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
-	}
+	handle(err)
 	grpcServer := grpc.NewServer(
 		grpc.StreamInterceptor(grpc_prometheus.StreamServerInterceptor),
 		grpc.UnaryInterceptor(grpc_prometheus.UnaryServerInterceptor),
@@ -30,15 +34,14 @@ func main() {
 	redisURI := viper.GetString("REDIS_URI")
 	log.Printf("CONFIG: %+v\n", viper.AllSettings())
 	server, err := krkstops.NewServer(redisURI)
+	handle(err)
 	pb.RegisterKrkStopsServer(grpcServer, server)
 	grpc_prometheus.Register(grpcServer)
 	handler := promhttp.Handler()
 	http.Handle("/metrics", handler)
 	go func() {
 		err := http.ListenAndServe(":8040", nil)
-		if err != nil {
-			log.Fatal(err)
-		}
+		handle(err)
 	}()
 
 	log.Fatal(grpcServer.Serve(lis))

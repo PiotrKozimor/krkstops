@@ -9,14 +9,8 @@ import (
 )
 
 var (
-	// tramURL      string
-	// busURL       string
-	local        bool
-	stopId       uint
-	endpoints    = ttss.KrkStopsEndpoints
-	busEndpoint  = ttss.BusEndpoint
-	tramEndpoint = ttss.TramEndpoint
-	rootCmd      = &cobra.Command{
+	stopId  uint
+	rootCmd = &cobra.Command{
 		Use:  "ttssctl",
 		Long: `ttssctl queries stops and departures from TTSS API of MPK in Cracow.`,
 	}

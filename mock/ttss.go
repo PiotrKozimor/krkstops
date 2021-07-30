@@ -22,9 +22,9 @@ var mockStopsBus []byte
 //go:embed data/stops_tram.json
 var mockStopsTram []byte
 
-type HandlerFunc func(http.ResponseWriter, *http.Request)
+type handlerFunc func(http.ResponseWriter, *http.Request)
 
-func (f HandlerFunc) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (f handlerFunc) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	f(w, r)
 }
 
@@ -62,11 +62,11 @@ func tramHandler(w http.ResponseWriter, r *http.Request) {
 func Ttss(ctx context.Context) {
 	srvBus := http.Server{
 		Addr:    "0.0.0.0:8071",
-		Handler: HandlerFunc(busHandler),
+		Handler: handlerFunc(busHandler),
 	}
 	srvTram := http.Server{
 		Addr:    "0.0.0.0:8070",
-		Handler: HandlerFunc(tramHandler),
+		Handler: handlerFunc(tramHandler),
 	}
 	go func() {
 		err := srvBus.ListenAndServe()
