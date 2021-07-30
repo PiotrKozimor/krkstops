@@ -36,7 +36,7 @@ outer:
 			if err != nil {
 				return err
 			}
-			err = c.addSuggestion(stop, score)
+			err = addSuggestion(c.sug, stop, score)
 			if err != nil {
 				return err
 			}
@@ -78,7 +78,7 @@ func (c *Cache) saveScore(stop *pb.Stop, score float64) error {
 	return err
 }
 
-func (c *Cache) addSuggestion(stop *pb.Stop, score float64) error {
+func addSuggestion(sug *redisearch.Autocompleter, stop *pb.Stop, score float64) error {
 	splitted := strings.Split(stop.Name, " ")
 	for index, value := range splitted {
 		if value == "(nż)" {
@@ -88,8 +88,7 @@ func (c *Cache) addSuggestion(stop *pb.Stop, score float64) error {
 	for i := 0; i < len(splitted); i++ {
 		swapped := append(splitted[i:], splitted[:i]...)
 		term := strings.Join(swapped, " ")
-		err := c.sugTmp.AddTerms(redisearch.Suggestion{Term: term, Score: score, Payload: strconv.Itoa(int(stop.Id))})
-		c.sugTmp.DeleteTerms()
+		err := sug.AddTerms(redisearch.Suggestion{Term: term, Score: score, Payload: strconv.Itoa(int(stop.Id))})
 		if err != nil {
 			return err
 		}

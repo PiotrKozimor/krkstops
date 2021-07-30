@@ -112,7 +112,7 @@ func (c *Cache) fillSuggestions(stops uniqueStops) error {
 				return err
 			}
 		}
-		err = c.addSuggestion(&pb.Stop{
+		err = addSuggestion(c.sugTmp, &pb.Stop{
 			Name: name,
 			Id:   id,
 		}, score)

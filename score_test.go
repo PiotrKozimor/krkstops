@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/PiotrKozimor/krkstops/pb"
+	"github.com/RediSearch/redisearch-go/redisearch"
 	"github.com/matryer/is"
 	"google.golang.org/grpc"
 )
@@ -50,6 +51,17 @@ func TestScore(t *testing.T) {
 		"610": "3.29128784747792",
 		"81":  "2.6583123951777",
 	})
+	stops, err := cache.sug.SuggestOpts("mat", redisearch.SuggestOptions{
+		Num:          10,
+		Fuzzy:        true,
+		WithPayloads: true,
+		WithScores:   true,
+	})
+	is.NoErr(err)
+	is.Equal(len(stops), 1)
+	is.Equal(stops[0].Payload, "610")
+	is.Equal(stops[0].Score, 0.87963366508483887)
+	is.Equal(stops[0].Term, "Matecznego Rondo")
 }
 
 func mustLocalKrkStopsClient(is *is.I) pb.KrkStopsClient {
