@@ -3,7 +3,7 @@
 Run krkstops:
 ```
 . .test.setup.sh
-go run cmd/krkstops.go
+go run cmd/krkstops/main.go
 ```
 or debug using `krkstops` configuration in VS Code.
 
