@@ -1,4 +1,4 @@
-FROM docker.io/golang:1.16-alpine AS base
+FROM docker.io/golang:1.17-alpine AS base
 
 WORKDIR /src
 COPY . /src
