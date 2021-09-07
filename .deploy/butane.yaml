@@ -1,0 +1,134 @@
+variant: fcos
+version: 1.4.0
+systemd:
+  units:
+    - name: krkstops.service
+      enabled: true
+      contents: |
+        [Unit]
+        After=network-online.target
+        Wants=network-online.target
+
+        [Service]
+        Restart=always
+        ExecStartPre=-/bin/podman kill krkstops
+        ExecStartPre=-/bin/podman rm krkstops
+        EnvironmentFile=/etc/krkstops/tags.env
+        ExecStart=/bin/podman run --name krkstops --privileged --ip 10.88.0.5 -p 8080:8080 -p 9090:9090 -v /etc/krkstops/certs:/etc/krkstops:ro --env-file /etc/krkstops/.env.prod --env-file /etc/krkstops/.env.priv docker.io/narciarz96/krkstops:${KRK_STOPS_TAG}
+        ExecStop=/bin/podman pull docker.io/narciarz96/krkstops:${KRK_STOPS_TAG}
+        ExecStop=/bin/podman stop krkstops
+
+        [Install]
+        WantedBy=multi-user.target
+    - name: redis.service
+      enabled: true
+      contents: |
+        [Unit]
+        After=network-online.target
+        Wants=network-online.target
+
+        [Service]
+        Restart=always
+        ExecStartPre=-/bin/podman kill redis
+        ExecStartPre=-/bin/podman rm redis
+        ExecStart=/bin/podman run --name redis --privileged --ip 10.88.0.7 -v /var/lib/redis:/data docker.io/redislabs/redisearch:2.0.11 
+
+        [Install]
+        WantedBy=multi-user.target
+    - name: prometheus.service
+      enabled: true
+      contents: |
+        [Unit]
+        After=network-online.target
+        Wants=network-online.target
+
+        [Service]
+        Restart=always
+        ExecStartPre=-/bin/podman kill prometheus
+        ExecStartPre=-/bin/podman rm prometheus
+        ExecStart=/bin/podman run --name prometheus --privileged --ip 10.88.0.8 -v /var/lib/prometheus:/prometheus/data -v /etc/krkstops/prometheus.yml:/prometheus/prometheus.yml:ro -u 0:0 docker.io/prom/prometheus:v2.29.2 --storage.tsdb.retention.size 10GB
+
+        [Install]
+        WantedBy=multi-user.target
+    - name: ttssmonitor.service
+      enabled: true
+      contents: |
+        [Unit]
+        After=network-online.target
+        Wants=network-online.target
+
+        [Service]
+        Restart=always
+        ExecStartPre=-/bin/podman kill ttssmonitor
+        ExecStartPre=-/bin/podman rm ttssmonitor
+        EnvironmentFile=/etc/krkstops/tags.env
+        ExecStart=/bin/podman run --name ttssmonitor --ip 10.88.0.10 docker.io/narciarz96/krkstops-ttssmonitor:${TTSS_MONITOR_TAG}
+
+        [Install]
+        WantedBy=multi-user.target
+storage:
+  files:
+    - path: /etc/krkstops/tags.env
+      mode: 0644
+      user:
+        name: root
+      group:
+        name: root
+      contents:
+        local: .tags.env
+    - path: /etc/krkstops/prometheus.yml
+      mode: 0644
+      user:
+        name: root
+      group:
+        name: root
+      contents:
+        local: prometheus.yml
+    - path: /etc/krkstops/.env.priv
+      mode: 0644
+      user:
+        name: root
+      group:
+        name: root
+      contents:
+        local: .env.priv
+    - path: /etc/krkstops/.env.prod
+      mode: 0644
+      user:
+        name: root
+      group:
+        name: root
+      contents:
+        local: .env.prod
+    - path: /etc/krkstops/certs/fullchain.pem
+      mode: 0644
+      user:
+        name: root
+      group:
+        name: root
+      contents:
+        local: fullchain.pem
+    - path: /etc/krkstops/certs/privkey.pem
+      mode: 0644
+      user:
+        name: root
+      group:
+        name: root
+      contents:
+        local: privkey.pem
+  directories:
+    - path: /var/lib/prometheus
+      user:
+        name: root
+      group:
+        name: root
+    - path: /var/lib/redis
+      user:
+        name: root
+      group:
+        name: root
+passwd:
+  users:
+    - name: core
+      ssh_authorized_keys:
+        - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIVCURAte760oH6YMSkxStZE9VLyQTU3VM2FHAXZqNJH p1996k@gmail.com

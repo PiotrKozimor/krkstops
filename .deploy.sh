@@ -15,22 +15,20 @@ help () {
 set -e
 
 deploy_krkstops () {
-    scp .deploy/backend.sh azure:krkstops
+    scp .deploy/.tags.env azure:/etc/krkstops/tags.env
     scp .env.prod azure:krkstops/.env.prod
     scp .env.priv azure:krkstops/.env.priv
-    ssh azure sudo bash /home/piotr/krkstops/backend.sh $TAG
-    rsync -a cmd/*ctl/*ctl azure:krkstops
+    ssh azure sudo systemctl restart krkstops.service
 }
 
 deploy_ttssmonitor () {
-    scp .deploy/ttssmonitor.sh azure:krkstops
-    scp .build/prometheus.yml azure:krkstops
-    ssh azure sudo bash /home/piotr/krkstops/ttssmonitor.sh $TAG
+    scp .deploy/.tags.env azure:/etc/krkstops/tags.env
+    ssh azure sudo systemctl restart ttssmonitor.service
 }
 
 deploy_ctls () {
     .build/ctl.sh
-    rsync -a cmd/*ctl/*ctl azure:krkstops
+    rsync -a cmd/*ctl/*ctl azure:
 }
 
 while getopts hktc opts; do

@@ -10,7 +10,7 @@
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceFolder}/cmd/stopsctl",
-            "envFile": "${workspaceFolder}/.env.dev",
+            "envFile": "${workspaceFolder}/.deploy/.env.dev",
             "args": [
                 "update"
             ]
@@ -21,7 +21,7 @@
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceFolder}/cmd/stopsctl",
-            "envFile": "${workspaceFolder}/.env.dev",
+            "envFile": "${workspaceFolder}/.deploy/.env.dev",
             "args": [
                 "score",
                 "-k", 
@@ -51,7 +51,7 @@
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceFolder}/cmd/krkstops",
-            "envFile": "${workspaceFolder}/.env.dev"
+            "envFile": "${workspaceFolder}/.deploy/.env.dev"
         },
 
     ]

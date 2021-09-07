@@ -15,10 +15,10 @@ require (
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/cobra v1.2.1
 	github.com/spf13/viper v1.8.1
-	golang.org/x/net v0.0.0-20210726213435-c6fcb2dbf985
-	golang.org/x/sys v0.0.0-20210630005230-0f9fa26af87c // indirect
-	google.golang.org/genproto v0.0.0-20210726200206-e7812ac95cc0 // indirect
-	google.golang.org/grpc v1.39.0
+	golang.org/x/net v0.0.0-20210903162142-ad29c8ab022f
+	golang.org/x/sys v0.0.0-20210903071746-97244b99971b // indirect
+	google.golang.org/genproto v0.0.0-20210903162649-d08c68adba83 // indirect
+	google.golang.org/grpc v1.40.0
 	google.golang.org/protobuf v1.27.1
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 )
