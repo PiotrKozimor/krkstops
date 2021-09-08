@@ -35,9 +35,9 @@ func (p *PrettyPrint) Stops(stops []*Stop) {
 
 // PrettyPrint departures
 func (p *PrettyPrint) Departures(deps []*Departure) {
-	fmt.Fprintf(p, "ID\tNUMBER\tDIRECTION\tPLANNED\tRELATIVE\n")
-	for _, dep := range deps {
-		fmt.Fprintf(p, "%s\t%s\t%d\t%s\t%d\n", dep.PatternText, dep.Direction, dep.RelativeTime, dep.PlannedTime, dep.RelativeTime)
+	fmt.Fprintf(p, "NO\tID\tDIRECTION\tPLANNED\tRELATIVE\n")
+	for i, dep := range deps {
+		fmt.Fprintf(p, "%d\t%s\t%s\t%s\t%d\n", i, dep.PatternText, dep.Direction, dep.PlannedTime, dep.RelativeTime)
 	}
 	p.Flush()
 }
