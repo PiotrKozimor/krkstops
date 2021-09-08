@@ -10,12 +10,14 @@ help () {
 	echo "Build"
 	echo "	-k krkstops"
 	echo "	-t ttssmonitor"
+	echo "	-c ctls"
 }
 
-while getopts hkt opts; do
+while getopts hktc opts; do
    case ${opts} in
     h) help; exit 0;;
     k) .build/krkstops.sh $TAG;;
     t) .build/ttssmonitor.sh $TAG;;
+    c) .build/ctl.sh;
    esac
 done

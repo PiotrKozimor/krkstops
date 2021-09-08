@@ -5,37 +5,34 @@ then
 fi
 echo "TAG: $TAG"
 
+echo 
+
 help () {
 	echo "Deploy"
-	echo "	-k krkstops"
-	echo "	-t ttssmonitor"
+	echo "	-a app"
 	echo "	-c ctls"
 }
 
 set -e
 
-deploy_krkstops () {
-    scp .deploy/.tags.env azure:/etc/krkstops/tags.env
-    scp .env.prod azure:krkstops/.env.prod
-    scp .env.priv azure:krkstops/.env.priv
-    ssh azure sudo systemctl restart krkstops.service
-}
+echo TAG=$TAG > .deploy/.tags.env
 
-deploy_ttssmonitor () {
+deploy_app () {
     scp .deploy/.tags.env azure:/etc/krkstops/tags.env
+    scp .deploy/.env.prod azure:/etc/krkstops/.env.prod
+    scp .deploy/.env.priv azure:/etc/krkstops/.env.priv
+    ssh azure sudo systemctl restart krkstops.service
     ssh azure sudo systemctl restart ttssmonitor.service
 }
 
 deploy_ctls () {
-    .build/ctl.sh
-    rsync -a cmd/*ctl/*ctl azure:
+    rsync --progress -a cmd/*ctl/*ctl azure:
 }
 
-while getopts hktc opts; do
+while getopts hac opts; do
    case ${opts} in
     h) help; exit 0;;
-    k) deploy_krkstops;;
-    t) deploy_ttssmonitor;;
+    a) deploy_app;;
     c) deploy_ctls;;
    esac
 done

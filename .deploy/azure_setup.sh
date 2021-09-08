@@ -29,4 +29,5 @@ az vm create \
     --custom-data "$(cat ${ignition_path})"
 az vm open-port --resource-group "${az_resource_group}" --name krkstops --port 8080
 az vm open-port --resource-group "${az_resource_group}" --name krkstops --priority 800 --port 9090
-
+az vm open-port --resource-group "${az_resource_group}" --name krkstops --priority 700 --port 80
+az vm open-port --resource-group "${az_resource_group}" --name krkstops --priority 600 --port 443

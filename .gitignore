@@ -23,4 +23,5 @@ cmd/krkstops/krkstops
 cmd/mock/mock
 cmd/ttssmonitord/ttssmonitord
 .env.priv
+.tags.env
 *.ign

@@ -14,8 +14,8 @@ systemd:
         ExecStartPre=-/bin/podman kill krkstops
         ExecStartPre=-/bin/podman rm krkstops
         EnvironmentFile=/etc/krkstops/tags.env
-        ExecStart=/bin/podman run --name krkstops --privileged --ip 10.88.0.5 -p 8080:8080 -p 9090:9090 -v /etc/krkstops/certs:/etc/krkstops:ro --env-file /etc/krkstops/.env.prod --env-file /etc/krkstops/.env.priv docker.io/narciarz96/krkstops:${KRK_STOPS_TAG}
-        ExecStop=/bin/podman pull docker.io/narciarz96/krkstops:${KRK_STOPS_TAG}
+        ExecStart=/bin/podman run --name krkstops --privileged --ip 10.88.0.5 -p 8080:8080 -p 9090:9090 -v /etc/krkstops/certs:/etc/krkstops:ro --env-file /etc/krkstops/.env.prod --env-file /etc/krkstops/.env.priv docker.io/narciarz96/krkstops:${TAG}
+        ExecStop=/bin/podman pull docker.io/narciarz96/krkstops:${TAG}
         ExecStop=/bin/podman stop krkstops
 
         [Install]
@@ -62,7 +62,7 @@ systemd:
         ExecStartPre=-/bin/podman kill ttssmonitor
         ExecStartPre=-/bin/podman rm ttssmonitor
         EnvironmentFile=/etc/krkstops/tags.env
-        ExecStart=/bin/podman run --name ttssmonitor --ip 10.88.0.10 docker.io/narciarz96/krkstops-ttssmonitor:${TTSS_MONITOR_TAG}
+        ExecStart=/bin/podman run --name ttssmonitor --ip 10.88.0.10 docker.io/narciarz96/krkstops-ttssmonitor:${TAG}
 
         [Install]
         WantedBy=multi-user.target
@@ -71,49 +71,49 @@ storage:
     - path: /etc/krkstops/tags.env
       mode: 0644
       user:
-        name: root
+        name: core
       group:
-        name: root
+        name: core
       contents:
         local: .tags.env
     - path: /etc/krkstops/prometheus.yml
       mode: 0644
       user:
-        name: root
+        name: core
       group:
-        name: root
+        name: core
       contents:
         local: prometheus.yml
     - path: /etc/krkstops/.env.priv
       mode: 0644
       user:
-        name: root
+        name: core
       group:
-        name: root
+        name: core
       contents:
         local: .env.priv
     - path: /etc/krkstops/.env.prod
       mode: 0644
       user:
-        name: root
+        name: core
       group:
-        name: root
+        name: core
       contents:
         local: .env.prod
     - path: /etc/krkstops/certs/fullchain.pem
       mode: 0644
       user:
-        name: root
+        name: core
       group:
-        name: root
+        name: core
       contents:
         local: fullchain.pem
     - path: /etc/krkstops/certs/privkey.pem
       mode: 0644
       user:
-        name: root
+        name: core
       group:
-        name: root
+        name: core
       contents:
         local: privkey.pem
   directories:
