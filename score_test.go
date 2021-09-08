@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/PiotrKozimor/krkstops/pb"
 	"github.com/RediSearch/redisearch-go/redisearch"
@@ -39,6 +40,8 @@ func Test_scoreByTotalDepartures(t *testing.T) {
 }
 
 func TestScore(t *testing.T) {
+	// to avoid err: ERR Background save already in progress
+	time.Sleep(time.Millisecond * 100)
 	is := is.New(t)
 	mustClearCache(is)
 	err := cache.Update()

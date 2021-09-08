@@ -3,6 +3,7 @@ package krkstops
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/PiotrKozimor/krkstops/pb"
 	redi "github.com/go-redis/redis/v8"
@@ -11,6 +12,8 @@ import (
 )
 
 func TestUpdate(t *testing.T) {
+	// to avoid err: ERR Background save already in progress
+	time.Sleep(time.Millisecond * 100)
 	is := is.New(t)
 	mustClearCache(is)
 	err := cache.Update()

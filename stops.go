@@ -146,5 +146,6 @@ func (c *Cache) finishUpdate() error {
 			return err
 		}
 	}
-	return nil
+	_, err = c.redis.BgSave(context.Background()).Result()
+	return err
 }

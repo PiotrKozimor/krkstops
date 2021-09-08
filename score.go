@@ -45,7 +45,8 @@ outer:
 		}
 
 	}
-	return nil
+	_, err := c.redis.BgSave(ctx).Result()
+	return err
 }
 
 func (c *Cache) getStoptoScore() (*pb.Stop, error) {
