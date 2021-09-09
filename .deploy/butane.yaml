@@ -116,6 +116,19 @@ storage:
         name: core
       contents:
         local: privkey.pem
+    - path: /etc/zincati/config.d/55-updates-strategy.toml
+      user:
+        name: root
+      group:
+        name: root
+      contents:
+        inline: |
+          [updates]
+          strategy = "periodic"
+          [[updates.periodic.window]]
+          days = [ "Mon", "Wed" ]
+          start_time = "03:00"
+          length_minutes = 60
   directories:
     - path: /var/lib/prometheus
       user:
