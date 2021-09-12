@@ -8,7 +8,7 @@ import (
 	"github.com/PiotrKozimor/krkstops/ttss"
 )
 
-var ENDPOINT = "krkstops.germanywestcentral.cloudapp.azure.com:8080"
+var ENDPOINT = "krkstops-1.germanywestcentral.cloudapp.azure.com:8080"
 
 type KrkStopsServer struct {
 	pb.UnimplementedKrkStopsServer
