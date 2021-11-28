@@ -31,7 +31,7 @@ systemd:
         Restart=always
         ExecStartPre=-/bin/podman kill redis
         ExecStartPre=-/bin/podman rm redis
-        ExecStart=/bin/podman run --name redis --privileged --ip 10.88.0.7 -v /var/lib/redis:/data docker.io/redislabs/redisearch:2.0.11 
+        ExecStart=/bin/podman run --name redis --privileged --ip 10.88.0.7 -v /var/lib/redis:/data docker.io/redislabs/redisearch:2.2.5
 
         [Install]
         WantedBy=multi-user.target
@@ -46,7 +46,7 @@ systemd:
         Restart=always
         ExecStartPre=-/bin/podman kill prometheus
         ExecStartPre=-/bin/podman rm prometheus
-        ExecStart=/bin/podman run --name prometheus --privileged --ip 10.88.0.8 -v /var/lib/prometheus:/prometheus/data -v /etc/krkstops/prometheus.yml:/prometheus/prometheus.yml:ro -u 0:0 docker.io/prom/prometheus:v2.29.2 --storage.tsdb.retention.size 10GB
+        ExecStart=/bin/podman run --name prometheus --privileged --ip 10.88.0.8 -v /var/lib/prometheus:/prometheus/data -v /etc/krkstops/prometheus.yml:/prometheus/prometheus.yml:ro -u 0:0 docker.io/prom/prometheus:v2.31.1 --storage.tsdb.retention.size 10GB
 
         [Install]
         WantedBy=multi-user.target
