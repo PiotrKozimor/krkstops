@@ -1,3 +1,4 @@
+#!/bin/bash
 protoc \
     pb/krk-stops.proto \
      --go_out=. \
