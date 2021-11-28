@@ -63,3 +63,28 @@ For each stop from `to.score`:
 go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@vlatest
 ```
+
+# gtfs package
+
+```
+cd cmd/gtfs
+go run . ../../gtfs/data ../../gtfs/krkstops.gob
+go run . stops ../../gtfs/data
+```
+
+
+https://asciiflow.com/#/local/GTFS
+
+```
+                 ┌──────────────────┐
+          routes │id    PatternText │
+                 └▲─────────────────┘
+                  │
+            ┌─────┴────────────────────┐
+      trips │id   route_id   Direction │
+            └▲─────────────────────────┘
+             │
+           ┌─┴─────────────────┐
+stop_times │ trip_id   stop_id │
+           └───────────────────┘
+```

@@ -22,6 +22,11 @@ cmd/stopsctl/stopsctl
 cmd/krkstops/krkstops
 cmd/mock/mock
 cmd/ttssmonitord/ttssmonitord
+cmd/gtfs/gtfs
 .env.priv
 .tags.env
 *.ign
+gtfs/data/bus
+gtfs/data/tram
+gtfs/*.zip
+*.gob

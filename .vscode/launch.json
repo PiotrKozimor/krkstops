@@ -53,6 +53,16 @@
             "program": "${workspaceFolder}/cmd/krkstops",
             "envFile": "${workspaceFolder}/.deploy/.env.dev"
         },
-
+        {
+            "name": "gtfs",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/gtfs",
+            "args": [
+                "../../gtfs/data",
+                "../../gtfs/krkstops.gob"
+            ]
+        },
     ]
 }

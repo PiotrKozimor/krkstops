@@ -43,7 +43,7 @@ message Departure {
     Endpoint type = 8;
 }
 message Stop {
-    string shortName = 1;
+    string shortName = 1; // DEPRECATED
     string name = 2;
     uint32 id = 3;
     Endpoint type = 4;
