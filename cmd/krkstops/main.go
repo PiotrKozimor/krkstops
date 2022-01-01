@@ -38,9 +38,9 @@ func serveGracefully(s Server, l net.Listener) {
 }
 
 type Config struct {
-	RedisURI string `envconfig:"REDIS_URI"`
-	TlsCert  string `envconfig:"TLS_CERT"`
-	TlsKey   string `envconfig:"TLS_KEY"`
+	RedisURI string
+	TlsCert  string
+	TlsKey   string
 }
 
 func main() {
