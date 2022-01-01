@@ -56,7 +56,7 @@ func TestStopsCmd(t *testing.T) {
 var airlyCmdOutput = `CAQI  HUMIDITY[%]  TEMP [°C]  COLOR
 12    46           12.3       6BC926`
 
-var depsCmdOutput = `ID   NUMBER                   DIRECTION  PLANNED  RELATIVE
+var depsCmdOutput = `
 179  Os. Kurdwanów            36         14:48
 304  Wieliczka Miasto         336        14:55
 173  Nowy Bieżanów Południe   396        14:55

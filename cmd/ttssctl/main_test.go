@@ -6,17 +6,6 @@ import (
 	"github.com/PiotrKozimor/krkstops/test"
 )
 
-func TestDepsCmd(t *testing.T) {
-	test.Cmd(
-		t,
-		[]string{
-			"deps",
-		},
-		busDepsCmdOutput+"\n"+tramDepsCmdOutput,
-		rootCmd,
-	)
-}
-
 func TestBusDepsCmd(t *testing.T) {
 	test.Cmd(
 		t,
@@ -41,7 +30,7 @@ func TestTramDepsCmd(t *testing.T) {
 	)
 }
 
-var busDepsCmdOutput = `ID   NUMBER                   DIRECTION  PLANNED  RELATIVE
+var busDepsCmdOutput = `ID   DIRECTION                PLANNED  RELATIVE
 179  Os. Kurdwanów            36         14:48
 304  Wieliczka Miasto         336        14:55
 173  Nowy Bieżanów Południe   396        14:55
@@ -57,7 +46,7 @@ var busDepsCmdOutput = `ID   NUMBER                   DIRECTION  PLANNED  RELATI
 304  Wieliczka Miasto         1536       15:15
 169  Górka Narodowa           1536       15:15`
 
-var tramDepsCmdOutput = `ID  NUMBER             DIRECTION  PLANNED  RELATIVE
+var tramDepsCmdOutput = `ID   DIRECTION                PLANNED  RELATIVE
 10  Pleszów            156        14:52
 10  Łagiewniki         456        14:56
 11  Czerwone Maki P+R  516        14:58
