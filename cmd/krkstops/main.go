@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"crypto/tls"
-	"flag"
 	"log"
 	"net"
 	"net/http"
@@ -12,8 +11,8 @@ import (
 	"github.com/PiotrKozimor/krkstops"
 	"github.com/PiotrKozimor/krkstops/pb"
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
+	"github.com/kelseyhightower/envconfig"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )
@@ -38,30 +37,30 @@ func serveGracefully(s Server, l net.Listener) {
 	}
 }
 
+type Config struct {
+	RedisURI string `envconfig:"REDIS_URI"`
+	TlsCert  string `envconfig:"TLS_CERT"`
+	TlsKey   string `envconfig:"TLS_KEY"`
+}
+
 func main() {
-	flag.Parse()
 	lis, err := net.Listen("tcp", ":8080")
 	handle(err)
-
+	var conf Config
+	err = envconfig.Process("", &conf)
+	log.Printf("CONFIG: %+v\n", conf)
 	handle(err)
 	grpcServer := grpc.NewServer(
 		grpc.StreamInterceptor(grpc_prometheus.StreamServerInterceptor),
 		grpc.UnaryInterceptor(grpc_prometheus.UnaryServerInterceptor),
 	)
 	var grpcServerTls *grpc.Server
-	viper.SetDefault("REDIS_URI", "localhost:6379")
-	viper.SetDefault("TLS_CERT", "")
-	viper.SetDefault("TLS_KEY", "")
-	viper.AutomaticEnv()
-	log.Printf("CONFIG: %+v\n", viper.AllSettings())
-	server, err := krkstops.NewServer(viper.GetString("REDIS_URI"))
+	server, err := krkstops.NewServer(conf.RedisURI)
 	handle(err)
 	pb.RegisterKrkStopsServer(grpcServer, server)
-	tlsCert := viper.GetString("TLS_CERT")
-	tlsKey := viper.GetString("TLS_KEY")
-	tlsOn := tlsCert != "" && tlsKey != ""
+	tlsOn := conf.TlsCert != "" && conf.TlsKey != ""
 	if tlsOn {
-		cert, err := tls.LoadX509KeyPair(tlsCert, tlsKey)
+		cert, err := tls.LoadX509KeyPair(conf.TlsCert, conf.TlsKey)
 		handle(err)
 		grpcServerTls = grpc.NewServer(
 			grpc.StreamInterceptor(grpc_prometheus.StreamServerInterceptor),
