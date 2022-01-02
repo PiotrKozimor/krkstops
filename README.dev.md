@@ -59,7 +59,9 @@ For each stop from `to.score`:
 
 # Code gen
 
+https://grpc.io/docs/languages/go/quickstart/
+https://grpc.io/docs/protoc-installation/
+
 ```
-go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
-go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+sh pb/gen.sh
 ```
