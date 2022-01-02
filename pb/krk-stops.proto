@@ -13,6 +13,7 @@ service KrkStops {
 enum Endpoint {
     BUS=0;
     TRAM=1;
+    ALL=2;
 }
 
 message Installation{
