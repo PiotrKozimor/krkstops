@@ -1,3 +1,4 @@
+#!/bin/bash
 TAG=$(git tag --points-at HEAD)
 if [ -z $TAG ] 
 then
