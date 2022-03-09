@@ -8,10 +8,11 @@ import (
 	"strings"
 	"time"
 
+	"context"
+
 	"github.com/PiotrKozimor/krkstops/pb"
 	"github.com/RediSearch/redisearch-go/redisearch"
 	redi "github.com/gomodule/redigo/redis"
-	"golang.org/x/net/context"
 )
 
 func (c *Cache) Score(ctx context.Context, cancel <-chan os.Signal, cli pb.KrkStopsClient, sleep time.Duration) error {

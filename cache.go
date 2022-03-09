@@ -4,11 +4,12 @@ import (
 	"log"
 	"time"
 
+	"context"
+
 	"github.com/PiotrKozimor/krkstops/ttss"
 	"github.com/RediSearch/redisearch-go/redisearch"
 	"github.com/go-redis/redis/v8"
 	redi "github.com/gomodule/redigo/redis"
-	"golang.org/x/net/context"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
 )

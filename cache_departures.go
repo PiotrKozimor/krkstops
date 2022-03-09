@@ -4,8 +4,9 @@ import (
 	"strconv"
 	"time"
 
+	"context"
+
 	"github.com/PiotrKozimor/krkstops/pb"
-	"golang.org/x/net/context"
 )
 
 var depsExpire = time.Second * 15
