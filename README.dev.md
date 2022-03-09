@@ -70,6 +70,8 @@ sh pb/gen.sh
 
 ```
 /bin/podman run --privileged -it --name=certbot --rm --cap-drop all -p 80:80 --volume /var/srv/krkstops/letsencrypt-webroot:/var/lib/letsencrypt:rw,z --volume /var/srv/krkstops/letsencrypt-certs:/etc/letsencrypt:rw,z docker.io/certbot/certbot:latest --standalone --agree-tos -d krkstops-1.germanywestcentral.cloudapp.azure.com -m p1996k@gmail.com certonly
-cp /etc/letsencrypt/live/krkstops-1.germanywestcentral.cloudapp.azure.com/privkey.pem /etc/krkstops/certs/
-cp /etc/letsencrypt/live/krkstops-1.germanywestcentral.cloudapp.azure.com/fullchain.pem /etc/krkstops/certs/
+cp /var/srv/krkstops/letsencrypt-certs/live/krkstops-1.germanywestcentral.cloudapp.azure.com/privkey.pem /etc/krkstops/certs/
+cp /var/srv/krkstops/letsencrypt-certs/live/krkstops-1.germanywestcentral.cloudapp.azure.com/fullchain.pem /etc/krkstops/certs/
+systemctl restart krkstops.service
 ```
+
