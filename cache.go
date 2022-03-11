@@ -23,8 +23,6 @@ const (
 	SCORES   = "scores"
 )
 
-// var ctx = context.Background()
-
 type Cache struct {
 	redis  *redis.Client
 	conn   redi.Conn

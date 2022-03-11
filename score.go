@@ -25,6 +25,7 @@ outer:
 			stop, err := c.getStoptoScore()
 			if err != nil {
 				if err == redi.ErrNil {
+					fmt.Printf("err: %v\n", err)
 					return nil
 				}
 				return err
@@ -47,6 +48,15 @@ outer:
 
 	}
 	_, err := c.redis.BgSave(ctx).Result()
+	return err
+}
+
+func (c *Cache) RestartScoring(ctx context.Context) error {
+	stops, err := c.redis.HKeys(ctx, NAMES).Result()
+	if err != nil {
+		return err
+	}
+	_, err = c.redis.SAdd(ctx, TO_SCORE, []interface{}{stops}...).Result()
 	return err
 }
 
