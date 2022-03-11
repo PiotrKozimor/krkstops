@@ -2,46 +2,16 @@ package krkstops
 
 import (
 	"context"
-	"strconv"
 
 	"github.com/PiotrKozimor/krkstops/pb"
 	"github.com/PiotrKozimor/krkstops/ttss"
-	"github.com/RediSearch/redisearch-go/redisearch"
-	redi "github.com/gomodule/redigo/redis"
-	"github.com/sirupsen/logrus"
+	"github.com/gomodule/redigo/redis"
 )
 
 type uniqueStops map[uint32]string
 
-func (c *Cache) Search(ctx context.Context, phrase string) ([]*pb.Stop, error) {
-	stops, err := c.sug.SuggestOpts(
-		phrase, redisearch.SuggestOptions{
-			Num:          10,
-			Fuzzy:        true,
-			WithPayloads: true,
-			WithScores:   false,
-		})
-	if err != nil {
-		return nil, err
-	}
-	stopsP := make([]*pb.Stop, len(stops))
-	for i, stop := range stops {
-		name, err := c.redis.HGet(ctx, NAMES, stop.Payload).Result()
-		if err != nil {
-			return nil, err
-		}
-		id, err := strconv.Atoi(stop.Payload)
-		if err != nil {
-			logrus.Errorf("failed to parse %s to int", stop.Payload)
-		} else {
-			stopsP[i] = &pb.Stop{Name: name, Id: uint32(id)}
-		}
-	}
-	return stopsP, nil
-}
-
-func (c *Cache) Update() error {
-	_, err := c.conn.Do("DEL", TO_SCORE)
+func (s *Score) Update() error {
+	_, err := s.conn.Do("DEL", TO_SCORE)
 	if err != nil {
 		return err
 	}
@@ -49,12 +19,12 @@ func (c *Cache) Update() error {
 	if err != nil {
 		return err
 	}
-	c.fillIdSet(BUS, busStops)
+	s.fillIdSet(BUS, busStops)
 	tramStops, err := ttss.TramEndpoint.GetAllStops()
 	if err != nil {
 		return err
 	}
-	c.fillIdSet(TRAM, tramStops)
+	s.fillIdSet(TRAM, tramStops)
 	uniqueStops := make(map[uint32]string, len(busStops))
 	for i := range busStops {
 		uniqueStops[busStops[i].Id] = busStops[i].Name
@@ -62,18 +32,18 @@ func (c *Cache) Update() error {
 	for i := range tramStops {
 		uniqueStops[tramStops[i].Id] = tramStops[i].Name
 	}
-	err = c.fillNamesHash(uniqueStops)
+	err = s.fillNamesHash(uniqueStops)
 	if err != nil {
 		return err
 	}
-	err = c.fillSuggestions(uniqueStops)
+	err = s.fillSuggestions(uniqueStops)
 	if err != nil {
 		return err
 	}
-	return c.finishUpdate()
+	return s.finishUpdate()
 }
 
-func (c *Cache) fillIdSet(key string, stops []pb.Stop) error {
+func (s *Score) fillIdSet(key string, stops []pb.Stop) error {
 	ids := make([]interface{}, len(stops))
 	for i := range stops {
 		ids[i] = stops[i].Id
@@ -82,11 +52,11 @@ func (c *Cache) fillIdSet(key string, stops []pb.Stop) error {
 		[]interface{}{getTmpKey(key)},
 		ids...,
 	)
-	_, err := c.conn.Do("SADD", args...)
+	_, err := s.conn.Do("SADD", args...)
 	return err
 }
 
-func (c *Cache) fillNamesHash(stops uniqueStops) error {
+func (s *Score) fillNamesHash(stops uniqueStops) error {
 	args := make([]interface{}, 2*len(stops))
 	i := 0
 	for id, name := range stops {
@@ -94,17 +64,17 @@ func (c *Cache) fillNamesHash(stops uniqueStops) error {
 		args[i+1] = name
 		i += 2
 	}
-	_, err := c.conn.Do("HSET", append([]interface{}{getTmpKey(NAMES)}, args...)...)
+	_, err := s.conn.Do("HSET", append([]interface{}{getTmpKey(NAMES)}, args...)...)
 	return err
 }
 
-func (c *Cache) fillSuggestions(stops uniqueStops) error {
+func (s *Score) fillSuggestions(stops uniqueStops) error {
 	for id, name := range stops {
-		score, err := redi.Float64(c.conn.Do("HGET", SCORES, id))
+		score, err := redis.Float64(s.conn.Do("HGET", SCORES, id))
 		if err != nil {
-			if err == redi.ErrNil {
+			if err == redis.ErrNil {
 				score = 1.0
-				_, err := c.conn.Do("SADD", TO_SCORE, id)
+				_, err := s.conn.Do("SADD", TO_SCORE, id)
 				if err != nil {
 					return err
 				}
@@ -112,7 +82,7 @@ func (c *Cache) fillSuggestions(stops uniqueStops) error {
 				return err
 			}
 		}
-		err = addSuggestion(c.sugTmp, &pb.Stop{
+		err = addSuggestion(s.sugTmp, &pb.Stop{
 			Name: name,
 			Id:   id,
 		}, score)
@@ -123,7 +93,7 @@ func (c *Cache) fillSuggestions(stops uniqueStops) error {
 	return nil
 }
 
-func (c *Cache) finishUpdate() error {
+func (s *Score) finishUpdate() error {
 	commands := []string{
 		BUS,
 		TRAM,
@@ -131,21 +101,21 @@ func (c *Cache) finishUpdate() error {
 		SUG,
 	}
 	for _, cmd := range commands {
-		err := c.conn.Send("RENAME", getTmpKey(cmd), cmd)
+		err := s.conn.Send("RENAME", getTmpKey(cmd), cmd)
 		if err != nil {
 			return err
 		}
 	}
-	err := c.conn.Flush()
+	err := s.conn.Flush()
 	if err != nil {
 		return err
 	}
 	for i := 0; i < len(commands); i++ {
-		_, err = c.conn.Receive()
+		_, err = s.conn.Receive()
 		if err != nil {
 			return err
 		}
 	}
-	_, err = c.redis.BgSave(context.Background()).Result()
+	_, err = s.redis.BgSave(context.Background()).Result()
 	return err
 }

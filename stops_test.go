@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/PiotrKozimor/krkstops/pb"
-	redi "github.com/go-redis/redis/v8"
-	"github.com/gomodule/redigo/redis"
+	"github.com/go-redis/redis/v8"
+	redi "github.com/gomodule/redigo/redis"
 	"github.com/matryer/is"
 )
 
@@ -16,42 +16,42 @@ func TestUpdate(t *testing.T) {
 	time.Sleep(time.Millisecond * 100)
 	is := is.New(t)
 	mustClearCache(is)
-	err := cache.Update()
+	err := score.Update()
 	is.NoErr(err)
-	busStops, err := cache.redis.SMembers(ctx, BUS).Result()
+	busStops, err := score.redis.SMembers(ctx, BUS).Result()
 	is.NoErr(err)
 	mustHaveSameElements(is, busStops, []string{
 		"610",
 		"81",
 	})
-	tramStops, err := cache.redis.SMembers(ctx, TRAM).Result()
+	tramStops, err := score.redis.SMembers(ctx, TRAM).Result()
 	is.NoErr(err)
 	mustHaveSameElements(is, tramStops, []string{
 		"610",
 	})
-	names, err := cache.redis.HGetAll(ctx, NAMES).Result()
+	names, err := score.redis.HGetAll(ctx, NAMES).Result()
 	is.NoErr(err)
 	is.Equal(names, map[string]string{
 		"610": "Rondo Matecznego",
 		"81":  "Czarnowiejska",
 	})
-	toScore, err := cache.redis.SMembers(ctx, TO_SCORE).Result()
+	toScore, err := score.redis.SMembers(ctx, TO_SCORE).Result()
 	is.NoErr(err)
 	mustHaveSameElements(is, toScore, []string{
 		"610",
 		"81",
 	})
-	exists, err := cache.redis.Exists(ctx, SCORES).Result()
+	exists, err := score.redis.Exists(ctx, SCORES).Result()
 	is.NoErr(err)
 	is.Equal(exists, int64(0))
-	stops, err := cache.Search(ctx, "cza")
+	stops, err := score.Search(ctx, "cza")
 	is.NoErr(err)
 	is.Equal(len(stops), 1)
 	is.Equal(stops[0], &pb.Stop{
 		Id:   81,
 		Name: "Czarnowiejska",
 	})
-	stops, err = cache.Search(ctx, "ma")
+	stops, err = score.Search(ctx, "ma")
 	is.NoErr(err)
 	is.Equal(len(stops), 1)
 	is.Equal(stops[0], &pb.Stop{
@@ -63,7 +63,7 @@ func TestUpdate(t *testing.T) {
 // mustSeachEqal(is *is.I, )
 
 func BenchmarkRedis(b *testing.B) {
-	cli := redi.NewClient(&redi.Options{})
+	cli := redis.NewClient(&redis.Options{})
 	ctx := context.Background()
 	var res string
 	for i := 0; i < b.N; i++ {
@@ -80,7 +80,7 @@ func BenchmarkRedis(b *testing.B) {
 }
 
 func BenchmarkRedigo(b *testing.B) {
-	c, err := redis.Dial("tcp", ":6379")
+	c, err := redi.Dial("tcp", ":6379")
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -90,7 +90,7 @@ func BenchmarkRedigo(b *testing.B) {
 		if err != nil {
 			b.Fatal(err)
 		}
-		res, err = redis.String(c.Do("GET", "FOO"))
+		res, err = redi.String(c.Do("GET", "FOO"))
 		if err != nil {
 			b.Fatal(err)
 		}

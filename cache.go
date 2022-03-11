@@ -2,14 +2,16 @@ package krkstops
 
 import (
 	"log"
+	"strconv"
 	"time"
 
 	"context"
 
+	"github.com/PiotrKozimor/krkstops/pb"
 	"github.com/PiotrKozimor/krkstops/ttss"
 	"github.com/RediSearch/redisearch-go/redisearch"
-	"github.com/go-redis/redis/v8"
-	redi "github.com/gomodule/redigo/redis"
+	"github.com/gomodule/redigo/redis"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
 )
@@ -24,29 +26,49 @@ const (
 )
 
 type Cache struct {
-	redis  *redis.Client
-	conn   redi.Conn
-	sugTmp *redisearch.Autocompleter
-	sug    *redisearch.Autocompleter
+	conn redis.Conn
+	sug  *redisearch.Autocompleter
 }
 
 func NewCache(redisURI, sugKey string) (*Cache, error) {
-	conn, err := redi.Dial("tcp", redisURI)
+	conn, err := redis.Dial("tcp", redisURI)
 	if err != nil {
 		return nil, err
 	}
 	ac := redisearch.NewAutocompleter(redisURI, sugKey)
-	acTmp := redisearch.NewAutocompleter(redisURI, getTmpKey(sugKey))
-	r := redis.NewClient(&redis.Options{
-		Addr: redisURI,
-	})
+
 	c := Cache{
-		conn:   conn,
-		sugTmp: acTmp,
-		sug:    ac,
-		redis:  r,
+		conn: conn,
+		sug:  ac,
 	}
 	return &c, err
+}
+
+func (c *Cache) Search(ctx context.Context, phrase string) ([]*pb.Stop, error) {
+	stops, err := c.sug.SuggestOpts(
+		phrase, redisearch.SuggestOptions{
+			Num:          10,
+			Fuzzy:        true,
+			WithPayloads: true,
+			WithScores:   false,
+		})
+	if err != nil {
+		return nil, err
+	}
+	stopsP := make([]*pb.Stop, len(stops))
+	for i, stop := range stops {
+		name, err := redis.String(c.conn.Do("HGET", NAMES, stop.Payload))
+		if err != nil {
+			return nil, err
+		}
+		id, err := strconv.Atoi(stop.Payload)
+		if err != nil {
+			logrus.Errorf("failed to parse %s to int", stop.Payload)
+		} else {
+			stopsP[i] = &pb.Stop{Name: name, Id: uint32(id)}
+		}
+	}
+	return stopsP, nil
 }
 
 func getTmpKey(k string) string {
@@ -54,7 +76,7 @@ func getTmpKey(k string) string {
 }
 
 func (c *Cache) get(key string, val protoreflect.ProtoMessage) error {
-	raw, err := redi.Bytes(c.conn.Do("GET", key))
+	raw, err := redis.Bytes(c.conn.Do("GET", key))
 	if err != nil {
 		return err
 	}
@@ -76,14 +98,14 @@ func (c *Cache) message(key string, val protoreflect.ProtoMessage, exp time.Dura
 
 func (c *Cache) getEndpoints(ctx context.Context, id uint32) ([]ttss.Endpoint, error) {
 	var endp []ttss.Endpoint
-	is, err := c.redis.SIsMember(ctx, BUS, id).Result()
+	is, err := redis.Bool(c.conn.Do("SISMEMBER", BUS, id))
 	if err != nil {
 		return nil, err
 	}
 	if is {
 		endp = append(endp, ttss.BusEndpoint)
 	}
-	is, err = c.redis.SIsMember(ctx, TRAM, id).Result()
+	is, err = redis.Bool(c.conn.Do("SISMEMBER", TRAM, id))
 	if err != nil {
 		return nil, err
 	}

@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/PiotrKozimor/krkstops/pb"
-	redi "github.com/gomodule/redigo/redis"
+	"github.com/gomodule/redigo/redis"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/matryer/is"
@@ -23,9 +23,9 @@ func TestCacheAirly(t *testing.T) {
 		Temperature: 45.6,
 	}
 	mustAirlyNotBeCached(is, &testInst)
-	err := cache.airly(&testAirly, &testInst)
+	err := score.airly(&testAirly, &testInst)
 	is.NoErr(err)
-	cachedAirly, err := cache.getAirly(&testInst)
+	cachedAirly, err := score.getAirly(&testInst)
 	is.NoErr(err)
 	if diff := cmp.Diff(*cachedAirly, testAirly, cmpopts.IgnoreUnexported(*cachedAirly)); diff != "" {
 		t.Errorf(diff)
@@ -35,6 +35,6 @@ func TestCacheAirly(t *testing.T) {
 }
 
 func mustAirlyNotBeCached(is *is.I, i *pb.Installation) {
-	_, err := cache.getAirly(i)
-	is.Equal(err, redi.ErrNil)
+	_, err := score.getAirly(i)
+	is.Equal(err, redis.ErrNil)
 }

@@ -15,7 +15,7 @@ var (
 		Run: func(cmd *cobra.Command, args []string) {
 			err := initializeDB()
 			handle(err)
-			err = cache.Update()
+			err = score.Update()
 			handle(err)
 			println("stops updated sucessfully.")
 		},

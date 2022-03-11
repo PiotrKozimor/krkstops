@@ -7,6 +7,7 @@ import (
 	"context"
 
 	"github.com/PiotrKozimor/krkstops/pb"
+	"github.com/gomodule/redigo/redis"
 )
 
 var depsExpire = time.Second * 15
@@ -27,12 +28,12 @@ func (c *Cache) getDepartures(ctx context.Context, stop *pb.Stop) (departures *p
 	if err != nil {
 		return
 	}
-	var ttl time.Duration
-	ttl, err = c.redis.TTL(ctx, depsPrefix+strconv.Itoa(int(stop.Id))).Result()
+	var ttl int
+	ttl, err = redis.Int(c.conn.Do("TTL", depsPrefix+strconv.Itoa(int(stop.Id))))
 	if err != nil {
 		return
 	}
-	livedFor := int32(depsExpire.Seconds() - ttl.Seconds())
+	livedFor := int32(int(depsExpire.Seconds()) - ttl)
 	for index := range departures.Departures {
 		if departures.Departures[index].RelativeTime != 0 {
 			departures.Departures[index].RelativeTime -= livedFor

@@ -36,7 +36,7 @@ func TestDepsCmd(t *testing.T) {
 
 func TestStopsCmd(t *testing.T) {
 	is := is.New(t)
-	cache, err := krkstops.NewCache("localhost:6379", krkstops.SUG)
+	cache, err := krkstops.NewScore("localhost:6379", krkstops.SUG)
 	is.NoErr(err)
 	err = cache.Update()
 	is.NoErr(err)

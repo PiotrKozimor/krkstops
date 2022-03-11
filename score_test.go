@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	cache *Cache
+	score *Score
 )
 
 func handle(err error) {
@@ -24,12 +24,12 @@ func handle(err error) {
 
 func init() {
 	var err error
-	cache, err = NewCache("localhost:6379", SUG)
+	score, err = NewScore("localhost:6379", SUG)
 	handle(err)
 }
 
 func mustClearCache(is *is.I) {
-	_, err := cache.conn.Do("FLUSHALL")
+	_, err := score.conn.Do("FLUSHALL")
 	is.NoErr(err)
 }
 
@@ -44,17 +44,17 @@ func TestScore(t *testing.T) {
 	time.Sleep(time.Millisecond * 100)
 	is := is.New(t)
 	mustClearCache(is)
-	err := cache.Update()
+	err := score.Update()
 	is.NoErr(err)
-	err = cache.Score(ctx, make(<-chan os.Signal), mustLocalKrkStopsClient(is), 0)
+	err = score.Score(ctx, make(<-chan os.Signal), mustLocalKrkStopsClient(is), 0)
 	is.NoErr(err)
-	scores, err := cache.redis.HGetAll(ctx, SCORES).Result()
+	scores, err := score.redis.HGetAll(ctx, SCORES).Result()
 	is.NoErr(err)
 	is.Equal(scores, map[string]string{
 		"610": "3.29128784747792",
 		"81":  "2.6583123951777",
 	})
-	stops, err := cache.sug.SuggestOpts("mat", redisearch.SuggestOptions{
+	stops, err := score.sug.SuggestOpts("mat", redisearch.SuggestOptions{
 		Num:          10,
 		Fuzzy:        true,
 		WithPayloads: true,

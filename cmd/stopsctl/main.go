@@ -10,12 +10,12 @@ var (
 		Use:   "stopsctl",
 		Short: "Manipulate krkstops stops data saved in Redis and stops suggestions saved in Redisearch.",
 	}
-	cache *krkstops.Cache
+	score *krkstops.Score
 	uri   string
 )
 
 func initializeDB() (err error) {
-	cache, err = krkstops.NewCache(uri, krkstops.SUG)
+	score, err = krkstops.NewScore(uri, krkstops.SUG)
 	return
 }
 

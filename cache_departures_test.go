@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/PiotrKozimor/krkstops/pb"
-	redi "github.com/gomodule/redigo/redis"
+	"github.com/gomodule/redigo/redis"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/matryer/is"
@@ -32,9 +32,9 @@ func TestCacheDepartures(t *testing.T) {
 			},
 		}
 		mustDepsNotBeCached(is, &testStop)
-		err := cache.departures(&testDepartures, &testStop)
+		err := score.departures(&testDepartures, &testStop)
 		is.NoErr(err)
-		cachedDeps, err := cache.getDepartures(ctx, &testStop)
+		cachedDeps, err := score.getDepartures(ctx, &testStop)
 		is.NoErr(err)
 		opts := cmpopts.IgnoreUnexported(*testDepartures.Departures[0])
 		for i := range cachedDeps.Departures {
@@ -48,6 +48,6 @@ func TestCacheDepartures(t *testing.T) {
 }
 
 func mustDepsNotBeCached(is *is.I, s *pb.Stop) {
-	_, err := cache.getDepartures(ctx, s)
-	is.Equal(err, redi.ErrNil)
+	_, err := score.getDepartures(ctx, s)
+	is.Equal(err, redis.ErrNil)
 }
