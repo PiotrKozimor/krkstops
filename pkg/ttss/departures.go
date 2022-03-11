@@ -2,6 +2,7 @@ package ttss
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -10,16 +11,11 @@ import (
 	"github.com/PiotrKozimor/krkstops/pb"
 )
 
-type ErrStatusCode struct {
-	code int
-}
-
-type ErrStopNotFound struct {
-}
-
-type ErrRequestFailed struct {
-	err error
-}
+var (
+	ErrStatusCode    = errors.New("got non 200 status code")
+	ErrStopNotFound  = errors.New("stop not found")
+	ErrRequestFailed = errors.New("request failed")
+)
 
 type departure struct {
 	PlannedTime        string
@@ -37,18 +33,6 @@ var (
 	departuresPath = "internetservice/services/passageInfo/stopPassages/stop?stop=%d&mode=departure&language=pl"
 )
 
-func (e ErrStatusCode) Error() string {
-	return fmt.Sprintf("status code: %d", e.code)
-}
-
-func (e ErrStopNotFound) Error() string {
-	return "stop not found"
-}
-
-func (e ErrRequestFailed) Error() string {
-	return fmt.Sprintf("request failed: %v", e.err)
-}
-
 func (e Endpoint) Id() string {
 	return endpointsIds[e]
 }
@@ -57,14 +41,14 @@ func (e Endpoint) Id() string {
 func (e Endpoint) GetDepartures(id uint) ([]pb.Departure, error) {
 	resp, err := http.DefaultClient.Get(fmt.Sprintf(strings.Join([]string{e.URL, departuresPath}, "/"), id))
 	if err != nil {
-		return nil, ErrRequestFailed{err: err}
+		return nil, fmt.Errorf("%w: %v", ErrRequestFailed, err)
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
 		if resp.StatusCode == 404 {
-			return nil, ErrStopNotFound{}
+			return nil, fmt.Errorf("%w: %d", ErrStopNotFound, id)
 		}
-		return nil, ErrStatusCode{code: resp.StatusCode}
+		return nil, fmt.Errorf("%w: %d", ErrStatusCode, resp.StatusCode)
 	}
 	var ttssDepartures stopDepartures
 	decoder := json.NewDecoder(resp.Body)
@@ -95,12 +79,7 @@ func GetDepartures(e []Endpointer, shortName uint) (chan []pb.Departure, chan er
 		go func(endp Endpointer) {
 			departures, err := endp.GetDepartures(shortName)
 			depC <- departures
-			switch err.(type) {
-			case ErrStopNotFound:
-				break
-			case nil:
-				break
-			default:
+			if !errors.Is(err, ErrStopNotFound) {
 				errC <- err
 			}
 			wg.Done()

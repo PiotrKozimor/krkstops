@@ -1,10 +1,12 @@
-package ttss
+package ttssmonitor
 
 import (
 	"errors"
+	"fmt"
 	"testing"
 
 	"github.com/PiotrKozimor/krkstops/pb"
+	"github.com/PiotrKozimor/krkstops/pkg/ttss"
 	"github.com/matryer/is"
 )
 
@@ -25,8 +27,8 @@ func TestGetDeparturesErrorCode(t *testing.T) {
 	te := TestEndpoint{
 		c: c,
 	}
-	c <- ErrRequestFailed{err: errors.New("test")}
-	c <- ErrStatusCode{code: 401}
+	c <- fmt.Errorf("%w: %v", ttss.ErrRequestFailed, "err")
+	c <- fmt.Errorf("%w: %d", ttss.ErrStatusCode, 400)
 	c <- errors.New("bar")
 	c <- nil
 	is.Equal(REQUEST_FAILED, GetDeparturesErrorCode(te, 0))

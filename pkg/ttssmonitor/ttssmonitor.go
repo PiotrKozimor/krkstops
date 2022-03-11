@@ -1,6 +1,9 @@
-package ttss
+package ttssmonitor
 
 import (
+	"errors"
+
+	"github.com/PiotrKozimor/krkstops/pkg/ttss"
 	"github.com/sirupsen/logrus"
 )
 
@@ -23,23 +26,23 @@ func logIt(endpointId string, stopId uint) *logrus.Entry {
 }
 
 // GetDeparturesErrorCode returns error that can be consumed by e.g. Prometheus.
-func GetDeparturesErrorCode(e Endpointer, id uint) (errorCode int) {
+func GetDeparturesErrorCode(e ttss.Endpointer, id uint) int {
 	dep, err := e.GetDepartures(id)
 	if err != nil {
-		switch err.(type) {
-		case ErrStopNotFound:
-			errorCode = STOP_NOT_FOUND
-		case ErrRequestFailed:
-			errorCode = REQUEST_FAILED
-		case ErrStatusCode:
-			errorCode = REQUEST_NON_200
-		default:
-			errorCode = OTHER_ERROR
-		}
 		logIt(e.Id(), id).Error(err)
+		if errors.Is(err, ttss.ErrStopNotFound) {
+			return STOP_NOT_FOUND
+		}
+		if errors.Is(err, ttss.ErrRequestFailed) {
+			return REQUEST_FAILED
+		}
+		if errors.Is(err, ttss.ErrStatusCode) {
+			return REQUEST_NON_200
+		}
+		return OTHER_ERROR
 	} else if len(dep) == 0 {
-		errorCode = EMPTY_DEPARTURES
 		logIt(e.Id(), id).Error("got no departures")
+		return EMPTY_DEPARTURES
 	}
-	return
+	return OK
 }

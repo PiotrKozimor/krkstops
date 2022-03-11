@@ -2,6 +2,7 @@ package ttss
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
 	"sync"
@@ -25,12 +26,12 @@ type stop struct {
 func (e Endpoint) GetAllStops() ([]pb.Stop, error) {
 	resp, err := http.DefaultClient.Get(strings.Join([]string{e.URL, stopsPath}, "/"))
 	if err != nil {
-		return nil, ErrRequestFailed{err: err}
+		return nil, fmt.Errorf("%w: %v", ErrRequestFailed, err)
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
 		if resp.StatusCode != 200 {
-			return nil, ErrStatusCode{code: resp.StatusCode}
+			return nil, fmt.Errorf("%w: %d", ErrStatusCode, resp.StatusCode)
 		}
 	}
 	var stops ttssStops
