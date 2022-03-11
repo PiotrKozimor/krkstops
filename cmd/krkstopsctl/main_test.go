@@ -3,6 +3,7 @@ package main
 import (
 	"testing"
 
+	"github.com/PiotrKozimor/krkstops/pb"
 	"github.com/PiotrKozimor/krkstops/pkg/cache"
 	"github.com/PiotrKozimor/krkstops/pkg/score"
 	"github.com/PiotrKozimor/krkstops/test"
@@ -39,7 +40,7 @@ func TestStopsCmd(t *testing.T) {
 	is := is.New(t)
 	cache, err := score.NewScore("localhost:6379", cache.SUG)
 	is.NoErr(err)
-	err = cache.Update()
+	err = cache.Update(test.TtssTestEndpoints[pb.Endpoint_BUS], test.TtssTestEndpoints[pb.Endpoint_TRAM])
 	is.NoErr(err)
 	test.Cmd(
 		t,

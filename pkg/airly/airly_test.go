@@ -1,20 +1,17 @@
 package airly
 
 import (
-	"context"
 	"testing"
 
 	"github.com/PiotrKozimor/krkstops/pb"
-	"github.com/PiotrKozimor/krkstops/test/mock"
 	"github.com/matryer/is"
 )
 
+var testEndpoint = Endpoint("http://172.24.0.101:8072")
+
 func TestGetAirly(t *testing.T) {
 	is := is.New(t)
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	go mock.Airly(ctx)
-	airly, err := DefaultEndpoint.GetAirly(&pb.Installation{Id: 8077})
+	airly, err := testEndpoint.GetAirly(&pb.Installation{Id: 8077})
 	is.NoErr(err)
 	is.Equal(int32(12), airly.Caqi)
 	is.Equal(int32(46), airly.Humidity)
@@ -24,20 +21,14 @@ func TestGetAirly(t *testing.T) {
 
 func TestFindAirlyInstallation(t *testing.T) {
 	is := is.New(t)
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	go mock.Airly(ctx)
-	inst, err := DefaultEndpoint.NearestInstallation(&pb.InstallationLocation{Latitude: 50.0236288, Longitude: 19.942604799999998})
+	inst, err := testEndpoint.NearestInstallation(&pb.InstallationLocation{Latitude: 50.0236288, Longitude: 19.942604799999998})
 	is.NoErr(err)
 	is.Equal(int32(8077), inst.Id)
 }
 
 func TestGetAirlyInstallation(t *testing.T) {
 	is := is.New(t)
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	go mock.Airly(ctx)
-	inst, err := DefaultEndpoint.GetInstallation(8077)
+	inst, err := testEndpoint.GetInstallation(8077)
 	is.NoErr(err)
 	is.Equal(float32(50.062008), inst.Latitude)
 	is.Equal(float32(19.940985), inst.Longitude)

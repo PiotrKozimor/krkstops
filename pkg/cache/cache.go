@@ -8,7 +8,6 @@ import (
 	"context"
 
 	"github.com/PiotrKozimor/krkstops/pb"
-	"github.com/PiotrKozimor/krkstops/pkg/ttss"
 	"github.com/RediSearch/redisearch-go/redisearch"
 	"github.com/gomodule/redigo/redis"
 	"github.com/sirupsen/logrus"
@@ -96,21 +95,21 @@ func (c *Cache) message(key string, val protoreflect.ProtoMessage, exp time.Dura
 	return nil
 }
 
-func (c *Cache) GetEndpoints(ctx context.Context, id uint32) ([]ttss.Endpoint, error) {
-	var endp []ttss.Endpoint
+func (c *Cache) GetEndpoints(ctx context.Context, id uint32) ([]pb.Endpoint, error) {
+	var endp []pb.Endpoint
 	is, err := redis.Bool(c.Conn.Do("SISMEMBER", BUS, id))
 	if err != nil {
 		return nil, err
 	}
 	if is {
-		endp = append(endp, ttss.BusEndpoint)
+		endp = append(endp, pb.Endpoint_BUS)
 	}
 	is, err = redis.Bool(c.Conn.Do("SISMEMBER", TRAM, id))
 	if err != nil {
 		return nil, err
 	}
 	if is {
-		endp = append(endp, ttss.TramEndpoint)
+		endp = append(endp, pb.Endpoint_TRAM)
 	}
 	return endp, nil
 }

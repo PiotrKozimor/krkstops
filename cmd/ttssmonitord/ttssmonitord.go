@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/PiotrKozimor/krkstops/pkg/ttss"
+	"github.com/PiotrKozimor/krkstops/pkg/ttssmonitor"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
@@ -76,7 +77,7 @@ func main() {
 			<-t.C
 			for _, endpoint := range ttss.KrkStopsEndpoints {
 				for _, stop := range stopsPool {
-					errCodeTmp := ttss.GetDeparturesErrorCode(endpoint, stop)
+					errCodeTmp := ttssmonitor.GetDeparturesErrorCode(endpoint, stop)
 					// Any successfull request for Endpoint will erase other errors
 					if errCodeTmp == 0 {
 						errorCodes[endpoint.Id()] = 0

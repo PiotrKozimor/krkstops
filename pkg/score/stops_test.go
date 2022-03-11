@@ -7,6 +7,7 @@ import (
 
 	"github.com/PiotrKozimor/krkstops/pb"
 	"github.com/PiotrKozimor/krkstops/pkg/cache"
+	"github.com/PiotrKozimor/krkstops/test"
 	"github.com/go-redis/redis/v8"
 	redi "github.com/gomodule/redigo/redis"
 	"github.com/matryer/is"
@@ -21,7 +22,7 @@ func TestUpdate(t *testing.T) {
 	is.NoErr(err)
 	mustClearCache(is, s)
 	is.NoErr(err)
-	err = s.Update()
+	err = s.Update(test.TtssTestEndpoints[pb.Endpoint_BUS], test.TtssTestEndpoints[pb.Endpoint_TRAM])
 	is.NoErr(err)
 	busStops, err := s.redis.SMembers(ctx, cache.BUS).Result()
 	is.NoErr(err)

@@ -25,8 +25,6 @@ func NewServer(redisURI string) (*KrkStopsServer, error) {
 	}
 	server := KrkStopsServer{
 		cache: cache,
-		Airly: airly.DefaultEndpoint,
-		Ttss:  ttss.KrkStopsEndpoints,
 	}
 	return &server, nil
 }
@@ -55,7 +53,7 @@ func (s *KrkStopsServer) GetDepartures2(ctx context.Context, stop *pb.Stop) (*pb
 		deps := make([][]pb.Departure, len(endpoints))
 		allDepsLen := 0
 		for i, e := range endpoints {
-			deps[i], err = e.GetDepartures(uint(stop.Id))
+			deps[i], err = s.Ttss[e].GetDepartures(uint(stop.Id))
 			if err != nil {
 				return nil, err
 			}

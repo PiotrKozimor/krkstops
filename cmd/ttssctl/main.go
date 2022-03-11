@@ -18,7 +18,7 @@ var (
 		Use:   "deps",
 		Short: "Query departures from given stop for bus and tram",
 		Run: func(cmd *cobra.Command, args []string) {
-			depsC, errC := ttss.GetDepartures(ttss.KrkStopsEndpoints, stopId)
+			depsC, errC := ttss.GetDepartures(endpoints, stopId)
 			pprint := pb.NewPrettyPrint(cmd)
 			for dep := range depsC {
 				pprint.Departures(getDepsPSlice(dep))
@@ -32,7 +32,7 @@ var (
 		Use:   "stops",
 		Short: "Query all stops in Cracov",
 		Run: func(cmd *cobra.Command, args []string) {
-			stopsC, errC := ttss.GetAllStops(ttss.KrkStopsEndpoints)
+			stopsC, errC := ttss.GetAllStops(endpoints)
 			cmd.Print()
 			pprint := pb.NewPrettyPrint(cmd)
 			for stop := range stopsC {
@@ -47,7 +47,7 @@ var (
 		Use:   "bus",
 		Short: "Query bus departures from stop",
 		Run: func(cmd *cobra.Command, args []string) {
-			deps, err := ttss.BusEndpoint.GetDepartures(stopId)
+			deps, err := endpoints[pb.Endpoint_BUS].GetDepartures(stopId)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -59,7 +59,7 @@ var (
 		Use:   "tram",
 		Short: "Query tram departures from stop",
 		Run: func(cmd *cobra.Command, args []string) {
-			deps, err := ttss.TramEndpoint.GetDepartures(stopId)
+			deps, err := endpoints[pb.Endpoint_TRAM].GetDepartures(stopId)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -67,6 +67,7 @@ var (
 			pprint.Departures(getDepsPSlice(deps))
 		},
 	}
+	endpoints = ttss.KrkStopsEndpoints
 )
 
 func getDepsPSlice(deps []pb.Departure) []*pb.Departure {

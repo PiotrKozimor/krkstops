@@ -1,22 +1,15 @@
 package ttss
 
 import (
-	"context"
 	"testing"
-	"time"
 
 	"github.com/PiotrKozimor/krkstops/pb"
-	"github.com/PiotrKozimor/krkstops/test/mock"
 	"github.com/matryer/is"
 )
 
 func TestStops(t *testing.T) {
 	is := is.New(t)
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	go mock.Ttss(ctx)
-	time.Sleep(10 * time.Millisecond)
-	stopsC, errC := GetAllStops(KrkStopsEndpoints)
+	stopsC, errC := GetAllStops(testEndpoints)
 	for s := range stopsC {
 		switch s[0].Type {
 		case pb.Endpoint_BUS:

@@ -15,7 +15,7 @@ var (
 		Run: func(cmd *cobra.Command, args []string) {
 			inst := pb.Installation{}
 			inst.Id = id
-			airly, err := airly.DefaultEndpoint.GetAirly(&inst)
+			airly, err := endpoint.GetAirly(&inst)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -23,8 +23,9 @@ var (
 			pp.Airly(airly)
 		},
 	}
-	id  int32
-	url string
+	id       int32
+	url      string
+	endpoint = airly.DefaultEndpoint
 )
 
 func init() {

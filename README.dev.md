@@ -1,15 +1,15 @@
 # Test
 
-Run krkstops:
+Run redisearch and mock:
 ```
-. .test.setup.sh
-go run cmd/krkstops/main.go
+docker-compose build
+docker-compose up -d
 ```
-or debug using `krkstops` configuration in VS Code.
 
-In other terminal run tests:
+Run `krkstops` using `krkstops` configuration in VS Code.
+
+Run tests:
 ```
-. .test.setup.sh
 go test ./...
 ```
 

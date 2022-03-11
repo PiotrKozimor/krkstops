@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/PiotrKozimor/krkstops/pkg/ttss"
 	"github.com/spf13/cobra"
 )
 
@@ -15,7 +16,7 @@ var (
 		Run: func(cmd *cobra.Command, args []string) {
 			err := initializeDB()
 			handle(err)
-			err = s.Update()
+			err = s.Update(ttss.BusEndpoint, ttss.TramEndpoint)
 			handle(err)
 			println("stops updated sucessfully.")
 		},

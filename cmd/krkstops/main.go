@@ -7,9 +7,12 @@ import (
 	"net"
 	"net/http"
 	_ "net/http/pprof"
+	"strings"
 
 	"github.com/PiotrKozimor/krkstops"
 	"github.com/PiotrKozimor/krkstops/pb"
+	"github.com/PiotrKozimor/krkstops/pkg/airly"
+	"github.com/PiotrKozimor/krkstops/pkg/ttss"
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/kelseyhightower/envconfig"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -38,9 +41,10 @@ func serveGracefully(s Server, l net.Listener) {
 }
 
 type Config struct {
-	RedisURI string
-	TlsCert  string
-	TlsKey   string
+	RedisURI          string
+	TlsCert           string
+	TlsKey            string
+	OverrideEndpoints string
 }
 
 func main() {
@@ -57,6 +61,7 @@ func main() {
 	var grpcServerTls *grpc.Server
 	server, err := krkstops.NewServer(conf.RedisURI)
 	handle(err)
+	server.Airly, server.Ttss = Endpoints(conf.OverrideEndpoints)
 	pb.RegisterKrkStopsServer(grpcServer, server)
 	tlsOn := conf.TlsCert != "" && conf.TlsKey != ""
 	if tlsOn {
@@ -92,4 +97,25 @@ func main() {
 	go serveGracefully(&httpServer, lisHttp)
 	defer httpServer.Shutdown(context.Background())
 	<-stop
+}
+
+// If OVERRIDEENDPOINTS environmental variable is set with structure
+// <airlyEndpoint>,<busEndpoint>,<tramEndpoint> the endpoints are overriden.
+// Otherwise, the defaults are used.
+func Endpoints(override string) (airly.Endpoint, []ttss.Endpointer) {
+	if override != "" {
+		endpoints := strings.Split(override, ",")
+		return airly.Endpoint(endpoints[0]),
+			[]ttss.Endpointer{
+				ttss.Endpoint{
+					URL:  endpoints[1],
+					Type: pb.Endpoint_BUS,
+				},
+				ttss.Endpoint{
+					URL:  endpoints[2],
+					Type: pb.Endpoint_TRAM,
+				},
+			}
+	}
+	return airly.DefaultEndpoint, ttss.KrkStopsEndpoints
 }

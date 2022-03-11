@@ -8,6 +8,7 @@ import (
 
 	"github.com/PiotrKozimor/krkstops/pb"
 	"github.com/PiotrKozimor/krkstops/pkg/cache"
+	"github.com/PiotrKozimor/krkstops/test"
 	"github.com/RediSearch/redisearch-go/redisearch"
 	"github.com/matryer/is"
 	"google.golang.org/grpc"
@@ -33,7 +34,7 @@ func TestScore(t *testing.T) {
 	s, err := NewScore("localhost:6379", cache.SUG)
 	is.NoErr(err)
 	mustClearCache(is, s)
-	err = s.Update()
+	err = s.Update(test.TtssTestEndpoints[pb.Endpoint_BUS], test.TtssTestEndpoints[pb.Endpoint_TRAM])
 	is.NoErr(err)
 	err = s.Score(ctx, make(<-chan os.Signal), mustLocalKrkStopsClient(is), 0)
 	is.NoErr(err)

@@ -11,17 +11,17 @@ import (
 
 type uniqueStops map[uint32]string
 
-func (s *Score) Update() error {
+func (s *Score) Update(bus ttss.Endpointer, tram ttss.Endpointer) error {
 	_, err := s.Conn.Do("DEL", cache.TO_SCORE)
 	if err != nil {
 		return err
 	}
-	busStops, err := ttss.BusEndpoint.GetAllStops()
+	busStops, err := bus.GetAllStops()
 	if err != nil {
 		return err
 	}
 	s.fillIdSet(cache.BUS, busStops)
-	tramStops, err := ttss.TramEndpoint.GetAllStops()
+	tramStops, err := tram.GetAllStops()
 	if err != nil {
 		return err
 	}

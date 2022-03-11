@@ -7,6 +7,7 @@ import (
 )
 
 func TestBusDepsCmd(t *testing.T) {
+	endpoints = test.TtssTestEndpoints
 	test.Cmd(
 		t,
 		[]string{
@@ -19,6 +20,7 @@ func TestBusDepsCmd(t *testing.T) {
 }
 
 func TestTramDepsCmd(t *testing.T) {
+	endpoints = test.TtssTestEndpoints
 	test.Cmd(
 		t,
 		[]string{

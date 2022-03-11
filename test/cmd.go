@@ -7,9 +7,22 @@ import (
 	"testing"
 	"time"
 
+	"github.com/PiotrKozimor/krkstops/pb"
+	"github.com/PiotrKozimor/krkstops/pkg/ttss"
 	"github.com/matryer/is"
 	"github.com/spf13/cobra"
 )
+
+var TtssTestEndpoints = []ttss.Endpointer{
+	ttss.Endpoint{
+		URL:  "http://172.24.0.101:8071",
+		Type: pb.Endpoint_BUS,
+	},
+	ttss.Endpoint{
+		URL:  "http://172.24.0.101:8070",
+		Type: pb.Endpoint_TRAM,
+	},
+}
 
 func Cmd(t *testing.T, args []string, expectedLines string, cmd *cobra.Command) {
 	time.Sleep(time.Millisecond)

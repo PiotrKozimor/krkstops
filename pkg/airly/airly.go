@@ -3,7 +3,6 @@ package airly
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -50,14 +49,6 @@ const nearestInstallationsPath = "v2/installations/nearest"
 const installationsPath = "v2/installations/%d"
 
 var DefaultEndpoint = Endpoint("https://airapi.airly.eu")
-
-func init() {
-	airly := os.Getenv("OVERRIDE_AIRLY")
-	if airly != "" {
-		log.Printf("OVERRIDE_AIRLY: %s\n", airly)
-		DefaultEndpoint = Endpoint(airly)
-	}
-}
 
 // GetAirly queries external API and parses response
 func (e Endpoint) GetAirly(installation *pb.Installation) (*pb.Airly, error) {

@@ -34,7 +34,7 @@ var (
 )
 
 func (e Endpoint) Id() string {
-	return endpointsIds[e]
+	return endpointsIds[e.Type]
 }
 
 // GetDepartures from Endpoint for stop with given shortName.
