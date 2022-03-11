@@ -61,16 +61,3 @@ func mustLocalKrkStopsClient(is *is.I) pb.KrkStopsClient {
 	is.NoErr(err)
 	return pb.NewKrkStopsClient(conn)
 }
-
-func mustHaveSameElements(is *is.I, a1, a2 []string) {
-	is.Equal(len(a1), len(a2))
-	m1 := make(map[string]bool, len(a1))
-	m2 := make(map[string]bool, len(a2))
-	for _, s := range a1 {
-		m1[s] = true
-	}
-	for _, s := range a2 {
-		m2[s] = true
-	}
-	is.Equal(m1, m2)
-}

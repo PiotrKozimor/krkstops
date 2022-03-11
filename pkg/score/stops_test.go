@@ -19,9 +19,9 @@ func TestUpdate(t *testing.T) {
 	is := is.New(t)
 	s, err := NewScore("localhost:6379", cache.SUG)
 	is.NoErr(err)
-	err = s.Update()
-	is.NoErr(err)
 	mustClearCache(is, s)
+	is.NoErr(err)
+	err = s.Update()
 	is.NoErr(err)
 	busStops, err := s.redis.SMembers(ctx, cache.BUS).Result()
 	is.NoErr(err)
@@ -63,6 +63,19 @@ func TestUpdate(t *testing.T) {
 		Id:   610,
 		Name: "Rondo Matecznego",
 	})
+}
+
+func mustHaveSameElements(is *is.I, a1, a2 []string) {
+	is.Equal(len(a1), len(a2))
+	m1 := make(map[string]bool, len(a1))
+	m2 := make(map[string]bool, len(a2))
+	for _, s := range a1 {
+		m1[s] = true
+	}
+	for _, s := range a2 {
+		m2[s] = true
+	}
+	is.Equal(m1, m2)
 }
 
 func BenchmarkRedis(b *testing.B) {
