@@ -1,10 +1,11 @@
-package krkstops
+package score
 
 import (
 	"context"
 	"testing"
 	"time"
 
+	"github.com/PiotrKozimor/krkstops/cache"
 	"github.com/PiotrKozimor/krkstops/pb"
 	"github.com/go-redis/redis/v8"
 	redi "github.com/gomodule/redigo/redis"
@@ -14,44 +15,48 @@ import (
 func TestUpdate(t *testing.T) {
 	// to avoid err: ERR Background save already in progress
 	time.Sleep(time.Millisecond * 100)
+	ctx := context.Background()
 	is := is.New(t)
-	mustClearCache(is)
-	err := score.Update()
+	s, err := NewScore("localhost:6379", cache.SUG)
 	is.NoErr(err)
-	busStops, err := score.redis.SMembers(ctx, BUS).Result()
+	err = s.Update()
+	is.NoErr(err)
+	mustClearCache(is, s)
+	is.NoErr(err)
+	busStops, err := s.redis.SMembers(ctx, cache.BUS).Result()
 	is.NoErr(err)
 	mustHaveSameElements(is, busStops, []string{
 		"610",
 		"81",
 	})
-	tramStops, err := score.redis.SMembers(ctx, TRAM).Result()
+	tramStops, err := s.redis.SMembers(ctx, cache.TRAM).Result()
 	is.NoErr(err)
 	mustHaveSameElements(is, tramStops, []string{
 		"610",
 	})
-	names, err := score.redis.HGetAll(ctx, NAMES).Result()
+	names, err := s.redis.HGetAll(ctx, cache.NAMES).Result()
 	is.NoErr(err)
 	is.Equal(names, map[string]string{
 		"610": "Rondo Matecznego",
 		"81":  "Czarnowiejska",
 	})
-	toScore, err := score.redis.SMembers(ctx, TO_SCORE).Result()
+	toScore, err := s.redis.SMembers(ctx, cache.TO_SCORE).Result()
 	is.NoErr(err)
 	mustHaveSameElements(is, toScore, []string{
 		"610",
 		"81",
 	})
-	exists, err := score.redis.Exists(ctx, SCORES).Result()
+	exists, err := s.redis.Exists(ctx, cache.SCORES).Result()
 	is.NoErr(err)
 	is.Equal(exists, int64(0))
-	stops, err := score.Search(ctx, "cza")
+	stops, err := s.Search(ctx, "cza")
 	is.NoErr(err)
 	is.Equal(len(stops), 1)
 	is.Equal(stops[0], &pb.Stop{
 		Id:   81,
 		Name: "Czarnowiejska",
 	})
-	stops, err = score.Search(ctx, "ma")
+	stops, err = s.Search(ctx, "ma")
 	is.NoErr(err)
 	is.Equal(len(stops), 1)
 	is.Equal(stops[0], &pb.Stop{
@@ -59,8 +64,6 @@ func TestUpdate(t *testing.T) {
 		Name: "Rondo Matecznego",
 	})
 }
-
-// mustSeachEqal(is *is.I, )
 
 func BenchmarkRedis(b *testing.B) {
 	cli := redis.NewClient(&redis.Options{})

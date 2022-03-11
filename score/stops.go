@@ -1,8 +1,9 @@
-package krkstops
+package score
 
 import (
 	"context"
 
+	"github.com/PiotrKozimor/krkstops/cache"
 	"github.com/PiotrKozimor/krkstops/pb"
 	"github.com/PiotrKozimor/krkstops/ttss"
 	"github.com/gomodule/redigo/redis"
@@ -11,7 +12,7 @@ import (
 type uniqueStops map[uint32]string
 
 func (s *Score) Update() error {
-	_, err := s.conn.Do("DEL", TO_SCORE)
+	_, err := s.Conn.Do("DEL", cache.TO_SCORE)
 	if err != nil {
 		return err
 	}
@@ -19,12 +20,12 @@ func (s *Score) Update() error {
 	if err != nil {
 		return err
 	}
-	s.fillIdSet(BUS, busStops)
+	s.fillIdSet(cache.BUS, busStops)
 	tramStops, err := ttss.TramEndpoint.GetAllStops()
 	if err != nil {
 		return err
 	}
-	s.fillIdSet(TRAM, tramStops)
+	s.fillIdSet(cache.TRAM, tramStops)
 	uniqueStops := make(map[uint32]string, len(busStops))
 	for i := range busStops {
 		uniqueStops[busStops[i].Id] = busStops[i].Name
@@ -49,10 +50,10 @@ func (s *Score) fillIdSet(key string, stops []pb.Stop) error {
 		ids[i] = stops[i].Id
 	}
 	args := append(
-		[]interface{}{getTmpKey(key)},
+		[]interface{}{cache.GetTmpKey(key)},
 		ids...,
 	)
-	_, err := s.conn.Do("SADD", args...)
+	_, err := s.Conn.Do("SADD", args...)
 	return err
 }
 
@@ -64,17 +65,17 @@ func (s *Score) fillNamesHash(stops uniqueStops) error {
 		args[i+1] = name
 		i += 2
 	}
-	_, err := s.conn.Do("HSET", append([]interface{}{getTmpKey(NAMES)}, args...)...)
+	_, err := s.Conn.Do("HSET", append([]interface{}{cache.GetTmpKey(cache.NAMES)}, args...)...)
 	return err
 }
 
 func (s *Score) fillSuggestions(stops uniqueStops) error {
 	for id, name := range stops {
-		score, err := redis.Float64(s.conn.Do("HGET", SCORES, id))
+		score, err := redis.Float64(s.Conn.Do("HGET", cache.SCORES, id))
 		if err != nil {
 			if err == redis.ErrNil {
 				score = 1.0
-				_, err := s.conn.Do("SADD", TO_SCORE, id)
+				_, err := s.Conn.Do("SADD", cache.TO_SCORE, id)
 				if err != nil {
 					return err
 				}
@@ -95,23 +96,23 @@ func (s *Score) fillSuggestions(stops uniqueStops) error {
 
 func (s *Score) finishUpdate() error {
 	commands := []string{
-		BUS,
-		TRAM,
-		NAMES,
-		SUG,
+		cache.BUS,
+		cache.TRAM,
+		cache.NAMES,
+		cache.SUG,
 	}
 	for _, cmd := range commands {
-		err := s.conn.Send("RENAME", getTmpKey(cmd), cmd)
+		err := s.Conn.Send("RENAME", cache.GetTmpKey(cmd), cmd)
 		if err != nil {
 			return err
 		}
 	}
-	err := s.conn.Flush()
+	err := s.Conn.Flush()
 	if err != nil {
 		return err
 	}
 	for i := 0; i < len(commands); i++ {
-		_, err = s.conn.Receive()
+		_, err = s.Conn.Receive()
 		if err != nil {
 			return err
 		}

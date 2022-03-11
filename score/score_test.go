@@ -1,35 +1,21 @@
-package krkstops
+package score
 
 import (
-	"log"
+	"context"
 	"os"
 	"testing"
 	"time"
 
+	"github.com/PiotrKozimor/krkstops/cache"
 	"github.com/PiotrKozimor/krkstops/pb"
 	"github.com/RediSearch/redisearch-go/redisearch"
 	"github.com/matryer/is"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
-var (
-	score *Score
-)
-
-func handle(err error) {
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-
-func init() {
-	var err error
-	score, err = NewScore("localhost:6379", SUG)
-	handle(err)
-}
-
-func mustClearCache(is *is.I) {
-	_, err := score.conn.Do("FLUSHALL")
+func mustClearCache(is *is.I, s *Score) {
+	_, err := s.Conn.Do("FLUSHALL")
 	is.NoErr(err)
 }
 
@@ -42,19 +28,22 @@ func Test_scoreByTotalDepartures(t *testing.T) {
 func TestScore(t *testing.T) {
 	// to avoid err: ERR Background save already in progress
 	time.Sleep(time.Millisecond * 100)
+	ctx := context.Background()
 	is := is.New(t)
-	mustClearCache(is)
-	err := score.Update()
+	s, err := NewScore("localhost:6379", cache.SUG)
 	is.NoErr(err)
-	err = score.Score(ctx, make(<-chan os.Signal), mustLocalKrkStopsClient(is), 0)
+	mustClearCache(is, s)
+	err = s.Update()
 	is.NoErr(err)
-	scores, err := score.redis.HGetAll(ctx, SCORES).Result()
+	err = s.Score(ctx, make(<-chan os.Signal), mustLocalKrkStopsClient(is), 0)
+	is.NoErr(err)
+	scores, err := s.redis.HGetAll(ctx, cache.SCORES).Result()
 	is.NoErr(err)
 	is.Equal(scores, map[string]string{
 		"610": "3.29128784747792",
 		"81":  "2.6583123951777",
 	})
-	stops, err := score.sug.SuggestOpts("mat", redisearch.SuggestOptions{
+	stops, err := s.Sug.SuggestOpts("mat", redisearch.SuggestOptions{
 		Num:          10,
 		Fuzzy:        true,
 		WithPayloads: true,
@@ -68,7 +57,7 @@ func TestScore(t *testing.T) {
 }
 
 func mustLocalKrkStopsClient(is *is.I) pb.KrkStopsClient {
-	conn, err := grpc.Dial("localhost:8080", grpc.WithInsecure())
+	conn, err := grpc.Dial("localhost:8080", grpc.WithTransportCredentials(insecure.NewCredentials()))
 	is.NoErr(err)
 	return pb.NewKrkStopsClient(conn)
 }

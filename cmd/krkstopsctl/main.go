@@ -9,6 +9,7 @@ import (
 	"github.com/PiotrKozimor/krkstops/pb"
 	"github.com/spf13/cobra"
 	grpc "google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 func handle(err error) {
@@ -69,7 +70,7 @@ var (
 )
 
 func initClient() {
-	conn, err := grpc.Dial(endpoint, grpc.WithInsecure())
+	conn, err := grpc.Dial(endpoint, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("fail to dial: %v", err)
 	}

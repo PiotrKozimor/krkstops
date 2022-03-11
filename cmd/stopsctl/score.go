@@ -10,6 +10,7 @@ import (
 	"github.com/PiotrKozimor/krkstops/pb"
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 func init() {
@@ -43,15 +44,15 @@ Stop scoring by sending interrupt signal (ctrl+C).`,
 		ctx := cmd.Context()
 		handle(err)
 		if restart {
-			err = score.RestartScoring(ctx)
+			err = s.RestartScoring(ctx)
 			handle(err)
 		}
-		conn, err := grpc.Dial(endpoint, grpc.WithInsecure())
+		conn, err := grpc.Dial(endpoint, grpc.WithTransportCredentials(insecure.NewCredentials()))
 		handle(err)
 		client := pb.NewKrkStopsClient(conn)
 		c := make(chan os.Signal, 1)
 		signal.Notify(c, os.Interrupt)
-		err = score.Score(ctx, c, client, sleep)
+		err = s.Score(ctx, c, client, sleep)
 		handle(err)
 		println("scoring finished")
 	},

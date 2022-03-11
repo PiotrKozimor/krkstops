@@ -1,7 +1,8 @@
 package main
 
 import (
-	"github.com/PiotrKozimor/krkstops"
+	"github.com/PiotrKozimor/krkstops/cache"
+	"github.com/PiotrKozimor/krkstops/score"
 	"github.com/spf13/cobra"
 )
 
@@ -10,12 +11,12 @@ var (
 		Use:   "stopsctl",
 		Short: "Manipulate krkstops stops data saved in Redis and stops suggestions saved in Redisearch.",
 	}
-	score *krkstops.Score
-	uri   string
+	s   *score.Score
+	uri string
 )
 
 func initializeDB() (err error) {
-	score, err = krkstops.NewScore(uri, krkstops.SUG)
+	s, err = score.NewScore(uri, cache.SUG)
 	return
 }
 

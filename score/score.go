@@ -1,4 +1,4 @@
-package krkstops
+package score
 
 import (
 	"fmt"
@@ -10,6 +10,7 @@ import (
 
 	"context"
 
+	"github.com/PiotrKozimor/krkstops/cache"
 	"github.com/PiotrKozimor/krkstops/pb"
 	"github.com/RediSearch/redisearch-go/redisearch"
 	"github.com/go-redis/redis/v8"
@@ -17,7 +18,7 @@ import (
 )
 
 type Score struct {
-	*Cache
+	*cache.Cache
 	redis  *redis.Client
 	sugTmp *redisearch.Autocompleter
 }
@@ -26,8 +27,8 @@ func NewScore(redisURI, sugKey string) (*Score, error) {
 	r := redis.NewClient(&redis.Options{
 		Addr: redisURI,
 	})
-	acTmp := redisearch.NewAutocompleter(redisURI, getTmpKey(sugKey))
-	c, err := NewCache(redisURI, sugKey)
+	acTmp := redisearch.NewAutocompleter(redisURI, cache.GetTmpKey(sugKey))
+	c, err := cache.NewCache(redisURI, sugKey)
 	return &Score{
 		redis:  r,
 		sugTmp: acTmp,
@@ -58,7 +59,7 @@ outer:
 			if err != nil {
 				return err
 			}
-			err = addSuggestion(c.sug, stop, score)
+			err = addSuggestion(c.Sug, stop, score)
 			if err != nil {
 				return err
 			}
@@ -72,22 +73,22 @@ outer:
 }
 
 func (s *Score) RestartScoring(ctx context.Context) error {
-	stops, err := s.redis.HKeys(ctx, NAMES).Result()
+	stops, err := s.redis.HKeys(ctx, cache.NAMES).Result()
 	if err != nil {
 		return err
 	}
-	_, err = s.redis.SAdd(ctx, TO_SCORE, []interface{}{stops}...).Result()
+	_, err = s.redis.SAdd(ctx, cache.TO_SCORE, []interface{}{stops}...).Result()
 	return err
 }
 
 func (s *Score) getStoptoScore() (*pb.Stop, error) {
 	var stop pb.Stop
-	id, err := redi.Int(s.conn.Do("SPOP", TO_SCORE))
+	id, err := redi.Int(s.Conn.Do("SPOP", cache.TO_SCORE))
 	if err != nil {
 		return nil, err
 	}
 	stop.Id = uint32(id)
-	name, err := redi.String(s.conn.Do("HGET", NAMES, id))
+	name, err := redi.String(s.Conn.Do("HGET", cache.NAMES, id))
 	if err != nil {
 		return nil, err
 	}
@@ -106,7 +107,7 @@ func (s *Score) scoreStop(ctx context.Context, stop *pb.Stop, cli pb.KrkStopsCli
 }
 
 func (s *Score) saveScore(stop *pb.Stop, score float64) error {
-	_, err := s.conn.Do("HSET", SCORES, stop.Id, score)
+	_, err := s.Conn.Do("HSET", cache.SCORES, stop.Id, score)
 	return err
 }
 

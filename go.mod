@@ -6,7 +6,7 @@ require (
 	github.com/RediSearch/redisearch-go v1.1.1
 	github.com/go-redis/redis/v8 v8.11.4
 	github.com/gomodule/redigo v1.8.8
-	github.com/google/go-cmp v0.5.7
+	github.com/google/go-cmp v0.5.7 // indirect
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0
 	github.com/matryer/is v1.4.0
 	github.com/prometheus/client_golang v1.12.1
@@ -33,5 +33,4 @@ require (
 	github.com/prometheus/procfs v0.7.3 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	golang.org/x/text v0.3.7 // indirect
-	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 )

@@ -3,7 +3,8 @@ package main
 import (
 	"testing"
 
-	"github.com/PiotrKozimor/krkstops"
+	"github.com/PiotrKozimor/krkstops/cache"
+	"github.com/PiotrKozimor/krkstops/score"
 	"github.com/PiotrKozimor/krkstops/test"
 	"github.com/matryer/is"
 )
@@ -36,7 +37,7 @@ func TestDepsCmd(t *testing.T) {
 
 func TestStopsCmd(t *testing.T) {
 	is := is.New(t)
-	cache, err := krkstops.NewScore("localhost:6379", krkstops.SUG)
+	cache, err := score.NewScore("localhost:6379", cache.SUG)
 	is.NoErr(err)
 	err = cache.Update()
 	is.NoErr(err)

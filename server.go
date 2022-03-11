@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/PiotrKozimor/krkstops/airly"
+	"github.com/PiotrKozimor/krkstops/cache"
 	"github.com/PiotrKozimor/krkstops/pb"
 	"github.com/PiotrKozimor/krkstops/ttss"
 )
@@ -12,19 +13,19 @@ var ENDPOINT = "krkstops-1.germanywestcentral.cloudapp.azure.com:8080"
 
 type KrkStopsServer struct {
 	pb.UnimplementedKrkStopsServer
-	cache *Cache
+	cache *cache.Cache
 	Airly airly.Endpoint
 	Ttss  []ttss.Endpointer
 }
 
 func NewServer(redisURI string) (*KrkStopsServer, error) {
-	cache, err := NewCache(redisURI, SUG)
+	cache, err := cache.NewCache(redisURI, cache.SUG)
 	if err != nil {
 		return nil, err
 	}
 	server := KrkStopsServer{
 		cache: cache,
-		Airly: airly.Api,
+		Airly: airly.DefaultEndpoint,
 		Ttss:  ttss.KrkStopsEndpoints,
 	}
 	return &server, nil
@@ -33,21 +34,21 @@ func NewServer(redisURI string) (*KrkStopsServer, error) {
 func (s *KrkStopsServer) GetAirly(ctx context.Context, installation *pb.Installation) (*pb.Airly, error) {
 	var a *pb.Airly
 	var err error
-	a, err = s.cache.getAirly(installation)
+	a, err = s.cache.GetAirly(installation)
 	if err != nil {
 		a, err = s.Airly.GetAirly(installation)
 		if err != nil {
 			return a, err
 		}
-		go s.cache.airly(a, installation)
+		go s.cache.Airly(a, installation, cache.AirlyExpire)
 	}
 	return a, err
 }
 
 func (s *KrkStopsServer) GetDepartures2(ctx context.Context, stop *pb.Stop) (*pb.Departures, error) {
-	cachedDeps, err := s.cache.getDepartures(ctx, stop)
+	cachedDeps, err := s.cache.GetDepartures(ctx, stop, cache.DepsExpire)
 	if err != nil {
-		endpoints, err := s.cache.getEndpoints(ctx, stop.Id)
+		endpoints, err := s.cache.GetEndpoints(ctx, stop.Id)
 		if err != nil {
 			return nil, err
 		}
@@ -70,7 +71,7 @@ func (s *KrkStopsServer) GetDepartures2(ctx context.Context, stop *pb.Stop) (*pb
 				k++
 			}
 		}
-		go s.cache.departures(&allDeps, stop)
+		go s.cache.Departures(&allDeps, stop, cache.DepsExpire)
 		return &allDeps, nil
 	} else {
 		return cachedDeps, nil

@@ -6,6 +6,8 @@ import (
 
 	"github.com/PiotrKozimor/krkstops/pb"
 	"github.com/matryer/is"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 var (
@@ -54,4 +56,10 @@ func mustSearchEqual(is *is.I, query, stopName string, cli pb.KrkStopsClient) {
 	is.NoErr(err)
 	is.Equal(len(stops.Stops), 1)
 	is.Equal(stops.Stops[0].Name, "Rondo Matecznego")
+}
+
+func mustLocalKrkStopsClient(is *is.I) pb.KrkStopsClient {
+	conn, err := grpc.Dial("localhost:8080", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	is.NoErr(err)
+	return pb.NewKrkStopsClient(conn)
 }

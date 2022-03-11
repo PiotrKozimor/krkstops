@@ -49,13 +49,13 @@ const measurementsPath = "v2/measurements/installation"
 const nearestInstallationsPath = "v2/installations/nearest"
 const installationsPath = "v2/installations/%d"
 
-var Api = Endpoint("https://airapi.airly.eu")
+var DefaultEndpoint = Endpoint("https://airapi.airly.eu")
 
 func init() {
 	airly := os.Getenv("OVERRIDE_AIRLY")
 	if airly != "" {
 		log.Printf("OVERRIDE_AIRLY: %s\n", airly)
-		Api = Endpoint(airly)
+		DefaultEndpoint = Endpoint(airly)
 	}
 }
 
