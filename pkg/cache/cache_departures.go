@@ -19,18 +19,18 @@ func getDeparturesKey(d *pb.Stop) string {
 	return depsPrefix + strconv.Itoa(int(d.Id))
 }
 
-func (c *Cache) Departures(deps *pb.Departures, stop *pb.Stop, exp time.Duration) (err error) {
-	return c.message(getDeparturesKey(stop), deps, exp)
+func (c *Cache) Departures(deps *pb.Departures, stop *pb.Stop, exp time.Duration, conn redis.Conn) (err error) {
+	return c.message(getDeparturesKey(stop), deps, exp, conn)
 }
 
-func (c *Cache) GetDepartures(ctx context.Context, stop *pb.Stop, exp time.Duration) (departures *pb.Departures, err error) {
+func (c *Cache) GetDepartures(ctx context.Context, stop *pb.Stop, exp time.Duration, conn redis.Conn) (departures *pb.Departures, err error) {
 	departures = &pb.Departures{}
-	err = c.get(getDeparturesKey(stop), departures)
+	err = c.get(getDeparturesKey(stop), departures, conn)
 	if err != nil {
 		return
 	}
 	var ttl int
-	ttl, err = redis.Int(c.Conn.Do("TTL", depsPrefix+strconv.Itoa(int(stop.Id))))
+	ttl, err = redis.Int(conn.Do("TTL", depsPrefix+strconv.Itoa(int(stop.Id))))
 	if err != nil {
 		return
 	}

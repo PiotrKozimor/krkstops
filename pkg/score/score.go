@@ -18,8 +18,9 @@ import (
 )
 
 type Score struct {
-	*cache.Cache
 	redis  *redis.Client
+	Conn   redi.Conn
+	Sug    *redisearch.Autocompleter
 	sugTmp *redisearch.Autocompleter
 }
 
@@ -27,12 +28,14 @@ func NewScore(redisURI, sugKey string) (*Score, error) {
 	r := redis.NewClient(&redis.Options{
 		Addr: redisURI,
 	})
+	conn, err := redi.Dial("tcp", redisURI)
+	ac := redisearch.NewAutocompleter(redisURI, sugKey)
 	acTmp := redisearch.NewAutocompleter(redisURI, cache.GetTmpKey(sugKey))
-	c, err := cache.NewCache(redisURI, sugKey)
 	return &Score{
 		redis:  r,
 		sugTmp: acTmp,
-		Cache:  c,
+		Sug:    ac,
+		Conn:   conn,
 	}, err
 }
 

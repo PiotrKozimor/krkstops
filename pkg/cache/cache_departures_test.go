@@ -13,8 +13,7 @@ import (
 func TestCacheDepartures(t *testing.T) {
 	if !testing.Short() {
 		is := is.New(t)
-		c, err := NewCache("localhost:6379", SUG)
-		is.NoErr(err)
+		c := NewCache("localhost:6379", SUG)
 		mustClearCache(is, c)
 		depsExpireTest := time.Millisecond * 10
 		testStop := pb.Stop{Name: "Nor", ShortName: "45"}
@@ -32,22 +31,24 @@ func TestCacheDepartures(t *testing.T) {
 				},
 			},
 		}
-		mustDepsNotBeCached(is, &testStop, c)
-		err = c.Departures(&testDepartures, &testStop, depsExpireTest)
+		conn := c.Pool.Get()
+		defer conn.Close()
+		mustDepsNotBeCached(is, &testStop, c, conn)
+		err := c.Departures(&testDepartures, &testStop, depsExpireTest, conn)
 		is.NoErr(err)
-		cachedDeps, err := c.GetDepartures(context.Background(), &testStop, depsExpireTest)
+		cachedDeps, err := c.GetDepartures(context.Background(), &testStop, depsExpireTest, conn)
 		is.NoErr(err)
 		for i := range cachedDeps.Departures {
 			mustDepsEqual(is, cachedDeps.Departures[i], testDepartures.Departures[i])
 		}
 		time.Sleep(time.Millisecond * 11)
-		mustDepsNotBeCached(is, &testStop, c)
+		mustDepsNotBeCached(is, &testStop, c, conn)
 	}
 }
 
-func mustDepsNotBeCached(is *is.I, s *pb.Stop, c *Cache) {
+func mustDepsNotBeCached(is *is.I, s *pb.Stop, c *Cache, conn redis.Conn) {
 	depsExpireTest := time.Millisecond * 10
-	_, err := c.GetDepartures(context.Background(), s, depsExpireTest)
+	_, err := c.GetDepartures(context.Background(), s, depsExpireTest, conn)
 	is.Equal(err, redis.ErrNil)
 }
 

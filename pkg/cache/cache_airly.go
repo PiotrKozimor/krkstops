@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/PiotrKozimor/krkstops/pb"
+	"github.com/gomodule/redigo/redis"
 )
 
 const (
@@ -14,12 +15,12 @@ const (
 func getAirlyKey(i *pb.Installation) string {
 	return airlyPrefix + string(i.Id)
 }
-func (c *Cache) Airly(airly *pb.Airly, installation *pb.Installation, exp time.Duration) error {
-	return c.message(getAirlyKey(installation), airly, exp)
+func (c *Cache) Airly(airly *pb.Airly, installation *pb.Installation, exp time.Duration, conn redis.Conn) error {
+	return c.message(getAirlyKey(installation), airly, exp, conn)
 }
 
-func (c *Cache) GetAirly(installation *pb.Installation) (airly *pb.Airly, err error) {
+func (c *Cache) GetAirly(installation *pb.Installation, conn redis.Conn) (airly *pb.Airly, err error) {
 	airly = &pb.Airly{}
-	err = c.get(getAirlyKey(installation), airly)
+	err = c.get(getAirlyKey(installation), airly, conn)
 	return
 }

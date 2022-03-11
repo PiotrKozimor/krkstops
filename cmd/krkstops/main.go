@@ -59,8 +59,7 @@ func main() {
 		grpc.UnaryInterceptor(grpc_prometheus.UnaryServerInterceptor),
 	)
 	var grpcServerTls *grpc.Server
-	server, err := krkstops.NewServer(conf.RedisURI)
-	handle(err)
+	server := krkstops.NewServer(conf.RedisURI)
 	server.Airly, server.Ttss = Endpoints(conf.OverrideEndpoints)
 	pb.RegisterKrkStopsServer(grpcServer, server)
 	tlsOn := conf.TlsCert != "" && conf.TlsKey != ""

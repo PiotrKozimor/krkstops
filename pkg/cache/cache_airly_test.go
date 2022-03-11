@@ -10,14 +10,15 @@ import (
 )
 
 func mustClearCache(is *is.I, c *Cache) {
-	_, err := c.Conn.Do("FLUSHALL")
+	conn := c.Pool.Get()
+	defer conn.Close()
+	_, err := conn.Do("FLUSHALL")
 	is.NoErr(err)
 }
 
 func TestCacheAirly(t *testing.T) {
 	is := is.New(t)
-	c, err := NewCache("localhost:6379", SUG)
-	is.NoErr(err)
+	c := NewCache("localhost:6379", SUG)
 	mustClearCache(is, c)
 	airlyExpireTest := time.Millisecond * 10
 	testInst := pb.Installation{Id: 9914}
@@ -27,19 +28,21 @@ func TestCacheAirly(t *testing.T) {
 		Color:       435,
 		Temperature: 45.6,
 	}
-	mustAirlyNotBeCached(is, &testInst, c)
-	err = c.Airly(&testAirly, &testInst, airlyExpireTest)
+	conn := c.Pool.Get()
+	defer conn.Close()
+	mustAirlyNotBeCached(is, &testInst, c, conn)
+	err := c.Airly(&testAirly, &testInst, airlyExpireTest, conn)
 	is.NoErr(err)
-	cachedAirly, err := c.GetAirly(&testInst)
+	cachedAirly, err := c.GetAirly(&testInst, conn)
 	is.NoErr(err)
 
 	mustAirlyEqual(is, cachedAirly, &testAirly)
 	time.Sleep(time.Millisecond * 11)
-	mustAirlyNotBeCached(is, &testInst, c)
+	mustAirlyNotBeCached(is, &testInst, c, conn)
 }
 
-func mustAirlyNotBeCached(is *is.I, i *pb.Installation, c *Cache) {
-	_, err := c.GetAirly(i)
+func mustAirlyNotBeCached(is *is.I, i *pb.Installation, c *Cache, conn redis.Conn) {
+	_, err := c.GetAirly(i, conn)
 	is.Equal(err, redis.ErrNil)
 }
 

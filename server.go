@@ -2,6 +2,7 @@ package krkstops
 
 import (
 	"context"
+	"log"
 
 	"github.com/PiotrKozimor/krkstops/pb"
 	"github.com/PiotrKozimor/krkstops/pkg/airly"
@@ -18,33 +19,36 @@ type KrkStopsServer struct {
 	Ttss  []ttss.Endpointer
 }
 
-func NewServer(redisURI string) (*KrkStopsServer, error) {
-	cache, err := cache.NewCache(redisURI, cache.SUG)
-	if err != nil {
-		return nil, err
-	}
-	server := KrkStopsServer{
+func NewServer(redisURI string) *KrkStopsServer {
+	cache := cache.NewCache(redisURI, cache.SUG)
+	return &KrkStopsServer{
 		cache: cache,
 	}
-	return &server, nil
 }
 
 func (s *KrkStopsServer) GetAirly(ctx context.Context, installation *pb.Installation) (*pb.Airly, error) {
 	var a *pb.Airly
 	var err error
-	a, err = s.cache.GetAirly(installation)
+	conn := s.cache.Pool.Get()
+	defer conn.Close()
+	a, err = s.cache.GetAirly(installation, conn)
 	if err != nil {
 		a, err = s.Airly.GetAirly(installation)
 		if err != nil {
 			return a, err
 		}
-		go s.cache.Airly(a, installation, cache.AirlyExpire)
+		err = s.cache.Airly(a, installation, cache.AirlyExpire, conn)
+		if err != nil {
+			log.Printf("cache airly: %v", err)
+		}
 	}
 	return a, err
 }
 
 func (s *KrkStopsServer) GetDepartures2(ctx context.Context, stop *pb.Stop) (*pb.Departures, error) {
-	cachedDeps, err := s.cache.GetDepartures(ctx, stop, cache.DepsExpire)
+	conn := s.cache.Pool.Get()
+	defer conn.Close()
+	cachedDeps, err := s.cache.GetDepartures(ctx, stop, cache.DepsExpire, conn)
 	if err != nil {
 		endpoints, err := s.cache.GetEndpoints(ctx, stop.Id)
 		if err != nil {
@@ -69,7 +73,10 @@ func (s *KrkStopsServer) GetDepartures2(ctx context.Context, stop *pb.Stop) (*pb
 				k++
 			}
 		}
-		go s.cache.Departures(&allDeps, stop, cache.DepsExpire)
+		err = s.cache.Departures(&allDeps, stop, cache.DepsExpire, conn)
+		if err != nil {
+			log.Printf("cache departures: %v", err)
+		}
 		return &allDeps, nil
 	} else {
 		return cachedDeps, nil

@@ -1,7 +1,6 @@
 package cache
 
 import (
-	"log"
 	"strconv"
 	"time"
 
@@ -25,22 +24,30 @@ const (
 )
 
 type Cache struct {
-	Conn redis.Conn
+	// Conn redis.Conn
+	Pool redis.Pool
 	Sug  *redisearch.Autocompleter
 }
 
-func NewCache(redisURI, sugKey string) (*Cache, error) {
-	conn, err := redis.Dial("tcp", redisURI)
-	if err != nil {
-		return nil, err
+func NewCache(redisURI, sugKey string) *Cache {
+	pool := redis.Pool{
+		Dial: func() (redis.Conn, error) {
+			return redis.Dial("tcp", redisURI)
+		},
+		TestOnBorrow: func(c redis.Conn, t time.Time) error {
+			if time.Since(t) < time.Minute {
+				return nil
+			}
+			_, err := c.Do("PING")
+			return err
+		},
 	}
-	ac := redisearch.NewAutocompleter(redisURI, sugKey)
-
+	ac := redisearch.NewAutocompleterFromPool(&pool, sugKey)
 	c := Cache{
-		Conn: conn,
+		Pool: pool,
 		Sug:  ac,
 	}
-	return &c, err
+	return &c
 }
 
 func (c *Cache) Search(ctx context.Context, phrase string) ([]*pb.Stop, error) {
@@ -55,8 +62,10 @@ func (c *Cache) Search(ctx context.Context, phrase string) ([]*pb.Stop, error) {
 		return nil, err
 	}
 	stopsP := make([]*pb.Stop, len(stops))
+	conn := c.Pool.Get()
+	defer conn.Close()
 	for i, stop := range stops {
-		name, err := redis.String(c.Conn.Do("HGET", NAMES, stop.Payload))
+		name, err := redis.String(conn.Do("HGET", NAMES, stop.Payload))
 		if err != nil {
 			return nil, err
 		}
@@ -74,22 +83,21 @@ func GetTmpKey(k string) string {
 	return "tmp." + k
 }
 
-func (c *Cache) get(key string, val protoreflect.ProtoMessage) error {
-	raw, err := redis.Bytes(c.Conn.Do("GET", key))
+func (c *Cache) get(key string, val protoreflect.ProtoMessage, conn redis.Conn) error {
+	raw, err := redis.Bytes(conn.Do("GET", key))
 	if err != nil {
 		return err
 	}
 	return proto.Unmarshal(raw, val)
 }
 
-func (c *Cache) message(key string, val protoreflect.ProtoMessage, exp time.Duration) error {
+func (c *Cache) message(key string, val protoreflect.ProtoMessage, exp time.Duration, conn redis.Conn) error {
 	raw, err := proto.Marshal(val)
 	if err != nil {
 		return err
 	}
-	_, err = c.Conn.Do("SET", key, raw, "PX", exp.Milliseconds())
+	_, err = conn.Do("SET", key, raw, "PX", exp.Milliseconds())
 	if err != nil {
-		log.Println(err)
 		return err
 	}
 	return nil
@@ -97,14 +105,16 @@ func (c *Cache) message(key string, val protoreflect.ProtoMessage, exp time.Dura
 
 func (c *Cache) GetEndpoints(ctx context.Context, id uint32) ([]pb.Endpoint, error) {
 	var endp []pb.Endpoint
-	is, err := redis.Bool(c.Conn.Do("SISMEMBER", BUS, id))
+	conn := c.Pool.Get()
+	defer conn.Close()
+	is, err := redis.Bool(conn.Do("SISMEMBER", BUS, id))
 	if err != nil {
 		return nil, err
 	}
 	if is {
 		endp = append(endp, pb.Endpoint_BUS)
 	}
-	is, err = redis.Bool(c.Conn.Do("SISMEMBER", TRAM, id))
+	is, err = redis.Bool(conn.Do("SISMEMBER", TRAM, id))
 	if err != nil {
 		return nil, err
 	}
