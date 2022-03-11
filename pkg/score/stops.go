@@ -45,14 +45,11 @@ func (s *Score) Update() error {
 }
 
 func (s *Score) fillIdSet(key string, stops []pb.Stop) error {
-	ids := make([]interface{}, len(stops))
+	args := make([]interface{}, len(stops)+1)
+	args[0] = cache.GetTmpKey(key)
 	for i := range stops {
-		ids[i] = stops[i].Id
+		args[i+1] = stops[i].Id
 	}
-	args := append(
-		[]interface{}{cache.GetTmpKey(key)},
-		ids...,
-	)
 	_, err := s.Conn.Do("SADD", args...)
 	return err
 }
