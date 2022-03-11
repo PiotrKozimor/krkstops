@@ -1,5 +1,5 @@
-**/_debug_bin
-**/*ctl
-**/krkstops
-**/ttssmonitord
-.git
+**/*
+!cmd/mock/main.go
+!test/mock
+!go.mod
+!go.sum
