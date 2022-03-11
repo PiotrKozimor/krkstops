@@ -4,7 +4,7 @@ import (
 	"log"
 
 	"github.com/PiotrKozimor/krkstops/pb"
-	"github.com/PiotrKozimor/krkstops/ttss"
+	"github.com/PiotrKozimor/krkstops/pkg/ttss"
 	"github.com/spf13/cobra"
 )
 

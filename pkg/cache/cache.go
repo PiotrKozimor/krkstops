@@ -8,7 +8,7 @@ import (
 	"context"
 
 	"github.com/PiotrKozimor/krkstops/pb"
-	"github.com/PiotrKozimor/krkstops/ttss"
+	"github.com/PiotrKozimor/krkstops/pkg/ttss"
 	"github.com/RediSearch/redisearch-go/redisearch"
 	"github.com/gomodule/redigo/redis"
 	"github.com/sirupsen/logrus"

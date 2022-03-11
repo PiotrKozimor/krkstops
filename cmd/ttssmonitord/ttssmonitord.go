@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/PiotrKozimor/krkstops/ttss"
+	"github.com/PiotrKozimor/krkstops/pkg/ttss"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"

@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 
-	"github.com/PiotrKozimor/krkstops/mock"
+	"github.com/PiotrKozimor/krkstops/test/mock"
 )
 
 func main() {

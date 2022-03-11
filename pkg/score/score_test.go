@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/PiotrKozimor/krkstops/cache"
 	"github.com/PiotrKozimor/krkstops/pb"
+	"github.com/PiotrKozimor/krkstops/pkg/cache"
 	"github.com/RediSearch/redisearch-go/redisearch"
 	"github.com/matryer/is"
 	"google.golang.org/grpc"

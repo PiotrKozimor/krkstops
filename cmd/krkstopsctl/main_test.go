@@ -3,8 +3,8 @@ package main
 import (
 	"testing"
 
-	"github.com/PiotrKozimor/krkstops/cache"
-	"github.com/PiotrKozimor/krkstops/score"
+	"github.com/PiotrKozimor/krkstops/pkg/cache"
+	"github.com/PiotrKozimor/krkstops/pkg/score"
 	"github.com/PiotrKozimor/krkstops/test"
 	"github.com/matryer/is"
 )

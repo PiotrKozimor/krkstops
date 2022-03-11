@@ -3,10 +3,10 @@ package krkstops
 import (
 	"context"
 
-	"github.com/PiotrKozimor/krkstops/airly"
-	"github.com/PiotrKozimor/krkstops/cache"
 	"github.com/PiotrKozimor/krkstops/pb"
-	"github.com/PiotrKozimor/krkstops/ttss"
+	"github.com/PiotrKozimor/krkstops/pkg/airly"
+	"github.com/PiotrKozimor/krkstops/pkg/cache"
+	"github.com/PiotrKozimor/krkstops/pkg/ttss"
 )
 
 var ENDPOINT = "krkstops-1.germanywestcentral.cloudapp.azure.com:8080"

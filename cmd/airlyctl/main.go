@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 
-	"github.com/PiotrKozimor/krkstops/airly"
 	"github.com/PiotrKozimor/krkstops/pb"
+	"github.com/PiotrKozimor/krkstops/pkg/airly"
 	"github.com/spf13/cobra"
 )
 

@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/PiotrKozimor/krkstops/mock"
 	"github.com/PiotrKozimor/krkstops/pb"
+	"github.com/PiotrKozimor/krkstops/test/mock"
 	"github.com/matryer/is"
 )
 

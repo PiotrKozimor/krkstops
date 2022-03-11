@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/PiotrKozimor/krkstops/cache"
 	"github.com/PiotrKozimor/krkstops/pb"
+	"github.com/PiotrKozimor/krkstops/pkg/cache"
 	"github.com/go-redis/redis/v8"
 	redi "github.com/gomodule/redigo/redis"
 	"github.com/matryer/is"
