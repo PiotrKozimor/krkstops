@@ -1,8 +1,8 @@
 set -ex
 cd cmd/krkstops
-CGO_ENABLED=0 go build .
+GOARCH=arm64 CGO_ENABLED=0 go build .
 cd ../..
-cont=$(buildah from scratch)
+cont=$(buildah from --arch arm64 scratch)
 buildah copy $cont cmd/krkstops/krkstops /bin/krkstops
 buildah config --entrypoint '["/bin/krkstops"]' --port 8080 --port 9090 $cont
 buildah commit $cont krkstops

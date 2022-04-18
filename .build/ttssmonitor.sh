@@ -1,8 +1,8 @@
 set -ex
 cd cmd/ttssmonitord
-CGO_ENABLED=0 go build .
+GOARCH=arm64 CGO_ENABLED=0 go build .
 cd ../..
-cont=$(buildah from scratch)
+cont=$(buildah from --arch arm64 scratch)
 buildah copy $cont cmd/ttssmonitord/ttssmonitord /bin/ttssmonitord
 buildah config --entrypoint '["/bin/ttssmonitord"]' --port 8080 $cont
 buildah config --env LOGLEVEL=error $cont

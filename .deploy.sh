@@ -27,7 +27,7 @@ deploy_app () {
 }
 
 deploy_ctls () {
-    rsync --progress -a cmd/*ctl/*ctl azure:
+    rsync --progress -a cmd/*ctl/*ctl coreos:
 }
 
 while getopts hac opts; do
