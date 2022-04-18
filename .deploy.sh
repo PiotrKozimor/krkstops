@@ -19,11 +19,11 @@ set -e
 echo TAG=$TAG > .deploy/.tags.env
 
 deploy_app () {
-    scp .deploy/.tags.env azure:/etc/krkstops/tags.env
-    scp .deploy/.env.prod azure:/etc/krkstops/.env.prod
-    scp .deploy/.env.priv azure:/etc/krkstops/.env.priv
-    ssh azure sudo systemctl restart krkstops.service
-    ssh azure sudo systemctl restart ttssmonitor.service
+    scp .deploy/.tags.env coreos:/etc/krkstops/tags.env
+    scp .deploy/.env.prod coreos:/etc/krkstops/.env.prod
+    scp .deploy/.env.priv coreos:/etc/krkstops/.env.priv
+    ssh coreos sudo systemctl restart krkstops.service
+    ssh coreos sudo systemctl restart ttssmonitor.service
 }
 
 deploy_ctls () {
