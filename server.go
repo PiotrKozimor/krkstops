@@ -8,6 +8,7 @@ import (
 	"github.com/PiotrKozimor/krkstops/pkg/airly"
 	"github.com/PiotrKozimor/krkstops/pkg/cache"
 	"github.com/PiotrKozimor/krkstops/pkg/ttss"
+	_ "github.com/kelseyhightower/envconfig"
 )
 
 var ENDPOINT = "krkstops-1.germanywestcentral.cloudapp.azure.com:8080"

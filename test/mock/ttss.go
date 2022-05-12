@@ -29,33 +29,34 @@ func (f handlerFunc) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func busHandler(w http.ResponseWriter, r *http.Request) {
+	var resp []byte
 	switch r.URL.Path {
 	case "/internetservice/services/passageInfo/stopPassages/stop":
 		if r.URL.Query()["stop"][0] == "81" {
-			w.WriteHeader(200)
-			w.Write(mockBusDeparture81)
+			resp = mockBusDeparture81
 		} else if r.URL.Query()["stop"][0] == "610" {
-			w.WriteHeader(200)
-			w.Write(mockBusDeparture610)
+			resp = mockBusDeparture610
 		}
 	case "/internetservice/geoserviceDispatcher/services/stopinfo/stops":
-		w.WriteHeader(200)
-		w.Write(mockStopsBus)
+		resp = mockStopsBus
 	}
+	writeResp(w, resp)
 }
 
 func tramHandler(w http.ResponseWriter, r *http.Request) {
+	var resp []byte
 	switch r.URL.Path {
 	case "/internetservice/services/passageInfo/stopPassages/stop":
 		if r.URL.Query()["stop"][0] == "81" {
 			w.WriteHeader(400)
 		} else if r.URL.Query()["stop"][0] == "610" {
-			w.WriteHeader(200)
-			w.Write(mockTramDeparture610)
+			resp = mockTramDeparture610
 		}
 	case "/internetservice/geoserviceDispatcher/services/stopinfo/stops":
-		w.WriteHeader(200)
-		w.Write(mockStopsTram)
+		resp = mockStopsTram
+	}
+	if resp != nil {
+		writeResp(w, resp)
 	}
 }
 
@@ -72,11 +73,6 @@ func Ttss(ctx context.Context) {
 		err := srvBus.ListenAndServe()
 		log.Print(err)
 	}()
-	go func() {
-		err := srvTram.ListenAndServe()
-		log.Print(err)
-	}()
-	<-ctx.Done()
-	srvBus.Shutdown(ctx)
-	srvTram.Shutdown(ctx)
+	err := srvTram.ListenAndServe()
+	log.Print(err)
 }

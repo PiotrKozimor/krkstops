@@ -19,16 +19,23 @@ var mockNearest []byte
 // var ctx, cancel = context.WithTimeout(context.Background(), time.Second)
 
 func airlyHandler(w http.ResponseWriter, r *http.Request) {
+	var resp []byte
 	switch r.URL.Path {
 	case "/v2/installations/8077":
-		w.WriteHeader(200)
-		w.Write(mockInstallation)
+		resp = mockInstallation
 	case "/v2/installations/nearest":
-		w.WriteHeader(200)
-		w.Write(mockNearest)
+		resp = mockNearest
 	case "/v2/measurements/installation":
-		w.WriteHeader(200)
-		w.Write(mockMeasurement)
+		resp = mockMeasurement
+	}
+	writeResp(w, resp)
+}
+
+func writeResp(rw http.ResponseWriter, resp []byte) {
+	rw.WriteHeader(200)
+	_, err := rw.Write(resp)
+	if err != nil {
+		log.Println("airly handler: ", err)
 	}
 }
 
@@ -37,10 +44,6 @@ func Airly(ctx context.Context) {
 		Addr:    "0.0.0.0:8072",
 		Handler: handlerFunc(airlyHandler),
 	}
-	go func() {
-		err := srv.ListenAndServe()
-		log.Print(err)
-	}()
-	<-ctx.Done()
-	srv.Shutdown(ctx)
+	err := srv.ListenAndServe()
+	log.Print(err)
 }

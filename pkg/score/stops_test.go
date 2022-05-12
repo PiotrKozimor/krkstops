@@ -83,18 +83,16 @@ func mustHaveSameElements(is *is.I, a1, a2 []string) {
 func BenchmarkRedis(b *testing.B) {
 	cli := redis.NewClient(&redis.Options{})
 	ctx := context.Background()
-	var res string
 	for i := 0; i < b.N; i++ {
 		_, err := cli.Set(ctx, "FOO", "BAR", 0).Result()
 		if err != nil {
 			b.Fatal(err)
 		}
-		res, err = cli.Get(ctx, "FOO").Result()
+		_, err = cli.Get(ctx, "FOO").Result()
 		if err != nil {
 			b.Fatal(err)
 		}
 	}
-	res += "1"
 }
 
 func BenchmarkRedigo(b *testing.B) {
@@ -102,16 +100,14 @@ func BenchmarkRedigo(b *testing.B) {
 	if err != nil {
 		b.Fatal(err)
 	}
-	var res string
 	for i := 0; i < b.N; i++ {
 		_, err := c.Do("SET", "FOO", "BAR")
 		if err != nil {
 			b.Fatal(err)
 		}
-		res, err = redi.String(c.Do("GET", "FOO"))
+		_, err = redi.String(c.Do("GET", "FOO"))
 		if err != nil {
 			b.Fatal(err)
 		}
 	}
-	res += "1"
 }

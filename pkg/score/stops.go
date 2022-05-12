@@ -20,12 +20,18 @@ func (s *Score) Update(bus ttss.Endpointer, tram ttss.Endpointer) error {
 	if err != nil {
 		return err
 	}
-	s.fillIdSet(cache.BUS, busStops)
+	err = s.fillIdSet(cache.BUS, busStops)
+	if err != nil {
+		return err
+	}
 	tramStops, err := tram.GetAllStops()
 	if err != nil {
 		return err
 	}
-	s.fillIdSet(cache.TRAM, tramStops)
+	err = s.fillIdSet(cache.TRAM, tramStops)
+	if err != nil {
+		return err
+	}
 	uniqueStops := make(map[uint32]string, len(busStops))
 	for i := range busStops {
 		uniqueStops[busStops[i].Id] = busStops[i].Name

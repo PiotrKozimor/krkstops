@@ -24,8 +24,7 @@ const (
 )
 
 type Cache struct {
-	// Conn redis.Conn
-	Pool redis.Pool
+	Pool *redis.Pool
 	Sug  *redisearch.Autocompleter
 }
 
@@ -44,7 +43,7 @@ func NewCache(redisURI, sugKey string) *Cache {
 	}
 	ac := redisearch.NewAutocompleterFromPool(&pool, sugKey)
 	c := Cache{
-		Pool: pool,
+		Pool: &pool,
 		Sug:  ac,
 	}
 	return &c

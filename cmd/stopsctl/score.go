@@ -27,8 +27,6 @@ var (
 	restart  bool
 )
 
-const STOPS_TO_SCORE = "stops.toScore"
-
 func handle(err error) {
 	if err != nil {
 		log.Fatal(err)

@@ -93,5 +93,5 @@ func init() {
 }
 
 func main() {
-	rootCmd.Execute()
+	cobra.CheckErr(rootCmd.Execute())
 }

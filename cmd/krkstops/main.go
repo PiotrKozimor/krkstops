@@ -1,11 +1,9 @@
 package main
 
 import (
-	"context"
 	"crypto/tls"
 	"log"
 	"net"
-	"net/http"
 	_ "net/http/pprof"
 	"strings"
 
@@ -13,9 +11,7 @@ import (
 	"github.com/PiotrKozimor/krkstops/pb"
 	"github.com/PiotrKozimor/krkstops/pkg/airly"
 	"github.com/PiotrKozimor/krkstops/pkg/ttss"
-	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/kelseyhightower/envconfig"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )
@@ -54,10 +50,7 @@ func main() {
 	err = envconfig.Process("", &conf)
 	log.Printf("CONFIG: %+v\n", conf)
 	handle(err)
-	grpcServer := grpc.NewServer(
-		grpc.StreamInterceptor(grpc_prometheus.StreamServerInterceptor),
-		grpc.UnaryInterceptor(grpc_prometheus.UnaryServerInterceptor),
-	)
+	grpcServer := grpc.NewServer()
 	var grpcServerTls *grpc.Server
 	server := krkstops.NewServer(conf.RedisURI)
 	server.Airly, server.Ttss = Endpoints(conf.OverrideEndpoints)
@@ -67,24 +60,10 @@ func main() {
 		cert, err := tls.LoadX509KeyPair(conf.TlsCert, conf.TlsKey)
 		handle(err)
 		grpcServerTls = grpc.NewServer(
-			grpc.StreamInterceptor(grpc_prometheus.StreamServerInterceptor),
-			grpc.UnaryInterceptor(grpc_prometheus.UnaryServerInterceptor),
 			grpc.Creds(credentials.NewServerTLSFromCert(&cert)),
 		)
 		pb.RegisterKrkStopsServer(grpcServerTls, server)
-		grpc_prometheus.Register(grpcServerTls)
 	}
-	grpc_prometheus.Register(grpcServer)
-	if tlsOn {
-		grpc_prometheus.Register(grpcServerTls)
-	}
-	handler := promhttp.Handler()
-	http.Handle("/metrics", handler)
-	httpServer := http.Server{
-		Addr: ":8040",
-	}
-	lisHttp, err := net.Listen("tcp", ":8040")
-	handle(err)
 	if tlsOn {
 		lisTls, err := net.Listen("tcp", ":9090")
 		handle(err)
@@ -93,8 +72,6 @@ func main() {
 	}
 	go serveGracefully(grpcServer, lis)
 	defer grpcServer.GracefulStop()
-	go serveGracefully(&httpServer, lisHttp)
-	defer httpServer.Shutdown(context.Background())
 	<-stop
 }
 
