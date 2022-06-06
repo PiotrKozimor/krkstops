@@ -69,6 +69,7 @@ systemd:
 storage:
   files:
     - path: /etc/krkstops/tags.env
+      overwrite: true
       mode: 0644
       user:
         name: core
@@ -77,6 +78,7 @@ storage:
       contents:
         local: .tags.env
     - path: /etc/krkstops/prometheus.yml
+      overwrite: true
       mode: 0644
       user:
         name: core
@@ -85,6 +87,7 @@ storage:
       contents:
         local: prometheus.yml
     - path: /etc/krkstops/.env.priv
+      overwrite: true
       mode: 0644
       user:
         name: core
@@ -93,6 +96,7 @@ storage:
       contents:
         local: .env.priv
     - path: /etc/krkstops/.env.prod
+      overwrite: true
       mode: 0644
       user:
         name: core
@@ -101,6 +105,7 @@ storage:
       contents:
         local: .env.prod
     - path: /etc/krkstops/certs/fullchain.pem
+      overwrite: true
       mode: 0644
       user:
         name: core
@@ -109,6 +114,7 @@ storage:
       contents:
         local: fullchain.pem
     - path: /etc/krkstops/certs/privkey.pem
+      overwrite: true
       mode: 0644
       user:
         name: core
@@ -117,6 +123,7 @@ storage:
       contents:
         local: privkey.pem
     - path: /etc/zincati/config.d/55-updates-strategy.toml
+      overwrite: true
       user:
         name: root
       group:
@@ -129,6 +136,17 @@ storage:
           days = [ "Mon", "Wed" ]
           start_time = "03:00"
           length_minutes = 60
+    - path: /etc/systemd/resolved.conf
+      overwrite: true
+      mode: 0644
+      user:
+        name: root
+      group:
+        name: root
+      contents:
+        inline: |
+          [Resolve]
+          LLMNR=no
   directories:
     - path: /var/lib/prometheus
       user:
