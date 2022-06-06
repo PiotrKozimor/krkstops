@@ -7,10 +7,10 @@ require (
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/gomodule/redigo v1.8.8
 	github.com/matryer/is v1.4.0
-	github.com/prometheus/client_golang v1.12.1
+	github.com/prometheus/client_golang v1.12.2
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/cobra v1.4.0
-	google.golang.org/grpc v1.46.0
+	google.golang.org/grpc v1.47.0
 	google.golang.org/protobuf v1.28.0
 )
 
