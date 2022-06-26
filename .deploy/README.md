@@ -19,17 +19,14 @@ Deployment with Fedora Core OS
 
 ### Setup
 
-1. Create an ARM64 instance with Ubuntu platform image.
-2. Create and terminate another ARM64 instance within the same availability domain (preserve boot volume, referred to as second).
-3. Attach second boot volume to first instance using paravirtualized mode.
-4. Generate self-signed certificates in `.deploy` directory: `openssl req -x509 -newkey rsa:4096 -keyout privkey.pem -out fullchain.pem -sha256 -days 365`.
-5. Generate butane.ign locally and copy it to first instance: `butane --pretty --strict -d . < butane.yaml > butane.ign`.
-6. Install Fedora CodeOS: 
-    ```
-    docker run --privileged --rm -v /dev:/dev -v /run/udev:/run/udev -v $(pwd)/butane.ign:/data/butane.ign -w /data quay.io/coreos/coreos-installer:release install /dev/sdb -i butane.ign
-    ```
-7.  Detach boot volume from instance.
-8.  Create a new ARM64 instance with second boot volume.
+1. Create an instance with Ubuntu platform image.
+2. Install [coreos-installer](https://coreos.github.io/coreos-installer/getting-started/#install-with-cargo).
+3. Create and terminate another instance (preserve boot volume, reffered to as second).
+4. Attatch second boot volume to first instance using paravirtualized mode.
+5. Gnerate butane.ign locally and copy it to first instance: `butane --pretty --strict -d . < butane.yaml > butane.ign`.
+6. Install Fedora CodeOS: `./.cargo/bin/coreos-installer install -p metal --ignition-file butane.ign /dev/sdb`.
+7. Deatach boot volume from instance.
+8.  Create a new instance with second boot volume.
 
 ### Hacks
 
