@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"log"
 	"net"
+	"net/http"
 	_ "net/http/pprof"
 	"strings"
 
@@ -72,6 +73,19 @@ func main() {
 	}
 	go serveGracefully(grpcServer, lis)
 	defer grpcServer.GracefulStop()
+	go func() {
+		HandlePrivacy()
+		var err error
+		if tlsOn {
+			err = http.ListenAndServeTLS(":443", conf.TlsCert, conf.TlsKey, nil)
+		} else {
+			err = http.ListenAndServe(":8090", nil)
+		}
+		if err != nil {
+			log.Print(err)
+			stop <- true
+		}
+	}()
 	<-stop
 }
 

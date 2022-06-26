@@ -1,0 +1,6 @@
+KrkStops relies on third-party services. The data sent by the device that may leak location (such as a specific stop) is not connected to the user by any means and is processed ephemerally. 
+No identifier is sent that would allow binding data to a user. The IP addresses of users are not logged. The data sent to third-party services do not contain the IP addresses of users.
+
+KrkStops has a feature of backup of settings which may collect the location and identifier of users. 
+This feature is disabled by default and requires explicit user action in order for data to be sent out of the device. 
+Data deletion is implemented as a part of this feature.
