@@ -14,7 +14,7 @@ systemd:
         ExecStartPre=-/bin/podman kill krkstops
         ExecStartPre=-/bin/podman rm krkstops
         EnvironmentFile=/etc/krkstops/tags.env
-        ExecStart=/bin/podman run --name krkstops --privileged --ip 10.88.0.5 -p 8080:8080 -p 9090:9090 -v /etc/krkstops/certs:/etc/krkstops:ro -v /etc/pki/tls/certs/ca-bundle.crt:/etc/pki/tls/certs/ca-bundle.crt:ro --env-file /etc/krkstops/.env.prod --env-file /etc/krkstops/.env.priv docker.io/narciarz96/krkstops:${TAG}
+        ExecStart=/bin/podman run --name krkstops --privileged --ip 10.88.0.5 -p 8080:8080 -p 9090:9090 -p 443:443 -v /etc/krkstops/certs:/etc/krkstops:ro -v /etc/pki/tls/certs/ca-bundle.crt:/etc/pki/tls/certs/ca-bundle.crt:ro --env-file /etc/krkstops/.env.prod --env-file /etc/krkstops/.env.priv docker.io/narciarz96/krkstops:${TAG}
         ExecStop=/bin/podman pull docker.io/narciarz96/krkstops:${TAG}
         ExecStop=/bin/podman stop krkstops
 
