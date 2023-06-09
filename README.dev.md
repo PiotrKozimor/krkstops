@@ -1,67 +1,12 @@
-# Test
+## go generate
 
-Run redisearch and mock:
-```
-docker-compose build
-docker-compose up -d
-```
+1. Fetch stops: `go generate ./pkg/search/score/stops/`
+1. Score them: `go generate ./pkg/search/score/`
 
-Run `krkstops` using `krkstops` configuration in VS Code.
+## go test
 
-Run tests:
-```
-go test ./...
-```
-
-
-# Cache
-
-`bus` - SET holding ids of bus stops
-
-`tram` - SET holding ids of tram stops
-
-`names` - HASH holding mapping id -> name for each stop
-
-`scores` - HASH holding mapping id -> score for each stop
-
-`to.score` - SET holding stops to score
-
-`sug` - key for [suggestions](https://oss.redislabs.com/redisearch/Commands/#suggestions)
-
-## Operations
-
-### Update stops
-
-Please note that data exposed to client will only be affected in last step, when we execute key renaming.
-
-1. Featch bus and tram.
-2. Remove `to.score` key. 
-3. Add id to `tmp.bus` and/or `tmp.tram`.
-4. Filter out non-unique stops (by id, using e.g. map).
-5. Add stops names to `tmp.names`.
-6. Try to get score for stop from `scores`.
-7. Create suggestion in `tmp.sug` for each score. If score was not available, apply temporary score `1` and add stop id to `to.score`.
-8. Remove `tmp.` prefix from all keys above (with `RENAME` operation).
-
-### Score stops
-
-For each stop from `to.score`:
-
-1. Pop stop id.
-2. Score stop.
-3. Save score in `scores`.
-4. Create suggestion(s) (old one will be deleted).
-
-### Search stop
-
-1. Execute [`FT.SUGADD`](https://oss.redislabs.com/redisearch/Commands/#ftsugadd) against `sug` key.
-2. Get stop name from `names` hash.
-
-# Code gen
-
-https://grpc.io/docs/languages/go/quickstart/
-https://grpc.io/docs/protoc-installation/
+Tests require AIRLY_KEY to passed:
 
 ```
-sh pb/gen.sh
+AIRLY_KEY=foo go test ./...
 ```

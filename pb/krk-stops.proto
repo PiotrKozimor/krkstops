@@ -3,17 +3,41 @@ syntax = "proto3";
 option go_package = "./pb";
 
 service KrkStops {
-    rpc GetAirly(Installation) returns (Airly) {}
-    rpc FindNearestAirlyInstallation(InstallationLocation) returns (Installation) {}
-    rpc GetAirlyInstallation(Installation) returns (Installation) {}
-    rpc GetDepartures2(Stop) returns (Departures) {}
-    rpc SearchStops2(StopSearch) returns (Stops) {}
+    rpc GetAirly(GetMeasurementRequest) returns (Measurement) {}
+    rpc FindNearestAirlyInstallation(Location) returns (Installation) {}
+    rpc GetAirlyInstallation(GetAirlyInstallationRequest) returns (Installation) {}
+    rpc GetDepartures2(GetDepartures2Request) returns (GetDepartures2Response) {}
+    rpc SearchStops2(SearchStops2Request) returns (SearchStops2Response) {}
 }
 
-enum Endpoint {
+enum Transit {
     BUS=0;
     TRAM=1;
     ALL=2;
+}
+
+message GetMeasurementRequest {
+    int32 id = 1;
+}
+
+message GetAirlyInstallationRequest {
+    int32 id = 1;
+}
+
+message GetDepartures2Request {
+    uint32 id = 3;
+}
+
+message GetDepartures2Response {
+    repeated Departure departures = 1;
+}
+
+message SearchStops2Request {
+    string query = 1;
+}
+
+message SearchStops2Response {
+    repeated Stop stops = 1;
 }
 
 message Installation{
@@ -21,14 +45,16 @@ message Installation{
     float latitude = 2;
     float longitude = 3;
 }
-message Airly {
+
+message Measurement {
     int32 caqi = 1;
     string colorStr = 2;
     int32 humidity = 3;
     float temperature = 4;
     uint32 color = 5;
 }
-message InstallationLocation {
+
+message Location {
     float latitude = 1;
     float longitude = 2;
 }
@@ -41,23 +67,15 @@ message Departure {
     uint32 color = 5;
     string relativeTimeParsed = 6;
     bool predicted = 7;
-    Endpoint type = 8;
+    Transit type = 8;
 }
+
 message Stop {
-    string shortName = 1;
+    reserved 1;
     string name = 2;
     uint32 id = 3;
-    Endpoint type = 4;
+    Transit type = 4;
 }
 
-message Stops {
-    repeated Stop stops = 1;
-}
 
-message Departures {
-    repeated Departure departures = 1;
-}
 
-message StopSearch {
-    string query = 1;
-}

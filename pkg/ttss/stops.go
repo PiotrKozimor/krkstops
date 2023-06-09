@@ -5,9 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-	"sync"
-
-	"github.com/PiotrKozimor/krkstops/pb"
 )
 
 const stopsPath = "internetservice/geoserviceDispatcher/services/stopinfo/stops?left=-648000000&bottom=-324000000&right=648000000&top=324000000"
@@ -23,8 +20,8 @@ type stop struct {
 }
 
 // GetAllStops fetches Stops from given endpoint.
-func (e Endpoint) GetAllStops() ([]pb.Stop, error) {
-	resp, err := http.DefaultClient.Get(strings.Join([]string{e.URL, stopsPath}, "/"))
+func (c Client) GetAllStops() ([]Stop, error) {
+	resp, err := http.DefaultClient.Get(strings.Join([]string{c.host, stopsPath}, "/"))
 	if err != nil {
 		return nil, fmt.Errorf("%w: %v", ErrRequestFailed, err)
 	}
@@ -38,40 +35,39 @@ func (e Endpoint) GetAllStops() ([]pb.Stop, error) {
 	// io.Copy(os.Stdout, resp.Body)
 	decoder := json.NewDecoder(resp.Body)
 	err = decoder.Decode(&stops)
-	parsedStops := make([]pb.Stop, len(stops.Stops))
+	parsedStops := make([]Stop, len(stops.Stops))
 	for i, stop := range stops.Stops {
-		parsedStops[i] = pb.Stop{
+		parsedStops[i] = Stop{
 			Name: stop.Name,
-			Id:   stop.Uid,
-			Type: e.Type,
+			Id:   uint(stop.Uid),
 		}
 	}
 	return parsedStops, err
 }
 
-// GetAllStops returns stops from multiple endpoints.
-// When one endpoint fails, valid stops are returned and error is send via chan.
-// When request is finished, error channel is closed.
-func GetAllStops(e []Endpointer) (chan []pb.Stop, chan error) {
-	errC := make(chan error, len(e))
-	stopsC := make(chan []pb.Stop, len(e))
-	wg := sync.WaitGroup{}
-	wg.Add(len(e))
-	for _, endpoint := range e {
-		go func(endp Endpointer) {
-			stops, err := endp.GetAllStops()
-			stopsC <- stops
-			if err != nil {
-				errC <- err
-			}
-			wg.Done()
+// // GetAllStops returns stops from multiple endpoints.
+// // When one endpoint fails, valid stops are returned and error is send via chan.
+// // When request is finished, error channel is closed.
+// func GetAllStops(e []Endpointer) (chan []pb.Stop, chan error) {
+// 	errC := make(chan error, len(e))
+// 	stopsC := make(chan []pb.Stop, len(e))
+// 	wg := sync.WaitGroup{}
+// 	wg.Add(len(e))
+// 	for _, endpoint := range e {
+// 		go func(endp Endpointer) {
+// 			stops, err := endp.GetAllStops()
+// 			stopsC <- stops
+// 			if err != nil {
+// 				errC <- err
+// 			}
+// 			wg.Done()
 
-		}(endpoint)
-	}
-	go func() {
-		wg.Wait()
-		close(errC)
-		close(stopsC)
-	}()
-	return stopsC, errC
-}
+// 		}(endpoint)
+// 	}
+// 	go func() {
+// 		wg.Wait()
+// 		close(errC)
+// 		close(stopsC)
+// 	}()
+// 	return stopsC, errC
+// }

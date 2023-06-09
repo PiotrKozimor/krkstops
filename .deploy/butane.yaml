@@ -11,117 +11,13 @@ systemd:
 
         [Service]
         Restart=always
-        ExecStartPre=-/bin/podman kill krkstops
-        ExecStartPre=-/bin/podman rm krkstops
-        EnvironmentFile=/etc/krkstops/tags.env
-        ExecStart=/bin/podman run --name krkstops --privileged --ip 10.88.0.5 -p 8080:8080 -p 9090:9090 -p 443:443 -v /etc/krkstops/certs:/etc/krkstops:ro -v /etc/pki/tls/certs/ca-bundle.crt:/etc/pki/tls/certs/ca-bundle.crt:ro --env-file /etc/krkstops/.env.prod --env-file /etc/krkstops/.env.priv docker.io/narciarz96/krkstops:${TAG}
-        ExecStop=/bin/podman pull docker.io/narciarz96/krkstops:${TAG}
-        ExecStop=/bin/podman stop krkstops
-
-        [Install]
-        WantedBy=multi-user.target
-    - name: redis.service
-      enabled: true
-      contents: |
-        [Unit]
-        After=network-online.target
-        Wants=network-online.target
-
-        [Service]
-        Restart=always
-        ExecStartPre=-/bin/podman kill redis
-        ExecStartPre=-/bin/podman rm redis
-        ExecStart=/bin/podman run --name redis --privileged --ip 10.88.0.7 -v /var/lib/redis:/data docker.io/narciarz96/redisearch:2.4.4
-
-        [Install]
-        WantedBy=multi-user.target
-    - name: prometheus.service
-      enabled: true
-      contents: |
-        [Unit]
-        After=network-online.target
-        Wants=network-online.target
-
-        [Service]
-        Restart=always
-        ExecStartPre=-/bin/podman kill prometheus
-        ExecStartPre=-/bin/podman rm prometheus
-        ExecStart=/bin/podman run --name prometheus --privileged --ip 10.88.0.8 -v /var/lib/prometheus:/prometheus/data -v /etc/krkstops/prometheus.yml:/prometheus/prometheus.yml:ro -u 0:0 docker.io/prom/prometheus:v2.42.0 --storage.tsdb.retention.size 10GB
-
-        [Install]
-        WantedBy=multi-user.target
-    - name: ttssmonitor.service
-      enabled: true
-      contents: |
-        [Unit]
-        After=network-online.target
-        Wants=network-online.target
-
-        [Service]
-        Restart=always
-        ExecStartPre=-/bin/podman kill ttssmonitor
-        ExecStartPre=-/bin/podman rm ttssmonitor
-        EnvironmentFile=/etc/krkstops/tags.env
-        ExecStart=/bin/podman run --name ttssmonitor --ip 10.88.0.10 docker.io/narciarz96/krkstops-ttssmonitor:${TAG}
+        ExecStart=/usr/bin/podman start -a krkstops
+        ExecStop=/usr/bin/podman stop -t 2 krkstops
 
         [Install]
         WantedBy=multi-user.target
 storage:
   files:
-    - path: /etc/krkstops/tags.env
-      overwrite: true
-      mode: 0644
-      user:
-        name: core
-      group:
-        name: core
-      contents:
-        local: .tags.env
-    - path: /etc/krkstops/prometheus.yml
-      overwrite: true
-      mode: 0644
-      user:
-        name: core
-      group:
-        name: core
-      contents:
-        local: prometheus.yml
-    - path: /etc/krkstops/.env.priv
-      overwrite: true
-      mode: 0644
-      user:
-        name: core
-      group:
-        name: core
-      contents:
-        local: .env.priv
-    - path: /etc/krkstops/.env.prod
-      overwrite: true
-      mode: 0644
-      user:
-        name: core
-      group:
-        name: core
-      contents:
-        local: .env.prod
-    - path: /etc/krkstops/certs/fullchain.pem
-      overwrite: true
-      mode: 0644
-      user:
-        name: core
-      group:
-        name: core
-      contents:
-        local: fullchain.pem
-    - path: /etc/krkstops/certs/privkey.pem
-      overwrite: true
-      mode: 0644
-      user:
-        name: core
-      group:
-        name: core
-      contents:
-        local: privkey.pem
     - path: /etc/zincati/config.d/55-updates-strategy.toml
       overwrite: true
       user:
@@ -147,17 +43,6 @@ storage:
         inline: |
           [Resolve]
           LLMNR=no
-  directories:
-    - path: /var/lib/prometheus
-      user:
-        name: root
-      group:
-        name: root
-    - path: /var/lib/redis
-      user:
-        name: root
-      group:
-        name: root
 passwd:
   users:
     - name: core

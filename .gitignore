@@ -25,3 +25,4 @@ cmd/ttssmonitord/ttssmonitord
 .env.priv
 .tags.env
 *.ign
+*.gob

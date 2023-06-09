@@ -5,7 +5,6 @@ import (
 	"log"
 	"time"
 
-	"github.com/PiotrKozimor/krkstops"
 	"github.com/PiotrKozimor/krkstops/pb"
 	"github.com/spf13/cobra"
 	grpc "google.golang.org/grpc"
@@ -29,10 +28,10 @@ var (
 		Run: func(cmd *cobra.Command, args []string) {
 			initClient()
 			defer cancel()
-			airly, err := client.GetAirly(ctx, &pb.Installation{Id: airlyId})
+			m, err := client.GetAirly(ctx, &pb.GetMeasurementRequest{Id: airlyId})
 			handle(err)
-			pp := pb.NewPrettyPrint(cmd)
-			pp.Airly(airly)
+			pp := NewPrettyPrint(cmd)
+			pp.Measurement(m)
 		},
 	}
 	depsCmd = &cobra.Command{
@@ -41,9 +40,9 @@ var (
 		Run: func(cmd *cobra.Command, args []string) {
 			initClient()
 			defer cancel()
-			deps, err := client.GetDepartures2(ctx, &pb.Stop{Id: uint32(stopId)})
+			deps, err := client.GetDepartures2(ctx, &pb.GetDepartures2Request{Id: uint32(stopId)})
 			handle(err)
-			pp := pb.NewPrettyPrint(cmd)
+			pp := NewPrettyPrint(cmd)
 			pp.Departures(deps.Departures)
 		},
 	}
@@ -53,9 +52,9 @@ var (
 		Run: func(cmd *cobra.Command, args []string) {
 			initClient()
 			defer cancel()
-			stops, err := client.SearchStops2(ctx, &pb.StopSearch{Query: args[0]})
+			stops, err := client.SearchStops2(ctx, &pb.SearchStops2Request{Query: args[0]})
 			handle(err)
-			pp := pb.NewPrettyPrint(cmd)
+			pp := NewPrettyPrint(cmd)
 			pp.Stops(stops.Stops)
 		},
 		Args: cobra.ExactArgs(1),
@@ -75,13 +74,13 @@ func initClient() {
 		log.Fatalf("fail to dial: %v", err)
 	}
 	client = pb.NewKrkStopsClient(conn)
-	ctx, cancel = context.WithTimeout(context.Background(), 1*time.Second)
+	ctx, cancel = context.WithTimeout(context.Background(), 30*time.Second)
 }
 
 func init() {
-	rootCmd.PersistentFlags().StringVarP(&endpoint, "endpoint", "e", krkstops.ENDPOINT, "backend url address")
+	rootCmd.PersistentFlags().StringVarP(&endpoint, "endpoint", "e", "krkstops.hopto.org:8080", "backend url address")
 	depsCmd.Flags().Int32Var(&stopId, "id", 610, "stop id, find it by using stops command")
-	airlyCmd.Flags().Int32Var(&airlyId, "id", 9895, "installation id")
+	airlyCmd.Flags().Int32Var(&airlyId, "id", 39735, "installation id")
 	rootCmd.AddCommand(depsCmd)
 	rootCmd.AddCommand(airlyCmd)
 	rootCmd.AddCommand(stopsCmd)

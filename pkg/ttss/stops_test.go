@@ -3,22 +3,35 @@ package ttss
 import (
 	"testing"
 
-	"github.com/PiotrKozimor/krkstops/pb"
 	"github.com/matryer/is"
 )
 
 func TestStops(t *testing.T) {
 	is := is.New(t)
-	stopsC, errC := GetAllStops(testEndpoints)
-	for s := range stopsC {
-		switch s[0].Type {
-		case pb.Endpoint_BUS:
-			is.Equal(2, len(s))
-		case pb.Endpoint_TRAM:
-			is.Equal(1, len(s))
-		}
+	cli := NewClient(Bus)
+	stops, err := cli.GetAllStops()
+	is.NoErr(err)
+	t.Log(stops)
+}
+
+func TestTramStops(t *testing.T) {
+	is := is.New(t)
+	bus := NewClient(Bus)
+	tram := NewClient(Tram)
+
+	stops, err := tram.GetAllStops()
+	is.NoErr(err)
+	m := make(map[uint]string, len(stops))
+	for _, stop := range stops {
+		m[stop.Id] = stop.Name
 	}
-	for err := range errC {
-		is.NoErr(err)
+
+	stops, err = bus.GetAllStops()
+	is.NoErr(err)
+	for _, stop := range stops {
+		m[stop.Id] = stop.Name
+		delete(m, stop.Id)
 	}
+
+	t.Log(m)
 }

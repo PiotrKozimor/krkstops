@@ -33,18 +33,12 @@ Deployment with Fedora Core OS
 - Allow traffic in [security list](https://cloud.oracle.com/networking/vcns/ocid1.vcn.oc1.eu-frankfurt-1.amaaaaaaxwiopfaaeie4biwvqjs6vps5hejo2lf2hihhvc6nhsqybdbifwgq/security-lists/ocid1.securitylist.oc1.eu-frankfurt-1.aaaaaaaall7lupqxnxxdthyne5faquxtuh2om6jncj2er25rpn3y2toogklq?region=eu-frankfurt-1)
 - Follow this: https://stackoverflow.com/a/54810101 :D
 
-## Redisearch
-
-1. Clone [repo](https://github.com/RediSearch/RediSearch)
-2. `make setup`
-3. `make build`
-4. `bin/linux-arm64v8-release/search/redisearch.so` is referenced in `.build/redis.sh` script.
-
 ## Certificates
 
 ```
 /bin/podman run --privileged -it --name=certbot --rm --cap-drop all -p 80:80 --volume /var/srv/krkstops/letsencrypt-webroot:/var/lib/letsencrypt:rw,z --volume /var/srv/krkstops/letsencrypt-certs:/etc/letsencrypt:rw,z docker.io/certbot/certbot:arm64v8-latest --standalone --agree-tos -d krkstops.hopto.org -m p1996k@gmail.com certonly
-cp /var/srv/krkstops/letsencrypt-certs/live/krkstops.hopto.org/privkey.pem /etc/krkstops/certs/
-cp /var/srv/krkstops/letsencrypt-certs/live/krkstops.hopto.org/fullchain.pem /etc/krkstops/certs/
-systemctl restart krkstops.service
+podman secret rm tls-key
+cat /var/srv/krkstops/letsencrypt-certs/live/krkstops.hopto.org/privkey.pem | podman secret create tls-key -
+podman secret rm tls-cert
+cat /var/srv/krkstops/letsencrypt-certs/live/krkstops.hopto.org/fullchain.pem | podman secret create tls-cert -
 ```
