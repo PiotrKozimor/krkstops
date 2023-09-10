@@ -45,8 +45,8 @@ func (s *KrkStopsServer) GetDepartures2(ctx context.Context, req *pb.GetDepartur
 					transit:   typedCli.transit,
 				})
 			}
-			slices.SortFunc(cachedDeps, func(a, b typedDeparture) bool {
-				return a.RelativeTime <= b.RelativeTime
+			slices.SortFunc(cachedDeps, func(a, b typedDeparture) int {
+				return int(a.RelativeTime - b.RelativeTime)
 			})
 		}
 		s.depsCache.set(stop.Id, cachedDeps)
