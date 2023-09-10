@@ -5,7 +5,7 @@
 
 ## go test
 
-Tests require AIRLY_KEY to passed:
+Pass the actual AIRLY_KEY in tests:
 
 ```
 AIRLY_KEY=foo go test ./...
