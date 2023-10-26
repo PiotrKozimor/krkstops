@@ -2,12 +2,12 @@ package krkstops
 
 import (
 	"context"
+	"slices"
 	"time"
 
 	"github.com/PiotrKozimor/krkstops/pb"
 	"github.com/PiotrKozimor/krkstops/pkg/search"
 	"github.com/PiotrKozimor/krkstops/pkg/ttss"
-	"golang.org/x/exp/slices"
 )
 
 type typedDeparture struct {

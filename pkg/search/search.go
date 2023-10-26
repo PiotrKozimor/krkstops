@@ -4,10 +4,10 @@ import (
 	"bytes"
 	_ "embed"
 	"encoding/gob"
+	"slices"
 
 	"github.com/PiotrKozimor/krkstops/pkg/search/merged"
 	"github.com/PiotrKozimor/krkstops/pkg/trie"
-	"golang.org/x/exp/slices"
 )
 
 var (
