@@ -52,7 +52,7 @@ func main() {
 	}
 
 	go func() {
-		HandlePrivacy()
+		Routes()
 		var err error
 		if tlsOn {
 			log.Printf("http server listening on :443")

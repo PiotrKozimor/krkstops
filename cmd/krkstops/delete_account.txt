@@ -1,0 +1,6 @@
+In order to delete your account in the KrkStops app, please do the following:
+
+1. First, click on the settings icon in top right section of the app in the main menu.
+2. Then click the "Remove backup" button. That will immediately delete your account together with any data associated to it.
+
+Please note that the option above is available only if you are logged in.
