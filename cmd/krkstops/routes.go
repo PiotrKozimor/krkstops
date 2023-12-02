@@ -13,16 +13,15 @@ var privacy []byte
 var deleteAccount []byte
 
 func Routes() {
-	http.HandleFunc("/privacy", func(w http.ResponseWriter, r *http.Request) {
-		_, err := w.Write(privacy)
-		if err != nil {
-			log.Print(err)
+	handler := func(data []byte) http.HandlerFunc {
+		return func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Add("Cache-Control", "max-age=86400")
+			_, err := w.Write(data)
+			if err != nil {
+				log.Print(err)
+			}
 		}
-	})
-	http.HandleFunc("/delete_account", func(w http.ResponseWriter, r *http.Request) {
-		_, err := w.Write(deleteAccount)
-		if err != nil {
-			log.Print(err)
-		}
-	})
+	}
+	http.HandleFunc("/privacy", handler(privacy))
+	http.HandleFunc("/delete_account", handler(deleteAccount))
 }
