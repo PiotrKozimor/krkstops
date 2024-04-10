@@ -87,7 +87,7 @@ func (s *Search) sort(results []uint, limit int) []Stop {
 		scored[i] = scoredStop{id: results[i], score: s.score[results[i]]}
 	}
 	slices.SortFunc(scored, func(a, b scoredStop) int {
-		return int(a.score - b.score)
+		return int(b.score - a.score)
 	})
 	res := make([]Stop, 0, limit)
 	for i, sc := range scored {
