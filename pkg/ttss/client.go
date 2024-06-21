@@ -1,5 +1,10 @@
 package ttss
 
+import (
+	"net/http"
+	"time"
+)
+
 const (
 	Bus  = "http://91.223.13.70"
 	Tram = "http://185.70.182.51"
@@ -19,9 +24,15 @@ type Stop struct {
 }
 
 type Client struct {
-	host string
+	host       string
+	httpClient *http.Client
 }
 
 func NewClient(url string) *Client {
-	return &Client{host: url}
+	return &Client{
+		host: url,
+		httpClient: &http.Client{
+			Timeout: time.Second,
+		},
+	}
 }

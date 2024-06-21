@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 )
 
 const URL = "https://airapi.airly.eu"
@@ -34,7 +35,9 @@ func NewClient(host string) *Client {
 	return &Client{
 		host:   host,
 		apiKey: os.Getenv("AIRLY_KEY"),
-		cl:     http.DefaultClient,
+		cl: &http.Client{
+			Timeout: time.Second,
+		},
 	}
 }
 

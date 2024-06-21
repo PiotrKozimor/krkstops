@@ -3,7 +3,6 @@ package ttss
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"strings"
 )
 
@@ -21,18 +20,18 @@ type stop struct {
 
 // GetAllStops fetches Stops from given endpoint.
 func (c Client) GetAllStops() ([]Stop, error) {
-	resp, err := http.DefaultClient.Get(strings.Join([]string{c.host, stopsPath}, "/"))
+	resp, err := c.httpClient.Get(strings.Join([]string{c.host, stopsPath}, "/"))
 	if err != nil {
 		return nil, fmt.Errorf("%w: %v", ErrRequestFailed, err)
 	}
 	defer resp.Body.Close()
+
 	if resp.StatusCode != 200 {
 		if resp.StatusCode != 200 {
 			return nil, fmt.Errorf("%w: %d", ErrStatusCode, resp.StatusCode)
 		}
 	}
 	var stops ttssStops
-	// io.Copy(os.Stdout, resp.Body)
 	decoder := json.NewDecoder(resp.Body)
 	err = decoder.Decode(&stops)
 	parsedStops := make([]Stop, len(stops.Stops))
@@ -44,30 +43,3 @@ func (c Client) GetAllStops() ([]Stop, error) {
 	}
 	return parsedStops, err
 }
-
-// // GetAllStops returns stops from multiple endpoints.
-// // When one endpoint fails, valid stops are returned and error is send via chan.
-// // When request is finished, error channel is closed.
-// func GetAllStops(e []Endpointer) (chan []pb.Stop, chan error) {
-// 	errC := make(chan error, len(e))
-// 	stopsC := make(chan []pb.Stop, len(e))
-// 	wg := sync.WaitGroup{}
-// 	wg.Add(len(e))
-// 	for _, endpoint := range e {
-// 		go func(endp Endpointer) {
-// 			stops, err := endp.GetAllStops()
-// 			stopsC <- stops
-// 			if err != nil {
-// 				errC <- err
-// 			}
-// 			wg.Done()
-
-// 		}(endpoint)
-// 	}
-// 	go func() {
-// 		wg.Wait()
-// 		close(errC)
-// 		close(stopsC)
-// 	}()
-// 	return stopsC, errC
-// }

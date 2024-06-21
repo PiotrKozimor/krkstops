@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"net/http"
 	"strings"
 )
 
@@ -33,7 +32,7 @@ var (
 // GetDepartures from Endpoint for stop with given shortName.
 func (c Client) GetDepartures(id uint) ([]Departure, error) {
 	url := fmt.Sprintf(strings.Join([]string{c.host, departuresPath}, "/"), id)
-	resp, err := http.DefaultClient.Get(url)
+	resp, err := c.httpClient.Get(url)
 	if err != nil {
 		return nil, fmt.Errorf("%w: %v", ErrRequestFailed, err)
 	}
@@ -57,7 +56,6 @@ func (c Client) GetDepartures(id uint) ([]Departure, error) {
 		departures[i].PlannedTime = dep.PlannedTime
 		departures[i].RelativeTime = dep.ActualRelativeTime
 		departures[i].Predicted = dep.Status == "PREDICTED"
-		// departures[i].Type = c.endpointType
 	}
 	return departures, nil
 }
