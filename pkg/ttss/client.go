@@ -6,8 +6,8 @@ import (
 )
 
 const (
-	Bus  = "http://91.223.13.70"
-	Tram = "http://185.70.182.51"
+	Bus  = "http://ttss.mpk.krakow.pl"
+	Tram = "http://www.ttss.krakow.pl"
 )
 
 type Departure struct {
