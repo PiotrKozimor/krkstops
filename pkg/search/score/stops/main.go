@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/PiotrKozimor/krkstops/pkg/search/merged"
+	"github.com/PiotrKozimor/krkstops/pkg/stops"
 	"github.com/PiotrKozimor/krkstops/pkg/ttss"
 )
 
@@ -20,10 +20,10 @@ func handle(err error) {
 //go:generate go run .
 func main() {
 	cli := ttss.NewClient(ttss.Bus)
-	stops, err := cli.GetAllStops()
+	allStops, err := cli.GetAllStops()
 	handle(err)
-	for i := range stops {
-		stops[i].Name = trim(stops[i].Name)
+	for i := range allStops {
+		allStops[i].Name = trim(allStops[i].Name)
 	}
 
 	cliTram := ttss.NewClient(ttss.Tram)
@@ -33,7 +33,7 @@ func main() {
 		stopsTram[i].Name = trim(stopsTram[i].Name)
 	}
 
-	stopsMerged, err := merged.Do(stops, stopsTram)
+	stopsMerged, err := stops.Do(allStops, stopsTram)
 	handle(err)
 
 	buf := bytes.Buffer{}

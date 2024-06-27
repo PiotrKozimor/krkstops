@@ -1,4 +1,4 @@
-package merged
+package stops
 
 import (
 	"bytes"

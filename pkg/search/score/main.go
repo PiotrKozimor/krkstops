@@ -9,7 +9,7 @@ import (
 
 	_ "embed"
 
-	"github.com/PiotrKozimor/krkstops/pkg/search/merged"
+	"github.com/PiotrKozimor/krkstops/pkg/stops"
 	"github.com/PiotrKozimor/krkstops/pkg/ttss"
 )
 
@@ -24,7 +24,7 @@ var stopsB []byte
 
 //go:generate go run .
 func main() {
-	stops, err := merged.Read(stopsB)
+	stops, err := stops.Read(stopsB)
 	handle(err)
 
 	scores := make(map[uint]uint, len(stops))

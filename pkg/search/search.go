@@ -6,7 +6,7 @@ import (
 	"encoding/gob"
 	"slices"
 
-	"github.com/PiotrKozimor/krkstops/pkg/search/merged"
+	"github.com/PiotrKozimor/krkstops/pkg/stops"
 	"github.com/PiotrKozimor/krkstops/pkg/trie"
 )
 
@@ -20,7 +20,7 @@ var (
 type Search struct {
 	t     trie.Trie
 	score map[uint]uint
-	stops merged.Stops
+	stops stops.Stops
 }
 
 type Stop struct {
@@ -35,7 +35,7 @@ type scoredStop struct {
 }
 
 func New() (*Search, error) {
-	stops, err := merged.Read(stopsB)
+	stops, err := stops.Read(stopsB)
 	if err != nil {
 		return nil, err
 	}
