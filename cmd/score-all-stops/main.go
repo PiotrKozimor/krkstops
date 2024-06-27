@@ -19,11 +19,9 @@ func handle(err error) {
 	}
 }
 
-//go:embed stops/stops.gob
-var stopsB []byte
-
-//go:generate go run .
 func main() {
+	stopsB, err := os.ReadFile("stops.gob")
+	handle(err)
 	stops, err := stops.Read(stopsB)
 	handle(err)
 

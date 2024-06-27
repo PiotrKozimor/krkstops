@@ -8,15 +8,15 @@ import (
 	"github.com/PiotrKozimor/krkstops/pkg/ttss"
 )
 
-type Stops map[uint]Stop
+type Merged map[uint]Stop
 
 type Stop struct {
 	Name      string
 	Tram, Bus bool
 }
 
-func Do(bus, tram []ttss.Stop) (Stops, error) {
-	stopsM := make(Stops, len(bus))
+func Merge(bus, tram []ttss.Stop) (Merged, error) {
+	stopsM := make(Merged, len(bus))
 	for _, stop := range bus {
 		stopsM[stop.Id] = Stop{Name: stop.Name, Bus: true}
 	}
@@ -39,8 +39,8 @@ func Do(bus, tram []ttss.Stop) (Stops, error) {
 	return stopsM, nil
 }
 
-func Read(b []byte) (Stops, error) {
-	var s Stops
+func Read(b []byte) (Merged, error) {
+	var s Merged
 	buf := bytes.NewBuffer(b)
 	err := gob.NewDecoder(buf).Decode(&s)
 	return s, err

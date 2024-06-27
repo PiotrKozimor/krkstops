@@ -10,17 +10,19 @@ import (
 	"github.com/PiotrKozimor/krkstops/pkg/trie"
 )
 
+//go:generate go run ../../cmd/get-all-stops
+//go:generate go run ../../cmd/score-all-stops
 var (
-	//go:embed score/stops/stops.gob
+	//go:embed stops.gob
 	stopsB []byte
-	//go:embed score/score.gob
+	//go:embed score.gob
 	scoreB []byte
 )
 
 type Search struct {
 	t     trie.Trie
 	score map[uint]uint
-	stops stops.Stops
+	stops stops.Merged
 }
 
 type Stop struct {

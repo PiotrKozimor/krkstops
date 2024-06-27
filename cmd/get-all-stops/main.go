@@ -17,7 +17,6 @@ func handle(err error) {
 	}
 }
 
-//go:generate go run .
 func main() {
 	cli := ttss.NewClient(ttss.Bus)
 	allStops, err := cli.GetAllStops()
@@ -33,7 +32,7 @@ func main() {
 		stopsTram[i].Name = trim(stopsTram[i].Name)
 	}
 
-	stopsMerged, err := stops.Do(allStops, stopsTram)
+	stopsMerged, err := stops.Merge(allStops, stopsTram)
 	handle(err)
 
 	buf := bytes.Buffer{}
