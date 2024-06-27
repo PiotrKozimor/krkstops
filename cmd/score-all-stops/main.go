@@ -44,7 +44,7 @@ func main() {
 			log.Printf("increasing score of stop with id %d by %d", id, inc)
 			scores[id] += uint(inc)
 		}
-		time.Sleep(time.Millisecond * 100)
+		time.Sleep(time.Millisecond * 200)
 	}
 
 	buf := bytes.Buffer{}
