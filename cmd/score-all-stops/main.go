@@ -27,8 +27,8 @@ func main() {
 
 	scores := make(map[uint]uint, len(stops))
 
-	cliB := ttss.NewClient(ttss.Bus)
-	cliT := ttss.NewClient(ttss.Tram)
+	cliB := ttss.NewClient(ttss.Bus, ttss.WithTimeout(time.Second*5))
+	cliT := ttss.NewClient(ttss.Tram, ttss.WithTimeout(time.Second*5))
 	for id, stop := range stops {
 		if stop.Bus {
 			deps, err := cliB.GetDepartures(id)

@@ -28,11 +28,23 @@ type Client struct {
 	httpClient *http.Client
 }
 
-func NewClient(url string) *Client {
-	return &Client{
+type opt func(*Client)
+
+func WithTimeout(timeout time.Duration) opt {
+	return func(cli *Client) {
+		cli.httpClient.Timeout = timeout
+	}
+}
+
+func NewClient(url string, options ...opt) *Client {
+	c := &Client{
 		host: url,
 		httpClient: &http.Client{
 			Timeout: time.Second,
 		},
 	}
+	for _, o := range options {
+		o(c)
+	}
+	return c
 }
