@@ -2,7 +2,10 @@ package krkstops
 
 import (
 	"context"
+	"errors"
+	"log/slog"
 	"slices"
+	"sync"
 	"time"
 
 	"github.com/PiotrKozimor/krkstops/pb"
@@ -24,31 +27,50 @@ func (s *KrkStopsServer) GetDepartures2(ctx context.Context, req *pb.GetDepartur
 	cachedDeps, cachedAt, ok := s.depsCache.get(uint(req.Id))
 	if !ok {
 		stop := s.searchCli.Get(uint(req.Id))
-		clients := []typedClient{}
+		cachedDeps = make([]typedDeparture, 0, 20)
+		errs := make([]error, 0)
+		m := sync.Mutex{}
+		wg := sync.WaitGroup{}
+
+		getDepartures := func(cli ttssClient, transit pb.Transit) {
+			deps, err := cli.GetDepartures(stop.Id)
+			m.Lock()
+			if err != nil {
+				errs = append(errs, err)
+			} else {
+				for _, dep := range deps {
+					cachedDeps = append(cachedDeps, typedDeparture{
+						Departure: dep,
+						transit:   transit,
+					})
+				}
+
+			}
+			m.Unlock()
+			wg.Done()
+		}
 		if stop.Bus {
-			clients = append(clients, typedClient{s.ttssBusCli, pb.Transit_BUS})
+			wg.Add(1)
+			go getDepartures(s.ttssBusCli, pb.Transit_BUS)
 		}
 		if stop.Tram {
-			clients = append(clients, typedClient{s.ttssTramCli, pb.Transit_TRAM})
+			wg.Add(1)
+			go getDepartures(s.ttssTramCli, pb.Transit_TRAM)
 		}
-		for _, typedCli := range clients {
-			deps, err := typedCli.GetDepartures(stop.Id)
-			if err != nil {
+
+		wg.Wait()
+		err := errors.Join(errs...)
+		if err != nil {
+			if len(cachedDeps) == 0 {
 				return nil, err
+			} else {
+				slog.ErrorContext(ctx, "get departures", "error", err)
 			}
-			if cachedDeps == nil {
-				cachedDeps = make([]typedDeparture, 0, len(deps))
-			}
-			for i := range deps {
-				cachedDeps = append(cachedDeps, typedDeparture{
-					Departure: deps[i],
-					transit:   typedCli.transit,
-				})
-			}
-			slices.SortFunc(cachedDeps, func(a, b typedDeparture) int {
-				return int(a.RelativeTime - b.RelativeTime)
-			})
 		}
+
+		slices.SortFunc(cachedDeps, func(a, b typedDeparture) int {
+			return int(a.RelativeTime - b.RelativeTime)
+		})
 		s.depsCache.set(stop.Id, cachedDeps)
 	}
 	return &pb.GetDepartures2Response{
