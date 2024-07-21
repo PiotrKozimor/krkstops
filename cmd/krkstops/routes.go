@@ -12,6 +12,9 @@ var privacy []byte
 //go:embed delete_account.txt
 var deleteAccount []byte
 
+//go:embed legal_notice.txt
+var legalNotice []byte
+
 func Routes() {
 	handler := func(data []byte) http.HandlerFunc {
 		return func(w http.ResponseWriter, r *http.Request) {
@@ -24,4 +27,5 @@ func Routes() {
 	}
 	http.HandleFunc("/privacy", handler(privacy))
 	http.HandleFunc("/delete_account", handler(deleteAccount))
+	http.HandleFunc("/legal_notice", handler(legalNotice))
 }

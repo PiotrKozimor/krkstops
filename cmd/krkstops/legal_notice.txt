@@ -1,0 +1,9 @@
+Aplikacja KrkStops pobiera dane z następujących serwisów Zarządu Transportu Publicznego, podlegającego Gminie Miejskiej Kraków:
+- http://www.ttss.krakow.pl/internetservice/
+- http://ttss.mpk.krakow.pl/internetservice/
+
+Dane są przetwarzane na bieżąco, z zastrzeżeniem maksymalnego opóźnienia 10 sekund.
+
+Gmina Miejska Kraków nie ponosi odpowiedzialności za:
+- szkody spowodowane pozyskaniem informacji sektora publicznego lub ponownym wykorzystywaniem informacji sektora publicznego, zamieszczonej na stronach BIP MK lub w innym miejskim serwisie internetowym, udostępnianej na wniosek lub pozyskanej w inny sposób, wykorzystywanej ponownie z naruszeniem warunków udostępniania lub ponownego wykorzystywania informacji sektora publicznego;
+- szkody spowodowane przez dalsze udostępnienie informacji sektora publicznego przez podmioty ponownie ją wykorzystujące z naruszeniem przepisów prawa powszechnie obowiązującego, w tym dalsze udostępnianie informacji sektora publicznego z naruszeniem przepisów regulujących ich ochronę m.in. przepisów ustawy o prawie autorskim i prawach pokrewnych, ustawy o ochronie baz danych, przepisów o ochronie danych osobowych, ustawy o ochronie informacji niejawnych itd.
