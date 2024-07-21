@@ -22,18 +22,6 @@ var (
 		Use:  "krkstopsctl",
 		Long: `krkstopsctl interacts with krk-stops.pl backend`,
 	}
-	airlyCmd = &cobra.Command{
-		Use:   "airly",
-		Short: "Query air quality, temperature and humidity from airly installation",
-		Run: func(cmd *cobra.Command, args []string) {
-			initClient()
-			defer cancel()
-			m, err := client.GetAirly(ctx, &pb.GetMeasurementRequest{Id: airlyId})
-			handle(err)
-			pp := NewPrettyPrint(cmd)
-			pp.Measurement(m)
-		},
-	}
 	depsCmd = &cobra.Command{
 		Use:   "deps",
 		Short: "Query departures from given stop",
@@ -60,7 +48,6 @@ var (
 		Args: cobra.ExactArgs(1),
 	}
 
-	airlyId  int32
 	stopId   int32
 	client   pb.KrkStopsClient
 	ctx      context.Context
@@ -80,9 +67,7 @@ func initClient() {
 func init() {
 	rootCmd.PersistentFlags().StringVarP(&endpoint, "endpoint", "e", "krkstops.hopto.org:8080", "backend url address")
 	depsCmd.Flags().Int32Var(&stopId, "id", 610, "stop id, find it by using stops command")
-	airlyCmd.Flags().Int32Var(&airlyId, "id", 39735, "installation id")
 	rootCmd.AddCommand(depsCmd)
-	rootCmd.AddCommand(airlyCmd)
 	rootCmd.AddCommand(stopsCmd)
 
 }

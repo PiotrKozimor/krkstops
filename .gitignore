@@ -15,7 +15,6 @@
 .lock 
 *.pem
 **/__debug_bin
-cmd/airlyctl/airlyctl
 cmd/krkstopsctl/krkstopsctl
 cmd/ttssctl/ttssctl
 cmd/stopsctl/stopsctl

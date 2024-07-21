@@ -6,8 +6,7 @@ import (
 )
 
 const (
-	airlyExpire = time.Minute * 10
-	depsExpire  = time.Second * 10
+	depsExpire = time.Second * 10
 )
 
 type entry[T any] struct {

@@ -18,13 +18,6 @@ func NewPrettyPrint(cmd *cobra.Command) PrettyPrint {
 	}
 }
 
-// PrettyPrint Airly data
-func (p PrettyPrint) Measurement(m *pb.Measurement) {
-	fmt.Fprintf(p, "CAQI\tHUMIDITY[%%]\tTEMP [°C]\tCOLOR\t\n")
-	fmt.Fprintf(p, "%d\t%d\t%2.1f\t%X\t\n", m.Caqi, m.Humidity, m.Temperature, m.Color)
-	p.Flush()
-}
-
 // PrettyPrint stops
 func (p *PrettyPrint) Stops(stops []*pb.Stop) {
 	fmt.Fprintf(p, "NO\tID\tNAME\n")
