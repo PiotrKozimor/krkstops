@@ -25,3 +25,4 @@ cmd/ttssmonitord/ttssmonitord
 .tags.env
 *.ign
 *.gob
+legal_notice.txt

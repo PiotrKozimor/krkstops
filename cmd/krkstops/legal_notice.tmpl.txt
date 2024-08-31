@@ -2,7 +2,9 @@ Aplikacja KrkStops pobiera dane z następujących serwisów Zarządu Transportu 
 - http://www.ttss.krakow.pl/internetservice/
 - http://ttss.mpk.krakow.pl/internetservice/
 
-Dane są przetwarzane na bieżąco, z zastrzeżeniem maksymalnego opóźnienia 10 sekund.
+Dane o odjazdach są przetwarzane na bieżąco, z zastrzeżeniem maksymalnego opóźnienia 10 sekund.
+
+Lista przystanków została pozyskana o czasie: %s.
 
 Gmina Miejska Kraków nie ponosi odpowiedzialności za:
 - szkody spowodowane pozyskaniem informacji sektora publicznego lub ponownym wykorzystywaniem informacji sektora publicznego, zamieszczonej na stronach BIP MK lub w innym miejskim serwisie internetowym, udostępnianej na wniosek lub pozyskanej w inny sposób, wykorzystywanej ponownie z naruszeniem warunków udostępniania lub ponownego wykorzystywania informacji sektora publicznego;
