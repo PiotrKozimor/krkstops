@@ -1,15 +1,12 @@
 package main
 
 import (
-	"bytes"
-	"encoding/gob"
 	"log"
-	"os"
 	"time"
 
 	_ "embed"
 
-	"github.com/PiotrKozimor/krkstops/pkg/stops"
+	"github.com/PiotrKozimor/krkstops/pkg/store"
 	"github.com/PiotrKozimor/krkstops/pkg/ttss"
 )
 
@@ -20,9 +17,7 @@ func handle(err error) {
 }
 
 func main() {
-	stopsB, err := os.ReadFile("stops.gob")
-	handle(err)
-	stops, err := stops.Read(stopsB)
+	stops, err := store.ReadDefault()
 	handle(err)
 
 	scores := make(map[uint]uint, len(stops))
@@ -47,9 +42,6 @@ func main() {
 		time.Sleep(time.Millisecond * 200)
 	}
 
-	buf := bytes.Buffer{}
-	err = gob.NewEncoder(&buf).Encode(scores)
-	handle(err)
-	err = os.WriteFile("score.gob", buf.Bytes(), 0644)
+	err = store.WriteScore(scores)
 	handle(err)
 }

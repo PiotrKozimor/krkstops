@@ -6,12 +6,12 @@ import (
 	"encoding/gob"
 	"slices"
 
-	"github.com/PiotrKozimor/krkstops/pkg/stops"
+	"github.com/PiotrKozimor/krkstops/pkg/store"
 	"github.com/PiotrKozimor/krkstops/pkg/trie"
 )
 
-//go:generate go run ../../cmd/get-all-stops -legal ../../cmd/krkstops
-//go:generate go run ../../cmd/score-all-stops
+//go:generate go run ../../cmd/get-stops -legal ../../cmd/krkstops
+//go:generate go run ../../cmd/score-stops
 var (
 	//go:embed stops.gob
 	stopsB []byte
@@ -22,7 +22,7 @@ var (
 type Search struct {
 	t     trie.Trie
 	score map[uint]uint
-	stops stops.Merged
+	stops store.Stops
 }
 
 type Stop struct {
@@ -37,7 +37,7 @@ type scoredStop struct {
 }
 
 func New() (*Search, error) {
-	stops, err := stops.Read(stopsB)
+	stops, err := store.Read(stopsB)
 	if err != nil {
 		return nil, err
 	}
