@@ -10,7 +10,7 @@ import (
 	"github.com/PiotrKozimor/krkstops/pkg/trie"
 )
 
-//go:generate go run ../../cmd/get-stops -legal ../../cmd/krkstops
+//go:generate go run ../../cmd/get-stops -legal ../../cmd/krkstops -transit tram
 //go:generate go run ../../cmd/score-stops
 var (
 	//go:embed stops.gob
