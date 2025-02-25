@@ -19,7 +19,8 @@ krkstops () {
     ssh coreos sudo podman rm -i krkstops
     ssh coreos sudo podman create \
             --name krkstops \
-            -p 8080:8080 \
+            --network podman \
+            --ip 10.88.0.10 \
             -p 9090:9090 \
             -p 443:443 \
             --secret tls-cert \

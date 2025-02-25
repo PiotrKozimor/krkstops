@@ -53,15 +53,14 @@ func main() {
 
 	go func() {
 		Routes()
-		var err error
 		if tlsOn {
-			log.Printf("http server listening on :443")
-			err = http.ListenAndServeTLS(":443", tlsCert, tlsKey, nil)
-		} else {
-			log.Printf("http server listening on :8090")
-			err = http.ListenAndServe(":8090", nil)
+			go func() {
+				log.Printf("https server listening on :443")
+				handle(http.ListenAndServeTLS(":443", tlsCert, tlsKey, nil))
+			}()
 		}
-		handle(err)
+		log.Printf("http server listening on :80")
+		handle(http.ListenAndServe(":80", nil))
 	}()
 
 	lis, err := net.Listen("tcp", ":8080")
