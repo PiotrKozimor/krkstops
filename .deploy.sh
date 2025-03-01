@@ -22,7 +22,6 @@ krkstops () {
             --network podman \
             --ip 10.88.0.10 \
             -p 9090:9090 \
-            -p 443:443 \
             --secret tls-cert \
             --secret tls-key \
             --env TLS_CERT=/run/secrets/tls-cert \
