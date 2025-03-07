@@ -1,5 +1,0 @@
-**/*
-!cmd/mock/main.go
-!test/mock
-!go.mod
-!go.sum
