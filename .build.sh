@@ -19,7 +19,6 @@ krkstops () {
     cd ../..
     cont=$(buildah from --arch arm64 scratch)
     buildah copy $cont cmd/krkstops/krkstops /bin/krkstops
-    buildah add $cont https://curl.se/ca/cacert.pem /etc/pki/tls/certs/ca-bundle.crt
     buildah config --entrypoint '["/bin/krkstops"]' $cont
     buildah commit $cont krkstops
     echo "👌 Tag nad push $TAG"

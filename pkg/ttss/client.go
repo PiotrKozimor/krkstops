@@ -1,14 +1,49 @@
 package ttss
 
 import (
+	"crypto/tls"
+	"crypto/x509"
+	_ "embed"
+	"log"
 	"net/http"
 	"time"
 )
 
 const (
-	Bus  = "http://ttss.mpk.krakow.pl"
-	Tram = "http://www.ttss.krakow.pl"
+	Bus  = "https://ttss.mpk.krakow.pl"
+	Tram = "https://www.ttss.krakow.pl"
 )
+
+var (
+	// https://www.certum.pl/CTNCA.pem
+	//go:embed CTNCA.pem
+	ca []byte
+	// https://repository.certum.pl/ovcasha2.pem
+	//go:embed ovcasha2.pem
+	intermediate []byte
+	client       *http.Client
+)
+
+func init() {
+	caCertPool := x509.NewCertPool()
+	for _, cert := range [][]byte{
+		ca,
+		intermediate,
+	} {
+		if ok := caCertPool.AppendCertsFromPEM(cert); !ok {
+			log.Fatal("Failed to add certificate to pool")
+			return
+		}
+	}
+	client = &http.Client{
+		Timeout: time.Second,
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{
+				RootCAs: caCertPool,
+			},
+		},
+	}
+}
 
 type Departure struct {
 	PatternText  string
@@ -38,10 +73,8 @@ func WithTimeout(timeout time.Duration) opt {
 
 func NewClient(url string, options ...opt) *Client {
 	c := &Client{
-		host: url,
-		httpClient: &http.Client{
-			Timeout: time.Second,
-		},
+		host:       url,
+		httpClient: client,
 	}
 	for _, o := range options {
 		o(c)
