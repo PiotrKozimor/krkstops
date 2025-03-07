@@ -1,22 +1,22 @@
 module github.com/PiotrKozimor/krkstops
 
-go 1.22.7
+go 1.23.0
 
-toolchain go1.23.3
+toolchain go1.24.0
 
 require (
 	github.com/matryer/is v1.4.1
-	github.com/spf13/cobra v1.8.1
-	google.golang.org/grpc v1.70.0
-	google.golang.org/protobuf v1.36.4
+	github.com/spf13/cobra v1.9.1
+	google.golang.org/grpc v1.71.0
+	google.golang.org/protobuf v1.36.5
 )
 
-require golang.org/x/text v0.21.0
+require golang.org/x/text v0.23.0
 
 require (
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.6 // indirect
-	golang.org/x/net v0.34.0 // indirect
-	golang.org/x/sys v0.30.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20250204164813-702378808489 // indirect
+	golang.org/x/net v0.37.0 // indirect
+	golang.org/x/sys v0.31.0 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250303144028-a0af3efb3deb // indirect
 )
