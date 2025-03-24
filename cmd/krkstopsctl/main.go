@@ -8,7 +8,7 @@ import (
 	"github.com/PiotrKozimor/krkstops/pb"
 	"github.com/spf13/cobra"
 	grpc "google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/credentials"
 )
 
 func handle(err error) {
@@ -56,7 +56,7 @@ var (
 )
 
 func initClient() {
-	conn, err := grpc.Dial(endpoint, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.NewClient(endpoint, grpc.WithTransportCredentials(credentials.NewTLS(nil)))
 	if err != nil {
 		log.Fatalf("fail to dial: %v", err)
 	}
@@ -65,7 +65,7 @@ func initClient() {
 }
 
 func init() {
-	rootCmd.PersistentFlags().StringVarP(&endpoint, "endpoint", "e", "krkstops.hopto.org:8080", "backend url address")
+	rootCmd.PersistentFlags().StringVarP(&endpoint, "endpoint", "e", "apikrkstops.cozymore.dev", "backend url address")
 	depsCmd.Flags().Int32Var(&stopId, "id", 610, "stop id, find it by using stops command")
 	rootCmd.AddCommand(depsCmd)
 	rootCmd.AddCommand(stopsCmd)
