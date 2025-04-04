@@ -16,7 +16,6 @@ type KrkStopsServer struct {
 
 type ttssClient interface {
 	GetDepartures(uint) ([]ttss.Departure, error)
-	// GetAllStops() ([]Stop, error)
 }
 
 func NewServer() (*KrkStopsServer, error) {

@@ -14,20 +14,15 @@ help () {
 }
 
 krkstops () {
-    ssh coreos sudo podman pull docker.io/narciarz96/krkstops:$TAG
-    ssh coreos sudo systemctl stop krkstops.service
-    ssh coreos sudo podman rm -i krkstops
-    ssh coreos sudo podman create \
+    ssh coreos podman pull docker.io/narciarz96/krkstops:$TAG
+    ssh coreos systemctl stop krkstops.service
+    ssh coreos podman rm -i krkstops
+    ssh coreos podman create \
             --name krkstops \
             --network podman \
             --ip 10.88.0.10 \
-            -p 9090:9090 \
-            --secret tls-cert \
-            --secret tls-key \
-            --env TLS_CERT=/run/secrets/tls-cert \
-            --env TLS_KEY=/run/secrets/tls-key \
             docker.io/narciarz96/krkstops:$TAG
-    ssh coreos sudo systemctl start krkstops.service
+    ssh coreos systemctl start krkstops.service
 }
 
 while getopts hk opts; do

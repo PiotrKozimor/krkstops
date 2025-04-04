@@ -1,17 +1,14 @@
 package main
 
 import (
-	"crypto/tls"
 	"log"
 	"net"
 	"net/http"
 	_ "net/http/pprof"
-	"os"
 
 	"github.com/PiotrKozimor/krkstops"
 	"github.com/PiotrKozimor/krkstops/pb"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
 )
 
 func handle(err error) {
@@ -20,47 +17,24 @@ func handle(err error) {
 	}
 }
 
-func serve(s *grpc.Server, l net.Listener) {
-	err := s.Serve(l)
-	handle(err)
-}
-
-type Config struct {
-	TlsCert string
-	TlsKey  string
-}
-
 func main() {
-	tlsCert := os.Getenv("TLS_CERT")
-	tlsKey := os.Getenv("TLS_KEY")
 
 	server, err := krkstops.NewServer()
 	handle(err)
 
-	tlsOn := tlsCert != "" && tlsKey != ""
-	if tlsOn {
-		cert, err := tls.LoadX509KeyPair(tlsCert, tlsKey)
-		handle(err)
-		grpcServerTls := grpc.NewServer(
-			grpc.Creds(credentials.NewServerTLSFromCert(&cert)),
-		)
-		pb.RegisterKrkStopsServer(grpcServerTls, server)
-		lisTls, err := net.Listen("tcp", ":9090")
-		handle(err)
-		log.Printf("tls grpc server listening on :9090")
-		go serve(grpcServerTls, lisTls)
-	}
-
 	go func() {
 		Routes()
-		if tlsOn {
-			go func() {
-				log.Printf("https server listening on :443")
-				handle(http.ListenAndServeTLS(":443", tlsCert, tlsKey, nil))
-			}()
-		}
 		log.Printf("http server listening on :80")
 		handle(http.ListenAndServe(":80", nil))
+	}()
+
+	go func() {
+		lis, err := net.Listen("tcp", ":8081")
+		handle(err)
+		grpcServer := grpc.NewServer(grpc.UnaryInterceptor(krkstops.InjectFailure))
+		pb.RegisterKrkStopsServer(grpcServer, server)
+		log.Printf("grpc staging server listening on :8081")
+		handle(grpcServer.Serve(lis))
 	}()
 
 	lis, err := net.Listen("tcp", ":8080")
@@ -68,5 +42,5 @@ func main() {
 	grpcServer := grpc.NewServer()
 	pb.RegisterKrkStopsServer(grpcServer, server)
 	log.Printf("grpc server listening on :8080")
-	serve(grpcServer, lis)
+	handle(grpcServer.Serve(lis))
 }
