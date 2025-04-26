@@ -39,7 +39,8 @@ func init() {
 		Timeout: time.Second,
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{
-				RootCAs: caCertPool,
+				RootCAs:            caCertPool,
+				InsecureSkipVerify: true,
 			},
 		},
 	}
