@@ -26,7 +26,6 @@ type typedClient struct {
 
 func (s *KrkStopsServer) GetDepartures2(ctx context.Context, req *pb.GetDepartures2Request) (*pb.GetDepartures2Response, error) {
 	cachedDeps, cachedAt, ok := s.depsCache.get(uint(req.Id))
-	grpc.SetSendCompressor(ctx, "gzip")
 	if !ok {
 		stop := s.searchCli.Get(uint(req.Id))
 		cachedDeps = make([]typedDeparture, 0, 20)
@@ -75,6 +74,10 @@ func (s *KrkStopsServer) GetDepartures2(ctx context.Context, req *pb.GetDepartur
 		})
 		s.depsCache.set(stop.Id, cachedDeps)
 	}
+	if len(cachedDeps) > 20 {
+		grpc.SetSendCompressor(ctx, "gzip")
+	}
+
 	return &pb.GetDepartures2Response{
 		Departures: protoDepartures(cachedDeps, cachedAt),
 	}, nil
