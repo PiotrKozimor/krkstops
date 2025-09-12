@@ -19,11 +19,6 @@ type typedDeparture struct {
 	transit pb.Transit
 }
 
-type typedClient struct {
-	ttssClient
-	transit pb.Transit
-}
-
 func (s *KrkStopsServer) GetDepartures2(ctx context.Context, req *pb.GetDepartures2Request) (*pb.GetDepartures2Response, error) {
 	cachedDeps, cachedAt, ok := s.depsCache.get(uint(req.Id))
 	if !ok {
