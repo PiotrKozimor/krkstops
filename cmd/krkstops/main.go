@@ -9,6 +9,7 @@ import (
 	"github.com/PiotrKozimor/krkstops"
 	"github.com/PiotrKozimor/krkstops/pb"
 	"google.golang.org/grpc"
+	_ "google.golang.org/grpc/encoding/gzip"
 )
 
 func handle(err error) {

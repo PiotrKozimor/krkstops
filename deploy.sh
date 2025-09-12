@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -ex
 cd cmd/krkstops
 GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build .
 ssh coreos systemctl stop krkstops.service
