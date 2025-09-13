@@ -30,6 +30,12 @@ func main() {
 	}()
 
 	go func() {
+		log.Printf("http rpc server listening on :8082")
+
+		handle(http.ListenAndServe(":8082", server))
+	}()
+
+	go func() {
 		lis, err := net.Listen("tcp", ":8081")
 		handle(err)
 		grpcServer := grpc.NewServer(grpc.UnaryInterceptor(krkstops.InjectFailure))
