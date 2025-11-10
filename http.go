@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"slices"
 	"strings"
@@ -70,6 +71,7 @@ func (s *KrkStopsServer) serveHTTP(rw http.ResponseWriter, r *http.Request) erro
 func (s *KrkStopsServer) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	err := s.serveHTTP(rw, r)
 	if err != nil {
+		slog.Error("request failed", "error", err)
 		http.Error(rw, err.Error(), 500)
 	}
 }
