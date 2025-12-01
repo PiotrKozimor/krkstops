@@ -28,6 +28,12 @@ func (s *KrkStopsServer) serveHTTP(rw http.ResponseWriter, r *http.Request) erro
 		"/2": {func() proto.Message { return &pb.GetDepartures2Request{} }, func(ctx context.Context, a any) (proto.Message, error) {
 			return s.GetDepartures2(ctx, a.(*pb.GetDepartures2Request))
 		}},
+		"/3": {func() proto.Message { return &pb.SearchStops3Request{} }, func(ctx context.Context, a any) (proto.Message, error) {
+			return s.SearchStops3(ctx, a.(*pb.SearchStops3Request))
+		}},
+		"/4": {func() proto.Message { return &pb.GetDepartures3Request{} }, func(ctx context.Context, a any) (proto.Message, error) {
+			return s.GetDepartures3(ctx, a.(*pb.GetDepartures3Request))
+		}},
 	}
 
 	impl, ok := lookup[r.URL.Path]
@@ -46,7 +52,7 @@ func (s *KrkStopsServer) serveHTTP(rw http.ResponseWriter, r *http.Request) erro
 	}
 	response, err := impl.call(r.Context(), request)
 	if err != nil {
-		return fmt.Errorf("search stops: %w", err)
+		return fmt.Errorf("call impl: %w", err)
 	}
 	b, err = proto.Marshal(response)
 	if err != nil {

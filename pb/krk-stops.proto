@@ -5,12 +5,19 @@ option go_package = "./pb";
 service KrkStops {
     rpc GetDepartures2(GetDepartures2Request) returns (GetDepartures2Response) {}
     rpc SearchStops2(SearchStops2Request) returns (SearchStops2Response) {}
+    rpc GetDepartures3(GetDepartures3Request) returns (GetDepartures3Response) {}
+    rpc SearchStops3(SearchStops3Request) returns (SearchStops3Response) {}
 }
 
 enum Transit {
     BUS=0;
     TRAM=1;
     ALL=2;
+}
+
+enum Transit2 {
+    BUS2=0;
+    TRAM2=1;
 }
 
 message GetDepartures2Request {
@@ -21,12 +28,30 @@ message GetDepartures2Response {
     repeated Departure departures = 1;
 }
 
+message GetDepartures3Request {
+    string stop_name = 1;
+    repeated DirectedRoute filters = 2;
+}
+
+message GetDepartures3Response {
+    repeated Departure3 departures = 1;
+    repeated RouteHeadsign headsigns = 2;
+}
+
 message SearchStops2Request {
     string query = 1;
 }
 
 message SearchStops2Response {
     repeated Stop stops = 1;
+}
+
+message SearchStops3Request {
+    string query = 1;
+}
+
+message SearchStops3Response {
+    repeated string stops = 1;
 }
 
 message Departure {
@@ -47,5 +72,26 @@ message Stop {
     Transit type = 4;
 }
 
+message Filter {
+    string route_id = 1;
+    uint32 direction_id = 2;
+}
 
 
+message Departure3 {
+    uint32 planned_minutes_in_day = 1;
+    uint32 direction_id = 2;
+    uint32 route_name = 3;
+    Transit2 transit = 4;
+    uint32 updated_seconds_in_day = 5;
+}
+
+message DirectedRoute {
+    uint32 route_name = 1;
+    uint32 direction_id = 2;
+}
+
+message RouteHeadsign {
+    repeated DirectedRoute routes = 1;
+    string headsign = 2;
+}

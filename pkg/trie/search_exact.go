@@ -3,7 +3,7 @@ package trie
 import "unicode/utf8"
 
 // Search will return nil if not results were found
-func (t *Trie) SearchExact(term string) []uint {
+func (t *Trie[T]) SearchExact(term string) []T {
 	term = t.mustNormalize(term)
 	currentNode := t.root
 

@@ -1,4 +1,4 @@
-package search
+package ttssstops
 
 import (
 	"testing"
@@ -27,7 +27,7 @@ func TestSearch(t *testing.T) {
 		res := s.Search(str, 1e6)
 		t.Logf("%s", str)
 		for _, stop := range res {
-			t.Logf("\t%d\t%s", stop.Score, stop.Name)
+			t.Logf("\t%d\t%s", stop.score, stop.Name)
 		}
 	}
 }
@@ -42,10 +42,10 @@ func TestExact(t *testing.T) {
 		"zac",
 		"no",
 	} {
-		res := s.SearchExact(str, 1e6)
+		res := s.SearchExact(str)
 		t.Logf("%s", str)
 		for _, stop := range res {
-			t.Logf("\t%d\t%s", stop.Score, stop.Name)
+			t.Logf("\t%d\t%s", stop.score, stop.Name)
 		}
 	}
 }
@@ -61,10 +61,10 @@ func TestWithinDistance(t *testing.T) {
 		"zav",
 		"la",
 	} {
-		res := s.searchWithinDistance(str, 1e6)
+		res := s.SearchWithinDistance(str, 1e6)
 		t.Logf("%s", str)
 		for _, stop := range res {
-			t.Logf("\t%d\t%s", stop.Score, stop.Name)
+			t.Logf("\t%d\t%s", stop.score, stop.Name)
 		}
 	}
 }

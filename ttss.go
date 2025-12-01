@@ -9,8 +9,9 @@ import (
 	"time"
 
 	"github.com/PiotrKozimor/krkstops/pb"
-	"github.com/PiotrKozimor/krkstops/pkg/search"
+	"github.com/PiotrKozimor/krkstops/pkg/gtfs"
 	"github.com/PiotrKozimor/krkstops/pkg/ttss"
+	"github.com/PiotrKozimor/krkstops/pkg/ttssstops"
 	"google.golang.org/grpc"
 )
 
@@ -78,6 +79,46 @@ func (s *KrkStopsServer) GetDepartures2(ctx context.Context, req *pb.GetDepartur
 	}, nil
 }
 
+func (s *KrkStopsServer) GetDepartures3(ctx context.Context, req *pb.GetDepartures3Request) (*pb.GetDepartures3Response, error) {
+	since := time.Now().Add(-time.Minute * 5)
+	until := since.Add(time.Hour)
+
+	var resp pb.GetDepartures3Response
+
+	var filters []gtfs.DirectedRoute
+	for _, f := range req.Filters {
+		filters = append(filters, gtfs.DirectedRoute{
+			RouteName:   f.RouteName,
+			DirectionId: f.DirectionId,
+		})
+	}
+	for _, dep := range s.departures {
+		departures, headsigns := dep.Get(req.StopName, since, until, filters...)
+		for _, d := range departures {
+			resp.Departures = append(resp.Departures, &pb.Departure3{
+				PlannedMinutesInDay: d.PlannedMinutesInDay,
+				DirectionId:         d.DirectionId,
+				RouteName:           d.RouteName,
+				UpdatedSecondsInDay: d.UpdatedSecondsInDay,
+				Transit:             pb.Transit2_BUS2, // TODO
+			})
+		}
+		for _, h := range headsigns {
+			headsign := &pb.RouteHeadsign{
+				Headsign: h.Headsign,
+			}
+			for _, r := range h.Routes {
+				headsign.Routes = append(headsign.Routes, &pb.DirectedRoute{
+					RouteName:   r.RouteName,
+					DirectionId: r.DirectionId,
+				})
+			}
+			resp.Headsigns = append(resp.Headsigns, headsign)
+		}
+	}
+	return &resp, nil
+}
+
 func (s *KrkStopsServer) SearchStops2(ctx context.Context, req *pb.SearchStops2Request) (*pb.SearchStops2Response, error) {
 	stops := s.searchCli.Search(req.Query, 10)
 	return &pb.SearchStops2Response{
@@ -85,7 +126,18 @@ func (s *KrkStopsServer) SearchStops2(ctx context.Context, req *pb.SearchStops2R
 	}, nil
 }
 
-func protoStops(stops []search.Stop) []*pb.Stop {
+func (s *KrkStopsServer) SearchStops3(ctx context.Context, req *pb.SearchStops3Request) (*pb.SearchStops3Response, error) {
+	items := s.search.Search(req.Query, 10)
+	names := make([]string, len(items))
+	for i := range items {
+		names[i] = items[i].name
+	}
+	return &pb.SearchStops3Response{
+		Stops: names,
+	}, nil
+}
+
+func protoStops(stops []ttssstops.Stop) []*pb.Stop {
 	pStops := make([]*pb.Stop, len(stops))
 	for i := range stops {
 		pStops[i] = &pb.Stop{

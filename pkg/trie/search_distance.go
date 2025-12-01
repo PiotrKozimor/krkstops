@@ -1,6 +1,6 @@
 package trie
 
-func (t *Trie) SearchInDistance(term string, distance int) []uint {
+func (t *Trie[T]) SearchInDistance(term string, distance int) []T {
 	term = t.mustNormalize(term)
 
 	runes := []rune(term)
@@ -8,10 +8,10 @@ func (t *Trie) SearchInDistance(term string, distance int) []uint {
 		return nil
 	}
 
-	return searchNode(t.root, runes, distance, true)
+	return searchNode(t.root, runes, distance, 0, true)
 }
 
-func (t *Trie) SearchWithinDistance(term string, maxDistance int) []uint {
+func (t *Trie[T]) SearchWithinDistance(term string, maxDistance int) []T {
 	term = t.mustNormalize(term)
 
 	runes := []rune(term)
@@ -19,10 +19,10 @@ func (t *Trie) SearchWithinDistance(term string, maxDistance int) []uint {
 		return nil
 	}
 
-	return searchNode(t.root, runes, maxDistance, false)
+	return searchNode(t.root, runes, maxDistance, 0, false)
 }
 
-func searchNode(n *node, r []rune, distance int, exact bool) []uint {
+func searchNode[T any](n *node[T], r []rune, distance, level int, exact bool) []T {
 	if len(r) == 0 {
 		if !exact || distance == 0 {
 			return n.results
@@ -32,13 +32,13 @@ func searchNode(n *node, r []rune, distance int, exact bool) []uint {
 	}
 	if distance == 0 {
 		if node, ok := n.children[r[0]]; ok {
-			return searchNode(node, r[:1], distance, exact)
+			return searchNode(node, r[1:], distance, level+1, exact)
 		}
 	} else {
-		results := []uint{}
+		results := []T{}
 		for nodeR, node := range n.children {
 			if d := chebyshevDistance(nodeR, r[0]); d <= distance {
-				r := searchNode(node, r[1:], distance-d, exact)
+				r := searchNode(node, r[1:], distance-d, level+1, exact)
 				results = append(results, r...)
 			}
 		}

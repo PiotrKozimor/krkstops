@@ -9,8 +9,7 @@
             "type": "go",
             "request": "launch",
             "mode": "auto",
-            "program": "${workspaceFolder}/cmd/krkstops",
-            "envFile": "${workspaceFolder}/.deploy/.env.priv"
+            "program": "${workspaceFolder}/cmd/krkstops"
         }
     ]
 }
