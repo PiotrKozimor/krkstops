@@ -5,4 +5,4 @@ podman create \
   --entrypoint /app/krkstops \
   --network podman \
   --ip 10.88.0.10 \
-  docker.io/library/busybox:stable-musl
+  docker.io/library/alpine:latest
