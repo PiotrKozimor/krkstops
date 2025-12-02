@@ -11,6 +11,8 @@ func (d *Departures) Get(stopName string, since, until time.Time, filters ...Dir
 		return nil, nil
 	}
 
+	since = since.In(location)
+	until = until.In(location)
 	sinceMinutes := since.Hour()*60 + since.Minute()
 	untilMinutes := until.Hour()*60 + until.Minute()
 
