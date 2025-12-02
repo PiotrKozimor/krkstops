@@ -70,52 +70,6 @@ func (Transit) EnumDescriptor() ([]byte, []int) {
 	return file_pb_krk_stops_proto_rawDescGZIP(), []int{0}
 }
 
-type Transit2 int32
-
-const (
-	Transit2_BUS2  Transit2 = 0
-	Transit2_TRAM2 Transit2 = 1
-)
-
-// Enum value maps for Transit2.
-var (
-	Transit2_name = map[int32]string{
-		0: "BUS2",
-		1: "TRAM2",
-	}
-	Transit2_value = map[string]int32{
-		"BUS2":  0,
-		"TRAM2": 1,
-	}
-)
-
-func (x Transit2) Enum() *Transit2 {
-	p := new(Transit2)
-	*p = x
-	return p
-}
-
-func (x Transit2) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (Transit2) Descriptor() protoreflect.EnumDescriptor {
-	return file_pb_krk_stops_proto_enumTypes[1].Descriptor()
-}
-
-func (Transit2) Type() protoreflect.EnumType {
-	return &file_pb_krk_stops_proto_enumTypes[1]
-}
-
-func (x Transit2) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use Transit2.Descriptor instead.
-func (Transit2) EnumDescriptor() ([]byte, []int) {
-	return file_pb_krk_stops_proto_rawDescGZIP(), []int{1}
-}
-
 type GetDepartures2Request struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            uint32                 `protobuf:"varint,3,opt,name=id,proto3" json:"id,omitempty"`
@@ -701,8 +655,8 @@ type Departure3 struct {
 	PlannedMinutesInDay uint32                 `protobuf:"varint,1,opt,name=planned_minutes_in_day,json=plannedMinutesInDay,proto3" json:"planned_minutes_in_day,omitempty"`
 	DirectionId         uint32                 `protobuf:"varint,2,opt,name=direction_id,json=directionId,proto3" json:"direction_id,omitempty"`
 	RouteName           uint32                 `protobuf:"varint,3,opt,name=route_name,json=routeName,proto3" json:"route_name,omitempty"`
-	Transit             Transit2               `protobuf:"varint,4,opt,name=transit,proto3,enum=Transit2" json:"transit,omitempty"`
 	UpdatedSecondsInDay uint32                 `protobuf:"varint,5,opt,name=updated_seconds_in_day,json=updatedSecondsInDay,proto3" json:"updated_seconds_in_day,omitempty"`
+	TripId              uint32                 `protobuf:"varint,6,opt,name=trip_id,json=tripId,proto3" json:"trip_id,omitempty"`
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
 }
@@ -758,16 +712,16 @@ func (x *Departure3) GetRouteName() uint32 {
 	return 0
 }
 
-func (x *Departure3) GetTransit() Transit2 {
-	if x != nil {
-		return x.Transit
-	}
-	return Transit2_BUS2
-}
-
 func (x *Departure3) GetUpdatedSecondsInDay() uint32 {
 	if x != nil {
 		return x.UpdatedSecondsInDay
+	}
+	return 0
+}
+
+func (x *Departure3) GetTripId() uint32 {
+	if x != nil {
+		return x.TripId
 	}
 	return 0
 }
@@ -919,15 +873,15 @@ const file_pb_krk_stops_proto_rawDesc = "" +
 	"\x04type\x18\x04 \x01(\x0e2\b.TransitR\x04typeJ\x04\b\x01\x10\x02\"F\n" +
 	"\x06Filter\x12\x19\n" +
 	"\broute_id\x18\x01 \x01(\tR\arouteId\x12!\n" +
-	"\fdirection_id\x18\x02 \x01(\rR\vdirectionId\"\xdd\x01\n" +
+	"\fdirection_id\x18\x02 \x01(\rR\vdirectionId\"\xd1\x01\n" +
 	"\n" +
 	"Departure3\x123\n" +
 	"\x16planned_minutes_in_day\x18\x01 \x01(\rR\x13plannedMinutesInDay\x12!\n" +
 	"\fdirection_id\x18\x02 \x01(\rR\vdirectionId\x12\x1d\n" +
 	"\n" +
-	"route_name\x18\x03 \x01(\rR\trouteName\x12#\n" +
-	"\atransit\x18\x04 \x01(\x0e2\t.Transit2R\atransit\x123\n" +
-	"\x16updated_seconds_in_day\x18\x05 \x01(\rR\x13updatedSecondsInDay\"Q\n" +
+	"route_name\x18\x03 \x01(\rR\trouteName\x123\n" +
+	"\x16updated_seconds_in_day\x18\x05 \x01(\rR\x13updatedSecondsInDay\x12\x17\n" +
+	"\atrip_id\x18\x06 \x01(\rR\x06tripId\"Q\n" +
 	"\rDirectedRoute\x12\x1d\n" +
 	"\n" +
 	"route_name\x18\x01 \x01(\rR\trouteName\x12!\n" +
@@ -938,10 +892,7 @@ const file_pb_krk_stops_proto_rawDesc = "" +
 	"\aTransit\x12\a\n" +
 	"\x03BUS\x10\x00\x12\b\n" +
 	"\x04TRAM\x10\x01\x12\a\n" +
-	"\x03ALL\x10\x02*\x1f\n" +
-	"\bTransit2\x12\b\n" +
-	"\x04BUS2\x10\x00\x12\t\n" +
-	"\x05TRAM2\x10\x012\x92\x02\n" +
+	"\x03ALL\x10\x022\x92\x02\n" +
 	"\bKrkStops\x12C\n" +
 	"\x0eGetDepartures2\x12\x16.GetDepartures2Request\x1a\x17.GetDepartures2Response\"\x00\x12=\n" +
 	"\fSearchStops2\x12\x14.SearchStops2Request\x1a\x15.SearchStops2Response\"\x00\x12C\n" +
@@ -960,49 +911,47 @@ func file_pb_krk_stops_proto_rawDescGZIP() []byte {
 	return file_pb_krk_stops_proto_rawDescData
 }
 
-var file_pb_krk_stops_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+var file_pb_krk_stops_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_pb_krk_stops_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
 var file_pb_krk_stops_proto_goTypes = []any{
 	(Transit)(0),                   // 0: Transit
-	(Transit2)(0),                  // 1: Transit2
-	(*GetDepartures2Request)(nil),  // 2: GetDepartures2Request
-	(*GetDepartures2Response)(nil), // 3: GetDepartures2Response
-	(*GetDepartures3Request)(nil),  // 4: GetDepartures3Request
-	(*GetDepartures3Response)(nil), // 5: GetDepartures3Response
-	(*SearchStops2Request)(nil),    // 6: SearchStops2Request
-	(*SearchStops2Response)(nil),   // 7: SearchStops2Response
-	(*SearchStops3Request)(nil),    // 8: SearchStops3Request
-	(*SearchStops3Response)(nil),   // 9: SearchStops3Response
-	(*Departure)(nil),              // 10: Departure
-	(*Stop)(nil),                   // 11: Stop
-	(*Filter)(nil),                 // 12: Filter
-	(*Departure3)(nil),             // 13: Departure3
-	(*DirectedRoute)(nil),          // 14: DirectedRoute
-	(*RouteHeadsign)(nil),          // 15: RouteHeadsign
+	(*GetDepartures2Request)(nil),  // 1: GetDepartures2Request
+	(*GetDepartures2Response)(nil), // 2: GetDepartures2Response
+	(*GetDepartures3Request)(nil),  // 3: GetDepartures3Request
+	(*GetDepartures3Response)(nil), // 4: GetDepartures3Response
+	(*SearchStops2Request)(nil),    // 5: SearchStops2Request
+	(*SearchStops2Response)(nil),   // 6: SearchStops2Response
+	(*SearchStops3Request)(nil),    // 7: SearchStops3Request
+	(*SearchStops3Response)(nil),   // 8: SearchStops3Response
+	(*Departure)(nil),              // 9: Departure
+	(*Stop)(nil),                   // 10: Stop
+	(*Filter)(nil),                 // 11: Filter
+	(*Departure3)(nil),             // 12: Departure3
+	(*DirectedRoute)(nil),          // 13: DirectedRoute
+	(*RouteHeadsign)(nil),          // 14: RouteHeadsign
 }
 var file_pb_krk_stops_proto_depIdxs = []int32{
-	10, // 0: GetDepartures2Response.departures:type_name -> Departure
-	14, // 1: GetDepartures3Request.filters:type_name -> DirectedRoute
-	13, // 2: GetDepartures3Response.departures:type_name -> Departure3
-	15, // 3: GetDepartures3Response.headsigns:type_name -> RouteHeadsign
-	11, // 4: SearchStops2Response.stops:type_name -> Stop
+	9,  // 0: GetDepartures2Response.departures:type_name -> Departure
+	13, // 1: GetDepartures3Request.filters:type_name -> DirectedRoute
+	12, // 2: GetDepartures3Response.departures:type_name -> Departure3
+	14, // 3: GetDepartures3Response.headsigns:type_name -> RouteHeadsign
+	10, // 4: SearchStops2Response.stops:type_name -> Stop
 	0,  // 5: Departure.type:type_name -> Transit
 	0,  // 6: Stop.type:type_name -> Transit
-	1,  // 7: Departure3.transit:type_name -> Transit2
-	14, // 8: RouteHeadsign.routes:type_name -> DirectedRoute
-	2,  // 9: KrkStops.GetDepartures2:input_type -> GetDepartures2Request
-	6,  // 10: KrkStops.SearchStops2:input_type -> SearchStops2Request
-	4,  // 11: KrkStops.GetDepartures3:input_type -> GetDepartures3Request
-	8,  // 12: KrkStops.SearchStops3:input_type -> SearchStops3Request
-	3,  // 13: KrkStops.GetDepartures2:output_type -> GetDepartures2Response
-	7,  // 14: KrkStops.SearchStops2:output_type -> SearchStops2Response
-	5,  // 15: KrkStops.GetDepartures3:output_type -> GetDepartures3Response
-	9,  // 16: KrkStops.SearchStops3:output_type -> SearchStops3Response
-	13, // [13:17] is the sub-list for method output_type
-	9,  // [9:13] is the sub-list for method input_type
-	9,  // [9:9] is the sub-list for extension type_name
-	9,  // [9:9] is the sub-list for extension extendee
-	0,  // [0:9] is the sub-list for field type_name
+	13, // 7: RouteHeadsign.routes:type_name -> DirectedRoute
+	1,  // 8: KrkStops.GetDepartures2:input_type -> GetDepartures2Request
+	5,  // 9: KrkStops.SearchStops2:input_type -> SearchStops2Request
+	3,  // 10: KrkStops.GetDepartures3:input_type -> GetDepartures3Request
+	7,  // 11: KrkStops.SearchStops3:input_type -> SearchStops3Request
+	2,  // 12: KrkStops.GetDepartures2:output_type -> GetDepartures2Response
+	6,  // 13: KrkStops.SearchStops2:output_type -> SearchStops2Response
+	4,  // 14: KrkStops.GetDepartures3:output_type -> GetDepartures3Response
+	8,  // 15: KrkStops.SearchStops3:output_type -> SearchStops3Response
+	12, // [12:16] is the sub-list for method output_type
+	8,  // [8:12] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_pb_krk_stops_proto_init() }
@@ -1015,7 +964,7 @@ func file_pb_krk_stops_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_pb_krk_stops_proto_rawDesc), len(file_pb_krk_stops_proto_rawDesc)),
-			NumEnums:      2,
+			NumEnums:      1,
 			NumMessages:   14,
 			NumExtensions: 0,
 			NumServices:   1,

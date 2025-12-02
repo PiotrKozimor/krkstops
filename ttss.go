@@ -100,7 +100,7 @@ func (s *KrkStopsServer) GetDepartures3(ctx context.Context, req *pb.GetDepartur
 				DirectionId:         d.DirectionId,
 				RouteName:           d.RouteName,
 				UpdatedSecondsInDay: d.UpdatedSecondsInDay,
-				Transit:             pb.Transit2_BUS2, // TODO
+				TripId:              d.TripId,
 			})
 		}
 		for _, h := range headsigns {

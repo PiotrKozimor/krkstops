@@ -15,11 +15,6 @@ enum Transit {
     ALL=2;
 }
 
-enum Transit2 {
-    BUS2=0;
-    TRAM2=1;
-}
-
 message GetDepartures2Request {
     uint32 id = 3;
 }
@@ -82,8 +77,8 @@ message Departure3 {
     uint32 planned_minutes_in_day = 1;
     uint32 direction_id = 2;
     uint32 route_name = 3;
-    Transit2 transit = 4;
     uint32 updated_seconds_in_day = 5;
+    uint32 trip_id = 6;
 }
 
 message DirectedRoute {
