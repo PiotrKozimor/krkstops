@@ -81,7 +81,6 @@ func (s *KrkStopsServer) GetDepartures2(ctx context.Context, req *pb.GetDepartur
 
 func (s *KrkStopsServer) GetDepartures3(ctx context.Context, req *pb.GetDepartures3Request) (*pb.GetDepartures3Response, error) {
 	since := time.Now().Add(-time.Minute * 5)
-	until := since.Add(time.Hour)
 
 	var resp pb.GetDepartures3Response
 
@@ -164,7 +163,7 @@ func protoDepartures(departures []typedDeparture, cachedAt *time.Time) []*pb.Dep
 			Predicted:    departures[i].Departure.Predicted,
 		}
 		if cachedAt != nil {
-			pDepartures[i].RelativeTime -= int32(time.Now().Sub(*cachedAt).Seconds())
+			pDepartures[i].RelativeTime -= int32(time.Since(*cachedAt).Seconds())
 		}
 	}
 	return pDepartures

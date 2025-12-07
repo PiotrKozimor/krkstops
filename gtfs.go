@@ -24,7 +24,6 @@ type scoredStop struct {
 
 type gtfsDepartures struct {
 	*gtfs.Departures
-	name       string
 	getUpdates func() (gtfs.StopUpdates, error)
 }
 

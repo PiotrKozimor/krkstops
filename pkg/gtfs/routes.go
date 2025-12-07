@@ -24,7 +24,7 @@ func (u *Unmarshaler) UnmarshalRoutes(r *csv.Reader) (Routes, error) {
 		routes[id] = Route{
 			Name: uint32(name),
 		}
-		return nil
+		return err
 	})
 	return routes, err
 }
