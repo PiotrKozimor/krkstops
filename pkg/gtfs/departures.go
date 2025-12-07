@@ -74,7 +74,7 @@ func NewDepartures(u *Unmarshaler) *Departures {
 }
 
 func (d *Departures) RefreshUpdates() {
-	t := time.NewTicker(time.Minute)
+	t := time.NewTicker(time.Second * 20)
 	for {
 		err := d.fetchUpdates()
 		if err != nil {
