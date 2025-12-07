@@ -2,7 +2,6 @@ package gtfs
 
 import (
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/PiotrKozimor/krkstops/pkg/gtfs/realtimepb"
@@ -52,10 +51,11 @@ func (u *Unmarshaler) parseStopUpdates(feed *realtimepb.FeedMessage) (stopUpdate
 						tripId: tripId,
 					}
 
-					if seconds, ok := updates[key]; ok {
-						log.Printf("duplicate update for stop %d and trip %d: %d", stopId, tripId, seconds)
+					if _, ok := updates[key]; !ok {
+						updates[key] = secondsInDay
+					} else {
+						// TODO bump prometheus metric
 					}
-					updates[key] = secondsInDay
 				}
 			}
 		}
