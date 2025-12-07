@@ -13,7 +13,7 @@ type stopUpdateKey struct {
 	tripId uint32
 }
 
-type stopUpdates map[stopUpdateKey]uint32
+type StopUpdates map[stopUpdateKey]uint32
 
 func ParseFeed(b []byte) (*realtimepb.FeedMessage, error) {
 	var updates realtimepb.FeedMessage
@@ -21,8 +21,8 @@ func ParseFeed(b []byte) (*realtimepb.FeedMessage, error) {
 	return &updates, err
 }
 
-func (u *Unmarshaler) parseStopUpdates(feed *realtimepb.FeedMessage) (stopUpdates, error) {
-	updates := make(stopUpdates, 1000)
+func (u *Unmarshaler) ParseStopUpdates(feed *realtimepb.FeedMessage) (StopUpdates, error) {
+	updates := make(StopUpdates, 1000)
 
 	for i := len(feed.Entity) - 1; i >= 0; i-- {
 		ent := feed.Entity[i]
@@ -43,7 +43,7 @@ func (u *Unmarshaler) parseStopUpdates(feed *realtimepb.FeedMessage) (stopUpdate
 					t = stu.Arrival.GetTime()
 				}
 				if t != 0 {
-					updateTime := time.Unix(t, 0).In(location)
+					updateTime := time.Unix(t, 0).In(Location)
 					secondsInDay := uint32(updateTime.Hour()*60*60 + updateTime.Minute()*60 + updateTime.Second())
 
 					key := stopUpdateKey{

@@ -2,10 +2,10 @@ package krkstops
 
 import (
 	"log"
+	"sync"
 	"time"
 
 	"github.com/PiotrKozimor/krkstops/pb"
-	"github.com/PiotrKozimor/krkstops/pkg/gtfs"
 	"github.com/PiotrKozimor/krkstops/pkg/trie"
 	"github.com/PiotrKozimor/krkstops/pkg/ttss"
 	"github.com/PiotrKozimor/krkstops/pkg/ttssstops"
@@ -13,12 +13,15 @@ import (
 
 type KrkStopsServer struct {
 	pb.UnimplementedKrkStopsServer
-	depsCache   cache[[]typedDeparture]
-	ttssBusCli  ttssClient
-	ttssTramCli ttssClient
-	searchCli   *ttssstops.Search
-	search      trie.Trie[scoredStop]
-	departures  []*gtfs.Departures
+	depsCache     cache[[]typedDeparture]
+	ttssBusCli    ttssClient
+	ttssTramCli   ttssClient
+	searchCli     *ttssstops.Search
+	searchMu      sync.RWMutex
+	search        trie.Trie[scoredStop]
+	departures    []*gtfsDepartures
+	departuresMu  sync.RWMutex
+	updatesCancel func()
 }
 
 type ttssClient interface {
@@ -35,13 +38,15 @@ func NewServer() (*KrkStopsServer, error) {
 			d:   make(map[uint]entry[[]typedDeparture], 50),
 			ttl: depsExpire,
 		},
-		ttssBusCli:  ttss.NewClient(ttss.Bus),
-		ttssTramCli: ttss.NewClient(ttss.Tram),
-		searchCli:   s,
+		ttssBusCli:    ttss.NewClient(ttss.Bus),
+		ttssTramCli:   ttss.NewClient(ttss.Tram),
+		searchCli:     s,
+		updatesCancel: func() {},
 	}
 	now := time.Now()
 	err = server.initGtfs()
 	log.Print("init gtfs took: ", time.Since(now))
+	go server.refreshGtfs()
 
 	return server, err
 }

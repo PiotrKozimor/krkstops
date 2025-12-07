@@ -11,8 +11,8 @@ func (d *Departures) Get(stopName string, since, until time.Time, filters ...Dir
 		return nil, nil
 	}
 
-	since = since.In(location)
-	until = until.In(location)
+	since = since.In(Location)
+	until = until.In(Location)
 	sinceMinutes := since.Hour()*60 + since.Minute()
 	untilMinutes := until.Hour()*60 + until.Minute()
 
@@ -39,6 +39,7 @@ func (d *Departures) Get(stopName string, since, until time.Time, filters ...Dir
 		}
 		selected := allDepartures[sinceIndex:untilIndex]
 
+		d.updatesMu.RLock()
 		for _, dep := range selected {
 			departure := Departure{
 				departure: dep,
@@ -51,6 +52,7 @@ func (d *Departures) Get(stopName string, since, until time.Time, filters ...Dir
 			}
 			departures = append(departures, departure)
 		}
+		d.updatesMu.RUnlock()
 	}
 
 	slices.SortFunc(departures, func(a, b Departure) int {

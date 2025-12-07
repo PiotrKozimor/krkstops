@@ -138,7 +138,7 @@ func TestParseUpdates(t *testing.T) {
 	require.NoError(t, err)
 	feed, err := ParseFeed(b)
 	require.NoError(t, err)
-	updates, err := Bus.parseStopUpdates(feed)
+	updates, err := Bus.ParseStopUpdates(feed)
 	require.NoError(t, err)
 	_ = updates
 }

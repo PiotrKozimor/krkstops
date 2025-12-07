@@ -45,18 +45,18 @@ func (p *PrettyPrint) Departures(deps []*pb.Departure) {
 
 // PrettyPrint departures
 func (p *PrettyPrint) Departures3(deps *pb.GetDepartures3Response) {
-	fmt.Fprintf(p, "DIR\tROUTE NAME\tTRANSIT\tPLAN\tUPDATE\n")
+	fmt.Fprintf(p, "DIR\tNAME\tPLAN\tUPDATE\n")
 	for _, d := range deps.Departures {
 		minutes := d.PlannedMinutesInDay % 60
 		hours := (d.PlannedMinutesInDay - minutes) / 60
 		if d.UpdatedSecondsInDay != 0 {
-			fmt.Fprintf(p, "%d\t%d\t%s\t%02d:%02d\t%02d:%02d:%02d\n", d.DirectionId, d.RouteName, d.Transit, hours, minutes, d.UpdatedSecondsInDay/3600, d.UpdatedSecondsInDay/60%60, d.UpdatedSecondsInDay%60)
+			fmt.Fprintf(p, "%d\t%d\t%02d:%02d\t%02d:%02d:%02d\n", d.DirectionId, d.RouteName, hours, minutes, d.UpdatedSecondsInDay/3600, d.UpdatedSecondsInDay/60%60, d.UpdatedSecondsInDay%60)
 		} else {
-			fmt.Fprintf(p, "%d\t%d\t%s\t%02d:%02d\n", d.DirectionId, d.RouteName, d.Transit, hours, minutes)
+			fmt.Fprintf(p, "%d\t%d\t%02d:%02d\n", d.DirectionId, d.RouteName, hours, minutes)
 
 		}
 	}
-	fmt.Fprintf(p, "ROUTE NAME\tDIRECTION ID\tHEADISGN\n")
+	fmt.Fprintf(p, "ROUTE NAME\tDIR ID\tHEADISGN\n")
 	for _, h := range deps.Headsigns {
 		for _, r := range h.Routes {
 			fmt.Fprintf(p, "%d\t%d\t%s\n", r.RouteName, r.DirectionId, h.Headsign)

@@ -32,8 +32,12 @@ func main() {
 
 	go func() {
 		log.Printf("http rpc server listening on :8082")
-
 		handle(http.ListenAndServe(":8082", server))
+	}()
+
+	go func() {
+		log.Printf("http metrics server listening on :8083")
+		handle(http.ListenAndServe(":8083", krkstops.MetricHandler()))
 	}()
 
 	go func() {

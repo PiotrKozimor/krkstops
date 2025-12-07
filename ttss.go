@@ -3,7 +3,7 @@ package krkstops
 import (
 	"context"
 	"errors"
-	"log/slog"
+	"log"
 	"slices"
 	"sync"
 	"time"
@@ -61,7 +61,7 @@ func (s *KrkStopsServer) GetDepartures2(ctx context.Context, req *pb.GetDepartur
 			if len(cachedDeps) == 0 {
 				return nil, err
 			} else {
-				slog.ErrorContext(ctx, "get departures", "error", err)
+				log.Print("failed to get departures: ", err)
 			}
 		}
 
@@ -92,6 +92,8 @@ func (s *KrkStopsServer) GetDepartures3(ctx context.Context, req *pb.GetDepartur
 			DirectionId: f.DirectionId,
 		})
 	}
+	s.departuresMu.RLock()
+	defer s.departuresMu.RUnlock()
 	for _, dep := range s.departures {
 		departures, headsigns := dep.Get(req.StopName, since, until, filters...)
 		for _, d := range departures {
@@ -127,7 +129,9 @@ func (s *KrkStopsServer) SearchStops2(ctx context.Context, req *pb.SearchStops2R
 }
 
 func (s *KrkStopsServer) SearchStops3(ctx context.Context, req *pb.SearchStops3Request) (*pb.SearchStops3Response, error) {
+	s.searchMu.RLock()
 	items := s.search.Search(req.Query, 10)
+	s.searchMu.RUnlock()
 	names := make([]string, len(items))
 	for i := range items {
 		names[i] = items[i].name

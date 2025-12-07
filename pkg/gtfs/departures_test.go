@@ -22,13 +22,13 @@ func TestGetDepartures(t *testing.T) {
 	require.NoError(t, err)
 	feed, err := ParseFeed(b)
 	require.NoError(t, err)
-	d.updates, err = d.parseStopUpdates(feed)
+	d.updates, err = d.ParseStopUpdates(feed)
 	require.NoError(t, err)
 
 	departures, headsigns := d.Get("Zachodnia",
-		time.Date(2025, 12, 01, 20, 40, 0, 0, location),
+		time.Date(2025, 12, 01, 20, 40, 0, 0, Location),
 		// time.Now().In(location),
-		time.Date(2025, 12, 01, 21, 40, 0, 0, location),
+		time.Date(2025, 12, 01, 21, 40, 0, 0, Location),
 		// time.Now().In(location).Add(time.Hour),
 	)
 	t.Log(departures)

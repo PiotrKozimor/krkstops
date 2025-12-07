@@ -7,12 +7,13 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log/slog"
+	"log"
 	"net/http"
 	"slices"
 	"strings"
 
 	"github.com/PiotrKozimor/krkstops/pb"
+	"github.com/prometheus/client_golang/prometheus"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -77,7 +78,10 @@ func (s *KrkStopsServer) serveHTTP(rw http.ResponseWriter, r *http.Request) erro
 func (s *KrkStopsServer) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	err := s.serveHTTP(rw, r)
 	if err != nil {
-		slog.Error("request failed", "error", err)
+		log.Print("request failed: ", err)
 		http.Error(rw, err.Error(), 500)
+		requests.With(prometheus.Labels{"status_code": "500", "path": r.URL.RawPath}).Inc()
+	} else {
+		requests.With(prometheus.Labels{"status_code": "200", "path": r.URL.RawPath}).Inc()
 	}
 }

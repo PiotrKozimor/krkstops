@@ -4,10 +4,8 @@ import (
 	"encoding/csv"
 	"errors"
 	"fmt"
-	"log"
 	"slices"
 	"sync"
-	"time"
 )
 
 type departure struct {
@@ -59,48 +57,23 @@ type Departures struct {
 	StopsScore        map[uint32]uint32
 	services          []Service
 	serviceExceptions []ServiceException
-	updates           stopUpdates
+	updates           StopUpdates
 	updatesMu         sync.RWMutex
-	GetFeed           func() ([]byte, error)
 }
 
 func NewDepartures(u *Unmarshaler) *Departures {
 	return &Departures{
 		Unmarshaler: u,
 		lookup:      make(departureLookup, 100000),
-		updates:     make(stopUpdates, 1000),
+		updates:     make(StopUpdates, 1000),
 		StopsScore:  make(map[uint32]uint32, 1000),
 	}
 }
 
-func (d *Departures) RefreshUpdates() {
-	t := time.NewTicker(time.Second * 20)
-	for {
-		err := d.fetchUpdates()
-		if err != nil {
-			log.Print("fetch updates: ", err)
-		}
-		<-t.C
-	}
-}
-
-func (d *Departures) fetchUpdates() error {
-	b, err := d.GetFeed()
-	if err != nil {
-		return fmt.Errorf("get feed: %w", err)
-	}
-	feed, err := ParseFeed(b)
-	if err != nil {
-		return fmt.Errorf("parse feed: %w", err)
-	}
-	updates, err := d.parseStopUpdates(feed)
-	if err != nil {
-		return fmt.Errorf("parse stop updates: %w", err)
-	}
-	d.updatesMu.RLock()
-	defer d.updatesMu.RUnlock()
+func (d *Departures) SetStopUpdates(updates StopUpdates) {
+	d.updatesMu.Lock()
+	defer d.updatesMu.Unlock()
 	d.updates = updates
-	return nil
 }
 
 func (d *Departures) Init(retrieve func(file string) (*csv.Reader, error)) error {
