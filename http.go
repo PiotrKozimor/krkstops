@@ -80,8 +80,8 @@ func (s *KrkStopsServer) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Print("request failed: ", err)
 		http.Error(rw, err.Error(), 500)
-		requests.With(prometheus.Labels{"status_code": "500", "path": r.URL.RawPath}).Inc()
+		requests.With(prometheus.Labels{"status_code": "500", "path": r.URL.Path}).Inc()
 	} else {
-		requests.With(prometheus.Labels{"status_code": "200", "path": r.URL.RawPath}).Inc()
+		requests.With(prometheus.Labels{"status_code": "200", "path": r.URL.Path}).Inc()
 	}
 }

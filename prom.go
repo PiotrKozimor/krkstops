@@ -11,13 +11,13 @@ var (
 	registry     = prometheus.NewRegistry()
 	serverErrors = prometheus.NewCounterVec(prometheus.CounterOpts{
 		Name: "server_errors",
-		Help: "Errors encountered in the server",
+		Help: "Errors encountered in the server (logged)",
 	}, []string{
 		"err",
 	})
 	serverSuccesses = prometheus.NewCounterVec(prometheus.CounterOpts{
 		Name: "server_successes",
-		Help: "Successful operations encountered in the server",
+		Help: "Successful operations encountered in the server (not logged)",
 	}, []string{
 		"name",
 	})
