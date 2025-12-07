@@ -5,54 +5,68 @@ import (
 	"time"
 )
 
-func (d *Departures) Get(stopName string, since, until time.Time, filters ...DirectedRoute) ([]Departure, []RouteHeadsign) {
+const (
+	TwoHours   = 60 * 2
+	dayMinutes = 24 * 60
+)
+
+func (d *Departures) Get(stopName string, since time.Time, forMinutes int, filters ...DirectedRoute) ([]Departure, []RouteHeadsign) {
 	stops, ok := d.Stops[stopName]
 	if !ok {
 		return nil, nil
 	}
 
 	since = since.In(Location)
-	until = until.In(Location)
 	sinceMinutes := since.Hour()*60 + since.Minute()
-	untilMinutes := until.Hour()*60 + until.Minute()
+	untilMinutes := sinceMinutes + forMinutes
 
 	var departures []Departure
 	serviceId := d.serviceId(since)
 
-	for _, stopId := range stops {
-		allDepartures, ok := d.lookup[departureKey{
-			serviceId: serviceId,
-			stopId:    stopId,
-		}]
-		if !ok {
-			continue
-		}
-
-		sinceIndex, _ := slices.BinarySearchFunc(allDepartures, sinceMinutes, func(a departure, b int) int {
-			return int(a.PlannedMinutesInDay) - b
-		})
-		untilIndex, _ := slices.BinarySearchFunc(allDepartures, untilMinutes, func(a departure, b int) int {
-			return int(a.PlannedMinutesInDay) - b
-		})
-		if untilIndex < sinceIndex {
-			untilIndex = len(allDepartures)
-		}
-		selected := allDepartures[sinceIndex:untilIndex]
-
-		d.updatesMu.RLock()
-		for _, dep := range selected {
-			departure := Departure{
-				departure: dep,
+	forService := func(since, until int, serviceId uint32) []Departure {
+		var departures []Departure
+		for _, stopId := range stops {
+			allDepartures, ok := d.lookup[departureKey{
+				serviceId: serviceId,
+				stopId:    stopId,
+			}]
+			if !ok {
+				continue
 			}
-			if seconds, ok := d.updates[stopUpdateKey{
-				stopId: stopId,
-				tripId: departure.TripId,
-			}]; ok {
-				departure.UpdatedSecondsInDay = seconds
+
+			sinceIndex, _ := slices.BinarySearchFunc(allDepartures, since, func(a departure, b int) int {
+				return int(a.PlannedMinutesInDay) - b
+			})
+			untilIndex, _ := slices.BinarySearchFunc(allDepartures, until, func(a departure, b int) int {
+				return int(a.PlannedMinutesInDay) - b
+			})
+			if untilIndex < sinceIndex {
+				untilIndex = len(allDepartures)
 			}
-			departures = append(departures, departure)
+			selected := allDepartures[sinceIndex:untilIndex]
+
+			d.updatesMu.RLock()
+			for _, dep := range selected {
+				departure := Departure{
+					departure: dep,
+				}
+				if seconds, ok := d.updates[stopUpdateKey{
+					stopId: stopId,
+					tripId: departure.TripId,
+				}]; ok {
+					departure.UpdatedSecondsInDay = seconds
+				}
+				departures = append(departures, departure)
+			}
+			d.updatesMu.RUnlock()
 		}
-		d.updatesMu.RUnlock()
+		return departures
+	}
+
+	departures = append(departures, forService(sinceMinutes, untilMinutes, serviceId)...)
+	if since.Hour() < 5 {
+		serviceId := d.serviceId(since.Add(-time.Hour * 24))
+		departures = append(departures, forService(sinceMinutes+dayMinutes, untilMinutes+dayMinutes, serviceId)...)
 	}
 
 	slices.SortFunc(departures, func(a, b Departure) int {

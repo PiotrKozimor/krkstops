@@ -12,32 +12,39 @@ import (
 )
 
 func TestGetDepartures(t *testing.T) {
-	d := NewDepartures(Mobilis)
+	d := NewDepartures(Bus)
 	err := d.Init(func(file string) (*csv.Reader, error) {
-		return mustRead(t, "M", file), nil
+		return mustRead(t, "A", file), nil
 	})
 	require.NoError(t, err)
 
-	b, err := os.ReadFile("testdata/TripUpdates_M.pb")
+	b, err := os.ReadFile("testdata/TripUpdates_A.pb")
 	require.NoError(t, err)
 	feed, err := ParseFeed(b)
 	require.NoError(t, err)
 	d.updates, err = d.ParseStopUpdates(feed)
 	require.NoError(t, err)
 
-	departures, headsigns := d.Get("Zachodnia",
-		time.Date(2025, 12, 01, 20, 40, 0, 0, Location),
-		// time.Now().In(location),
-		time.Date(2025, 12, 01, 21, 40, 0, 0, Location),
-		// time.Now().In(location).Add(time.Hour),
-	)
-	t.Log(departures)
-	for _, dep := range departures {
-		t.Logf("%+v", dep)
+	log := func(departures []Departure, headsigns []RouteHeadsign) {
+		for _, dep := range departures {
+			t.Logf("%+v", dep)
+		}
+		for _, h := range headsigns {
+			t.Logf("%+v", h)
+		}
 	}
-	for _, h := range headsigns {
-		t.Logf("%+v", h)
-	}
+	log(d.Get("Zachodnia",
+		time.Date(2025, 12, 8, 1, 1, 0, 0, Location),
+		TwoHours,
+	))
+	log(d.Get("Teatr Słowackiego",
+		time.Date(2025, 12, 8, 0, 0, 0, 0, Location),
+		TwoHours,
+	))
+	log(d.Get("Teatr Słowackiego",
+		time.Date(2025, 12, 7, 23, 50, 0, 0, Location),
+		TwoHours,
+	))
 
 }
 

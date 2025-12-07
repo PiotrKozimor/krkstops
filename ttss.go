@@ -95,7 +95,7 @@ func (s *KrkStopsServer) GetDepartures3(ctx context.Context, req *pb.GetDepartur
 	s.departuresMu.RLock()
 	defer s.departuresMu.RUnlock()
 	for _, dep := range s.departures {
-		departures, headsigns := dep.Get(req.StopName, since, until, filters...)
+		departures, headsigns := dep.Get(req.StopName, since, gtfs.TwoHours, filters...)
 		for _, d := range departures {
 			resp.Departures = append(resp.Departures, &pb.Departure3{
 				PlannedMinutesInDay: d.PlannedMinutesInDay,
