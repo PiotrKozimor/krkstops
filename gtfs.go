@@ -163,14 +163,22 @@ func refreshUpdates(d *gtfsDepartures, ctx context.Context) {
 	defer log.Print("terminating refresh goroutine")
 	t := time.NewTicker(time.Second * 20)
 	for {
-		updates, err := d.getUpdates()
-		if err != nil {
-			serverErrors.With(prometheus.Labels{"err": "get_updates"}).Inc()
-			log.Print("failed to get updates", err)
-		} else {
-			serverSuccesses.With(prometheus.Labels{"name": "get_updates"}).Inc()
+		var updates gtfs.StopUpdates
+		var err error
+		for range 3 {
+			updates, err = d.getUpdates()
+			if err != nil {
+				serverErrors.With(prometheus.Labels{"err": "get_updates"}).Inc()
+				time.Sleep(time.Second)
+			} else {
+				serverSuccesses.With(prometheus.Labels{"name": "get_updates"}).Inc()
+				d.SetStopUpdates(updates)
+				break
+			}
 		}
-		d.SetStopUpdates(updates)
+		if err != nil {
+			log.Print("failed to get updates: ", err)
+		}
 		select {
 		case <-t.C:
 		case <-ctx.Done():
