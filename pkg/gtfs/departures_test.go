@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"encoding/csv"
 	"fmt"
+	"log"
 	"os"
+	"slices"
 	"testing"
 	"time"
 
@@ -12,40 +14,46 @@ import (
 )
 
 func TestGetDepartures(t *testing.T) {
-	d := NewDepartures(Bus)
+	u, name, source, updates := Tram, "tram", "T", "testdata/TripUpdates_T.pb"
+	stopName := "Ruczaj"
+
+	d := NewDepartures(u, name)
 	err := d.Init(func(file string) (*csv.Reader, error) {
-		return mustRead(t, "A", file), nil
+		return mustRead(t, source, file), nil
 	})
 	require.NoError(t, err)
 
-	b, err := os.ReadFile("testdata/TripUpdates_A.pb")
+	b, err := os.ReadFile(updates)
 	require.NoError(t, err)
 	feed, err := ParseFeed(b)
 	require.NoError(t, err)
 	d.updates, err = d.ParseStopUpdates(feed)
 	require.NoError(t, err)
 
-	log := func(departures []Departure, headsigns []RouteHeadsign) {
-		for _, dep := range departures {
-			t.Logf("%+v", dep)
-		}
-		for _, h := range headsigns {
-			t.Logf("%+v", h)
+	stopIds := d.Stops[stopName]
+
+	trip := func(id uint32) string {
+		return fmt.Sprintf("block_%d_trip_%d_service_%d", id&0xFFFF, id>>16&0xFF, id>>24)
+	}
+
+	for u, d := range d.updates {
+		if slices.Contains(stopIds, u.stopId) {
+			log.Printf("stopid %d\ttripid %x \ttrip %s\tdelay %f", u.stopId, u.tripId, trip(u.tripId), float64(d)/60)
 		}
 	}
-	log(d.Get("Zachodnia",
-		time.Date(2025, 12, 8, 1, 1, 0, 0, Location),
-		TwoHours,
-	))
-	log(d.Get("Teatr Słowackiego",
-		time.Date(2025, 12, 8, 0, 0, 0, 0, Location),
-		TwoHours,
-	))
-	log(d.Get("Teatr Słowackiego",
-		time.Date(2025, 12, 7, 23, 50, 0, 0, Location),
-		TwoHours,
-	))
 
+	log := func(departures []Departure, headsigns []RouteHeadsign) {
+		for _, dep := range departures {
+			t.Logf("%v %s", dep, trip(dep.TripId))
+		}
+		for _, h := range headsigns {
+			t.Logf("%v", h)
+		}
+	}
+	log(d.Get("Ruczaj",
+		time.Now().In(Location),
+		TwoHours,
+	))
 }
 
 func mustRead(t *testing.T, source, file string) *csv.Reader {

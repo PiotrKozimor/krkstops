@@ -21,6 +21,7 @@ type Service struct {
 type ServiceException struct {
 	ServiceId uint32
 	StartsAt  time.Time
+	Added     bool
 }
 
 func (u *Unmarshaler) UnmarshalServices(r *csv.Reader) ([]Service, error) {
@@ -68,6 +69,7 @@ func (u *Unmarshaler) UnmarshalServiceExceptions(r *csv.Reader) ([]ServiceExcept
 		if err != nil {
 			return fmt.Errorf("parse start at: %w", err)
 		}
+		exception.Added = record[2] == "1"
 		exceptions = append(exceptions, exception)
 		return nil
 	})

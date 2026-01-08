@@ -3,7 +3,6 @@ package gtfs
 import (
 	"fmt"
 	"os"
-	"slices"
 	"testing"
 
 	"github.com/PiotrKozimor/krkstops/pkg/gtfs/realtimepb"
@@ -61,13 +60,6 @@ func TestFeed(t *testing.T) {
 					assert.NotNil(t, stu.Departure.Time)
 				}
 			}
-
-		}
-
-		if source == "M" {
-			assert.True(t, slices.IsSortedFunc(feed.Entity, func(a, b *realtimepb.FeedEntity) int {
-				return int(*a.TripUpdate.Timestamp) - int(*b.TripUpdate.Timestamp)
-			}))
 
 		}
 

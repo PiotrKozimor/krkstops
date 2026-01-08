@@ -129,11 +129,9 @@ func (d *Departures) serviceId(since time.Time) uint32 {
 			break
 		}
 	}
-	if serviceId == 0 {
-		for _, exc := range d.serviceExceptions {
-			if since.After(exc.StartsAt) {
-				serviceId = exc.ServiceId
-			}
+	for _, exc := range d.serviceExceptions {
+		if since.After(exc.StartsAt) && exc.Added {
+			serviceId = exc.ServiceId
 		}
 	}
 	return serviceId

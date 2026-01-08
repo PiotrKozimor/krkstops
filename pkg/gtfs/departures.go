@@ -18,7 +18,7 @@ type departure struct {
 func (d departure) String() string {
 	minutes := d.PlannedMinutesInDay % 60
 	hours := (d.PlannedMinutesInDay - minutes) / 60
-	return fmt.Sprintf("%d %d %02d:%02d", d.RouteName, d.DirectionId, hours, minutes)
+	return fmt.Sprintf("%d %d %x %02d:%02d %d", d.RouteName, d.DirectionId, d.TripId, hours, minutes, d.PlannedMinutesInDay)
 }
 
 type Departure struct {
@@ -50,6 +50,8 @@ type departureLookup map[departureKey][]departure
 
 type Departures struct {
 	*Unmarshaler
+	Name string
+
 	lookup            departureLookup
 	trips             Trips
 	routes            Routes
@@ -61,9 +63,10 @@ type Departures struct {
 	updatesMu         sync.RWMutex
 }
 
-func NewDepartures(u *Unmarshaler) *Departures {
+func NewDepartures(u *Unmarshaler, name string) *Departures {
 	return &Departures{
 		Unmarshaler: u,
+		Name:        name,
 		lookup:      make(departureLookup, 100000),
 		updates:     make(StopUpdates, 1000),
 		StopsScore:  make(map[uint32]uint32, 1000),

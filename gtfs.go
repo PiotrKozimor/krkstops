@@ -59,7 +59,7 @@ func (s *KrkStopsServer) initGtfs() error {
 		if err != nil {
 			return fmt.Errorf("zip reader: %w", err)
 		}
-		departure := gtfs.NewDepartures(instance.u)
+		departure := gtfs.NewDepartures(instance.u, instance.name)
 
 		err = departure.Init(func(file string) (*csv.Reader, error) {
 			f, err := r.Open(file)
