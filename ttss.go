@@ -80,7 +80,7 @@ func (s *KrkStopsServer) GetDepartures2(ctx context.Context, req *pb.GetDepartur
 }
 
 func (s *KrkStopsServer) GetDepartures3(ctx context.Context, req *pb.GetDepartures3Request) (*pb.GetDepartures3Response, error) {
-	since := time.Now().Add(-time.Minute * 5)
+	since := time.Now().Add(-time.Minute * 30)
 
 	var resp pb.GetDepartures3Response
 
@@ -94,7 +94,7 @@ func (s *KrkStopsServer) GetDepartures3(ctx context.Context, req *pb.GetDepartur
 	s.departuresMu.RLock()
 	defer s.departuresMu.RUnlock()
 	for _, dep := range s.departures {
-		departures, headsigns := dep.Get(req.StopName, since, gtfs.TwoHours, filters...)
+		departures, headsigns := dep.Get(req.StopName, since, 150, filters...)
 		for _, d := range departures {
 			resp.Departures = append(resp.Departures, &pb.Departure3{
 				PlannedMinutesInDay: d.PlannedMinutesInDay,

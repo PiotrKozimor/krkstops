@@ -6,7 +6,6 @@ import (
 )
 
 const (
-	TwoHours   = 60 * 2
 	dayMinutes = 24 * 60
 )
 

@@ -52,7 +52,7 @@ func TestGetDepartures(t *testing.T) {
 	}
 	log(d.Get("Ruczaj",
 		time.Now().In(Location),
-		TwoHours,
+		120,
 	))
 }
 
