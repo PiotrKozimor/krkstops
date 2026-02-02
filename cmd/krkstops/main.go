@@ -25,12 +25,6 @@ func main() {
 	handle(err)
 
 	go func() {
-		Routes()
-		log.Printf("http server listening on :80")
-		handle(http.ListenAndServe(":80", nil))
-	}()
-
-	go func() {
 		log.Printf("http rpc server listening on :8082")
 		handle(http.ListenAndServe(":8082", server))
 	}()
