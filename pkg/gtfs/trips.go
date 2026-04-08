@@ -36,15 +36,13 @@ func (u *Unmarshaler) UnmarshalTrips(r *csv.Reader) (Trips, error) {
 		return nil, errors.New("route_id index not found")
 	}
 
-	err := u.iterate(r, func(record []string) (err error) {
+	err := u.iterateSorted(r, idIndex, func(i int, record []string) (err error) {
 		trip := Trip{}
 		trip.Headsign = record[3]
-		id, err := u.reduceTripId(record[idIndex])
-		if err != nil {
-			return fmt.Errorf("reduce trip id: %w", err)
-		}
+		id := uint32(i)
+		u.tripIds[record[idIndex]] = id
 
-		trip.ServiceId, err = u.reduceServiceId(record[serviceIdIndex])
+		trip.ServiceId, err = u.serviceId(record[serviceIdIndex])
 		if err != nil {
 			return fmt.Errorf("reduce service id: %w", err)
 		}

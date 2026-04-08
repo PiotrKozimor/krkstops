@@ -6,11 +6,13 @@ import (
 	"fmt"
 	"io"
 	"math"
+	"slices"
 	"strconv"
 	"strings"
 )
 
 var (
+	baseServiceId   uint32
 	reduceServiceId = func(s string) (uint32, error) {
 		trim := strings.TrimPrefix(s, "service_")
 		id, err := strconv.Atoi(trim)
@@ -51,47 +53,30 @@ var (
 
 	Bus = &Unmarshaler{
 		estimatedTripSize: 50000,
-		reduceServiceId:   reduceServiceId,
-		reduceRouteId:     reduceRouteId,
-		reduceTripId:      reduceTripId,
-		reduceStopId:      reduceStopId,
+		reduceRouteId: func(s string) (uint32, error) {
+			switch s {
+			case "LR0":
+				return 990, nil
+			default:
+				id, err := strconv.Atoi(s)
+				return uint32(id), err
+			}
+		},
+		reduceStopId: func(s string) (uint32, error) {
+			id, err := strconv.Atoi(s)
+			return uint32(id), err
+		},
 	}
 	Tram = &Unmarshaler{
 		estimatedTripSize: 20000,
-		reduceServiceId:   reduceServiceId,
 		reduceRouteId:     reduceRouteId,
-		reduceTripId:      reduceTripId,
 		reduceStopId:      reduceStopId,
 	}
 	Mobilis = &Unmarshaler{
 		estimatedTripSize: 30000,
-		reduceServiceId: func(s string) (uint32, error) {
-			split := strings.Split(s, "_")
-			if len(split) != 2 {
-				return 0, fmt.Errorf("invalid id: %s", s)
-			}
-			id, err := strconv.Atoi(split[0])
-			if len(split[1]) != 2 {
-				return 0, fmt.Errorf("invalid suffix: %s", split[1])
-			}
-			serviceId := uint32(id) | uint32(split[1][0])<<16 | uint32(split[1][1])<<24
-			return serviceId, err
-		},
 		reduceRouteId: func(s string) (uint32, error) {
 			id, err := strconv.Atoi(s)
 			return uint32(id), err
-		},
-		reduceTripId: func(s string) (uint32, error) {
-			split := strings.Split(s, "_")
-			id1, err1 := strconv.Atoi(split[0])
-			id2, err2 := strconv.Atoi(split[1])
-			if id1 > math.MaxUint16>>2 {
-				return 0, fmt.Errorf("invalid id1: %d", id1)
-			}
-			if id2 > math.MaxUint16<<2 {
-				return 0, fmt.Errorf("invalid id2: %d", id2)
-			}
-			return uint32(id1) | uint32(id2)<<14, errors.Join(err1, err2)
 		},
 		reduceStopId: func(s string) (uint32, error) {
 			id, err := strconv.Atoi(s)
@@ -102,9 +87,9 @@ var (
 
 type Unmarshaler struct {
 	estimatedTripSize int
-	reduceServiceId   func(string) (uint32, error)
+	serviceIds        map[string]uint32
+	tripIds           map[string]uint32
 	reduceRouteId     func(string) (uint32, error)
-	reduceTripId      func(string) (uint32, error)
 	reduceStopId      func(string) (uint32, error)
 }
 
@@ -122,4 +107,21 @@ func (u *Unmarshaler) iterate(r *csv.Reader, c func([]string) error) error {
 			return err
 		}
 	}
+}
+
+func (u *Unmarshaler) iterateSorted(r *csv.Reader, compareAtColumn int, c func(int, []string) error) error {
+	allRecords, err := r.ReadAll()
+	if err != nil {
+		return fmt.Errorf("read all: %w", err)
+	}
+	slices.SortFunc(allRecords, func(a, b []string) int {
+		return strings.Compare(a[compareAtColumn], b[compareAtColumn])
+	})
+	for i, record := range allRecords {
+		err = c(i, record)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }

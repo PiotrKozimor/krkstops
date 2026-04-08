@@ -10,9 +10,9 @@ import (
 func (d *Departures) UnmarshalStopsTimes(r *csv.Reader) error {
 	r.Read()
 	return d.iterate(r, func(record []string) error {
-		tripId, err := d.reduceTripId(record[0])
-		if err != nil {
-			return fmt.Errorf("reduce trip id: %w", err)
+		tripId, ok := d.Unmarshaler.tripIds[record[0]]
+		if !ok {
+			return fmt.Errorf("trip id not found: %s", record[0])
 		}
 		stopId, err := d.reduceStopId(record[3])
 		if err != nil {

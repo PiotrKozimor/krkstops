@@ -80,6 +80,9 @@ func (d *Departures) SetStopUpdates(updates StopUpdates) {
 }
 
 func (d *Departures) Init(retrieve func(file string) (*csv.Reader, error)) error {
+	baseServiceId = 0
+	d.serviceIds = make(map[string]uint32, 20)
+	d.tripIds = make(map[string]uint32, d.estimatedTripSize)
 
 	exceptions, err1 := retrieve("calendar_dates.txt")
 	service, err2 := retrieve("calendar.txt")
@@ -88,8 +91,8 @@ func (d *Departures) Init(retrieve func(file string) (*csv.Reader, error)) error
 		return err
 	}
 
-	d.serviceExceptions, err1 = d.UnmarshalServiceExceptions(exceptions)
 	d.services, err2 = d.UnmarshalServices(service)
+	d.serviceExceptions, err1 = d.UnmarshalServiceExceptions(exceptions)
 	d.routes, err3 = d.UnmarshalRoutes(routes)
 	if err := errors.Join(err1, err2, err3); err != nil {
 		return err

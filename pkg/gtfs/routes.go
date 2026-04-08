@@ -20,11 +20,20 @@ func (u *Unmarshaler) UnmarshalRoutes(r *csv.Reader) (Routes, error) {
 		if err != nil {
 			return fmt.Errorf("reduce route id: %w", err)
 		}
-		name, err := strconv.Atoi(record[2])
+		var name int
+		switch record[2] {
+		case "LR0":
+			name = 990
+		default:
+			name, err = strconv.Atoi(record[2])
+			if err != nil {
+				return fmt.Errorf("parse route name: %w", err)
+			}
+		}
 		routes[id] = Route{
 			Name: uint32(name),
 		}
-		return err
+		return nil
 	})
 	return routes, err
 }

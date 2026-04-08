@@ -27,12 +27,9 @@ type ServiceException struct {
 func (u *Unmarshaler) UnmarshalServices(r *csv.Reader) ([]Service, error) {
 	var services []Service
 	r.Read()
-	err := u.iterate(r, func(record []string) (err error) {
-		service := Service{}
-		service.Id, err = u.reduceServiceId(record[0])
-		if err != nil {
-			return fmt.Errorf("reduce service id: %w", err)
-		}
+	err := u.iterateSorted(r, 0, func(i int, record []string) (err error) {
+		service := Service{Id: uint32(i)}
+		u.serviceIds[record[0]] = service.Id
 		for i := range 7 {
 			if record[1+i] == "1" {
 				weekday := i + 1
@@ -56,14 +53,22 @@ func (u *Unmarshaler) UnmarshalServices(r *csv.Reader) ([]Service, error) {
 	return services, err
 }
 
+func (u *Unmarshaler) serviceId(s string) (uint32, error) {
+	id, ok := u.serviceIds[s]
+	if !ok {
+		return 0, fmt.Errorf("not found: %s", s)
+	}
+	return id, nil
+}
+
 func (u *Unmarshaler) UnmarshalServiceExceptions(r *csv.Reader) ([]ServiceException, error) {
 	var exceptions []ServiceException
 	r.Read()
 	err := u.iterate(r, func(record []string) (err error) {
 		exception := ServiceException{}
-		exception.ServiceId, err = u.reduceServiceId(record[0])
+		exception.ServiceId, err = u.serviceId(record[0])
 		if err != nil {
-			return fmt.Errorf("reduce service id: %w", err)
+			return fmt.Errorf("service id: %w", err)
 		}
 		exception.StartsAt, err = time.Parse(layout, record[1])
 		if err != nil {

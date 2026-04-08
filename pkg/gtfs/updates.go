@@ -27,9 +27,9 @@ func (u *Unmarshaler) ParseStopUpdates(feed *realtimepb.FeedMessage) (StopUpdate
 	for i := len(feed.Entity) - 1; i >= 0; i-- {
 		ent := feed.Entity[i]
 		if tu := ent.TripUpdate; tu != nil {
-			tripId, err := u.reduceTripId(tu.GetTrip().GetTripId())
-			if err != nil {
-				return nil, fmt.Errorf("reduce trip id: %w", err)
+			tripId, ok := u.tripIds[tu.GetTrip().GetTripId()]
+			if !ok {
+				continue
 			}
 			for _, stu := range tu.StopTimeUpdate {
 				stopId, err := u.reduceStopId(stu.GetStopId())
