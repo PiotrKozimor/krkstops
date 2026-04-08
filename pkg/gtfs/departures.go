@@ -80,52 +80,55 @@ func (d *Departures) SetStopUpdates(updates StopUpdates) {
 }
 
 func (d *Departures) Init(retrieve func(file string) (*csv.Reader, error)) error {
-	baseServiceId = 0
 	d.serviceIds = make(map[string]uint32, 20)
 	d.tripIds = make(map[string]uint32, d.estimatedTripSize)
+	d.stopIds = make(map[string]uint32, 1000)
 
 	exceptions, err1 := retrieve("calendar_dates.txt")
 	service, err2 := retrieve("calendar.txt")
 	routes, err3 := retrieve("routes.txt")
 	if err := errors.Join(err1, err2, err3); err != nil {
-		return err
+		return fmt.Errorf("retrieve initial: %w", err)
 	}
 
 	d.services, err2 = d.UnmarshalServices(service)
 	d.serviceExceptions, err1 = d.UnmarshalServiceExceptions(exceptions)
 	d.routes, err3 = d.UnmarshalRoutes(routes)
 	if err := errors.Join(err1, err2, err3); err != nil {
-		return err
+		return fmt.Errorf("unmarshal initial: %w", err)
 	}
 
 	r, err := retrieve("stops.txt")
 	if err != nil {
-		return err
+		return fmt.Errorf("retrieve stops: %w", err)
 	}
 	d.Stops, err = d.UnmarshalStops(r)
 	if err != nil {
-		return err
+		return fmt.Errorf("unmarshal stops: %w", err)
 	}
 
 	r, err = retrieve("trips.txt")
 	if err != nil {
-		return err
+		return fmt.Errorf("retrieve trips: %w", err)
 	}
 	d.trips, err = d.UnmarshalTrips(r)
 	if err != nil {
-		return err
+		return fmt.Errorf("unmarshal trips: %w", err)
 	}
 
 	r, err = retrieve("stop_times.txt")
 	if err != nil {
-		return err
+		return fmt.Errorf("retrieve stop times: %w", err)
 	}
 	err = d.UnmarshalStopsTimes(r)
+	if err != nil {
+		return fmt.Errorf("unmarshal stop times: %w", err)
+	}
 
 	for key := range d.lookup {
 		slices.SortFunc(d.lookup[key], func(a, b departure) int {
 			return int(a.PlannedMinutesInDay) - int(b.PlannedMinutesInDay)
 		})
 	}
-	return err
+	return nil
 }

@@ -14,9 +14,9 @@ func (d *Departures) UnmarshalStopsTimes(r *csv.Reader) error {
 		if !ok {
 			return fmt.Errorf("trip id not found: %s", record[0])
 		}
-		stopId, err := d.reduceStopId(record[3])
+		stopId, err := d.stopId(record[3])
 		if err != nil {
-			return fmt.Errorf("reduce stop id: %w", err)
+			return fmt.Errorf("stop id: %w", err)
 		}
 		minutesInDay, err := parseTime(record[2])
 		if err != nil {

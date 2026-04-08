@@ -32,9 +32,9 @@ func (u *Unmarshaler) ParseStopUpdates(feed *realtimepb.FeedMessage) (StopUpdate
 				continue
 			}
 			for _, stu := range tu.StopTimeUpdate {
-				stopId, err := u.reduceStopId(stu.GetStopId())
+				stopId, err := u.stopId(stu.GetStopId())
 				if err != nil {
-					return nil, fmt.Errorf("reduce trip id: %w", err)
+					return nil, fmt.Errorf("stop id: %w", err)
 				}
 				var t int64
 				if stu.Departure != nil {
