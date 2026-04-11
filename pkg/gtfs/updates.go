@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/PiotrKozimor/krkstops/pkg/gtfs/realtimepb"
+	"github.com/prometheus/client_golang/prometheus"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -54,7 +55,7 @@ func (u *Unmarshaler) ParseStopUpdates(feed *realtimepb.FeedMessage) (StopUpdate
 					if _, ok := updates[key]; !ok {
 						updates[key] = secondsInDay
 					} else {
-						// TODO bump prometheus metric
+						gtfsErrors.With(prometheus.Labels{"err": "duplicate_update"}).Inc()
 					}
 				}
 			}

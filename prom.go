@@ -1,14 +1,10 @@
 package krkstops
 
 import (
-	"net/http"
-
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 var (
-	registry     = prometheus.NewRegistry()
 	serverErrors = prometheus.NewCounterVec(prometheus.CounterOpts{
 		Name: "server_errors",
 		Help: "Errors encountered in the server (logged)",
@@ -31,9 +27,5 @@ var (
 )
 
 func init() {
-	registry.MustRegister(serverErrors, serverSuccesses, requests)
-}
-
-func MetricHandler() http.Handler {
-	return promhttp.HandlerFor(registry, promhttp.HandlerOpts{})
+	prometheus.DefaultRegisterer.MustRegister(serverErrors, serverSuccesses, requests)
 }

@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"slices"
 	"time"
+
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 const (
@@ -68,7 +70,8 @@ func (u *Unmarshaler) UnmarshalServiceExceptions(r *csv.Reader) ([]ServiceExcept
 		exception := ServiceException{}
 		exception.ServiceId, err = u.serviceId(record[0])
 		if err != nil {
-			return fmt.Errorf("service id: %w", err)
+			gtfsErrors.With(prometheus.Labels{"err": "no_service"}).Inc()
+			return nil
 		}
 		exception.StartsAt, err = time.Parse(layout, record[1])
 		if err != nil {

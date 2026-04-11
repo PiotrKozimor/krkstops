@@ -47,7 +47,7 @@ func (u *Unmarshaler) UnmarshalTrips(r *csv.Reader) (Trips, error) {
 			return fmt.Errorf("reduce service id: %w", err)
 		}
 
-		trip.RouteId, err = u.reduceRouteId(record[routeIdIndex])
+		trip.RouteId, err = u.routeId(record[routeIdIndex])
 		if err != nil {
 			return fmt.Errorf("reduce route id: %w", err)
 		}
@@ -64,5 +64,4 @@ func (u *Unmarshaler) UnmarshalTrips(r *csv.Reader) (Trips, error) {
 		return nil
 	})
 	return trips, err
-
 }

@@ -83,6 +83,7 @@ func (d *Departures) Init(retrieve func(file string) (*csv.Reader, error)) error
 	d.serviceIds = make(map[string]uint32, 20)
 	d.tripIds = make(map[string]uint32, d.estimatedTripSize)
 	d.stopIds = make(map[string]uint32, 1000)
+	d.routeIds = make(map[string]uint32, 100)
 
 	exceptions, err1 := retrieve("calendar_dates.txt")
 	service, err2 := retrieve("calendar.txt")

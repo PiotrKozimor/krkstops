@@ -3,6 +3,8 @@ package gtfs
 import (
 	"slices"
 	"time"
+
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 const (
@@ -97,10 +99,8 @@ func (d *Departures) Get(stopName string, since time.Time, forMinutes int, filte
 			if trip, ok := d.trips[dep.TripId]; ok {
 				routeToHeadsign[key] = trip.Headsign
 			} else {
-				// TODO count
+				gtfsErrors.With(prometheus.Labels{"err": "no_trip"}).Inc()
 			}
-		} else {
-			// TODO count
 		}
 	}
 

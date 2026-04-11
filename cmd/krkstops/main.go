@@ -9,6 +9,8 @@ import (
 
 	"github.com/PiotrKozimor/krkstops"
 	"github.com/PiotrKozimor/krkstops/pb"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"google.golang.org/grpc"
 	_ "google.golang.org/grpc/encoding/gzip"
 )
@@ -31,7 +33,7 @@ func main() {
 
 	go func() {
 		log.Printf("http metrics server listening on :8083")
-		handle(http.ListenAndServe(":8083", krkstops.MetricHandler()))
+		handle(http.ListenAndServe(":8083", promhttp.HandlerFor(prometheus.DefaultGatherer, promhttp.HandlerOpts{})))
 	}()
 
 	go func() {

@@ -6,37 +6,18 @@ import (
 	"fmt"
 	"io"
 	"slices"
-	"strconv"
 	"strings"
 )
 
 var (
 	Bus = &Unmarshaler{
 		estimatedTripSize: 50000,
-		reduceRouteId: func(s string) (uint32, error) {
-			switch s {
-			case "LR0":
-				return 990, nil
-			default:
-				id, err := strconv.Atoi(s)
-				return uint32(id), err
-			}
-		},
 	}
 	Tram = &Unmarshaler{
 		estimatedTripSize: 20000,
-		reduceRouteId: func(s string) (uint32, error) {
-			trim := strings.TrimPrefix(s, "route_")
-			id, err := strconv.Atoi(trim)
-			return uint32(id), err
-		},
 	}
 	Mobilis = &Unmarshaler{
 		estimatedTripSize: 30000,
-		reduceRouteId: func(s string) (uint32, error) {
-			id, err := strconv.Atoi(s)
-			return uint32(id), err
-		},
 	}
 )
 
@@ -45,7 +26,7 @@ type Unmarshaler struct {
 	serviceIds        map[string]uint32
 	tripIds           map[string]uint32
 	stopIds           map[string]uint32
-	reduceRouteId     func(string) (uint32, error)
+	routeIds          map[string]uint32
 }
 
 func (u *Unmarshaler) iterate(r *csv.Reader, c func([]string) error) error {
