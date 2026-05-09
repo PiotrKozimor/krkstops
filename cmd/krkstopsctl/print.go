@@ -56,10 +56,11 @@ func (p *PrettyPrint) Departures3(deps *pb.GetDepartures3Response) {
 
 		}
 	}
-	fmt.Fprintf(p, "ROUTE NAME\tDIR ID\tHEADISGN\n")
+	fmt.Fprintf(p, "HEADSIGN\tROUTE NAME\tDIR ID\n")
 	for _, h := range deps.Headsigns {
+		fmt.Fprintf(p, "%s\t.\t.\n", h.Headsign)
 		for _, r := range h.Routes {
-			fmt.Fprintf(p, "%d\t%d\t%s\n", r.RouteName, r.DirectionId, h.Headsign)
+			fmt.Fprintf(p, ".\t%d\t%d\n", r.RouteName, r.DirectionId)
 		}
 	}
 	p.Flush()

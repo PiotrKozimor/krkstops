@@ -3,6 +3,7 @@ package gtfs
 import (
 	"encoding/csv"
 	"fmt"
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -33,10 +34,14 @@ func (d *Departures) UnmarshalStopsTimes(r *csv.Reader) error {
 			return fmt.Errorf("route not found: %d", trip.RouteId)
 		}
 
+		directionId, found := slices.BinarySearch(d.routeHeadSigns[trip.RouteId], trip.Headsign)
+		if !found {
+			return fmt.Errorf("headsign not found: %s", trip.Headsign)
+		}
 		dep := departure{
 			RouteName:           route.Name,
 			TripId:              tripId,
-			DirectionId:         trip.DirectionId,
+			DirectionId:         uint32(directionId),
 			PlannedMinutesInDay: minutesInDay,
 		}
 		key := departureKey{

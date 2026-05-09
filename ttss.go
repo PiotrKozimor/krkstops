@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log"
 	"slices"
+	"strings"
 	"sync"
 	"time"
 
@@ -105,16 +106,28 @@ func (s *KrkStopsServer) GetDepartures3(ctx context.Context, req *pb.GetDepartur
 			})
 		}
 		for _, h := range headsigns {
+
 			headsign := &pb.RouteHeadsign{
 				Headsign: h.Headsign,
 			}
-			for _, r := range h.Routes {
-				headsign.Routes = append(headsign.Routes, &pb.DirectedRoute{
+
+			routes := make([]*pb.DirectedRoute, len(h.Routes))
+			for i, r := range h.Routes {
+				routes[i] = &pb.DirectedRoute{
 					RouteName:   r.RouteName,
 					DirectionId: r.DirectionId,
-				})
+				}
 			}
-			resp.Headsigns = append(resp.Headsigns, headsign)
+
+			i, found := slices.BinarySearchFunc(resp.Headsigns, headsign, func(a, b *pb.RouteHeadsign) int {
+				return strings.Compare(a.Headsign, h.Headsign)
+			})
+			if !found {
+				headsign.Routes = routes
+				resp.Headsigns = slices.Insert(resp.Headsigns, i, headsign)
+			} else {
+				resp.Headsigns[i].Routes = append(resp.Headsigns[i].Routes, routes...)
+			}
 		}
 	}
 	return &resp, nil

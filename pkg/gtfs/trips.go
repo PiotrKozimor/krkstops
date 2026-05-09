@@ -5,15 +5,13 @@ import (
 	"errors"
 	"fmt"
 	"slices"
-	"strconv"
 	"strings"
 )
 
 type Trip struct {
-	Headsign    string
-	DirectionId uint32
-	ServiceId   uint32
-	RouteId     uint32
+	Headsign  string
+	ServiceId uint32
+	RouteId   uint32
 }
 
 type Trips map[uint32]Trip
@@ -35,10 +33,14 @@ func (u *Unmarshaler) UnmarshalTrips(r *csv.Reader) (Trips, error) {
 	if idIndex < 0 {
 		return nil, errors.New("route_id index not found")
 	}
+	headSign := slices.Index(header, "trip_headsign")
+	if idIndex < 0 {
+		return nil, errors.New("trip_headsign index not found")
+	}
 
 	err := u.iterateSorted(r, idIndex, func(i int, record []string) (err error) {
 		trip := Trip{}
-		trip.Headsign = record[3]
+		trip.Headsign = record[headSign]
 		id := uint32(i)
 		u.tripIds[record[idIndex]] = id
 
@@ -52,14 +54,11 @@ func (u *Unmarshaler) UnmarshalTrips(r *csv.Reader) (Trips, error) {
 			return fmt.Errorf("reduce route id: %w", err)
 		}
 
-		dirId, err := strconv.Atoi(record[5])
-		if dirId != 0 && dirId != 1 {
-			return fmt.Errorf("unexpected direction id: %d", dirId)
+		headsigns := u.routeHeadSigns[trip.RouteId]
+		i, found := slices.BinarySearch(headsigns, trip.Headsign)
+		if !found {
+			u.routeHeadSigns[trip.RouteId] = slices.Insert(headsigns, i, trip.Headsign)
 		}
-		if err != nil {
-			return fmt.Errorf("parse direction id: %w", err)
-		}
-		trip.DirectionId = uint32(dirId)
 		trips[id] = trip
 		return nil
 	})

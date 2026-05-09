@@ -27,6 +27,7 @@ type Unmarshaler struct {
 	tripIds           map[string]uint32
 	stopIds           map[string]uint32
 	routeIds          map[string]uint32
+	routeHeadSigns    map[uint32][]string
 }
 
 func (u *Unmarshaler) iterate(r *csv.Reader, c func([]string) error) error {
