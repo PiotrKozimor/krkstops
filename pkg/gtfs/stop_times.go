@@ -6,6 +6,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"unicode"
 )
 
 func (d *Departures) UnmarshalStopsTimes(r *csv.Reader) error {
@@ -31,7 +32,7 @@ func (d *Departures) UnmarshalStopsTimes(r *csv.Reader) error {
 
 		route, ok := d.routes[trip.RouteId]
 		if !ok {
-			return fmt.Errorf("route not found: %d", trip.RouteId)
+			return fmt.Errorf("route not found: %s", trip.RouteId)
 		}
 
 		directionId, found := slices.BinarySearch(d.routeHeadSigns[trip.RouteId], trip.Headsign)
@@ -39,10 +40,17 @@ func (d *Departures) UnmarshalStopsTimes(r *csv.Reader) error {
 			return fmt.Errorf("headsign not found: %s", trip.Headsign)
 		}
 		dep := departure{
-			RouteName:           route.Name,
 			TripId:              tripId,
 			DirectionId:         uint32(directionId),
 			PlannedMinutesInDay: minutesInDay,
+		}
+		routeInt, err := strconv.Atoi(route)
+		if err == nil {
+			dep.RouteName = uint32(routeInt)
+		} else if trimmed := strings.TrimFunc(route, func(r rune) bool { return !unicode.IsDigit(r) }); len(trimmed) > 0 {
+			if routeInt2, err := strconv.Atoi(trimmed); err == nil {
+				dep.RouteName = uint32(routeInt2)
+			}
 		}
 		key := departureKey{
 			serviceId: trip.ServiceId,

@@ -32,19 +32,15 @@ func TestGetDepartures(t *testing.T) {
 
 	stopIds := d.Stops[stopName]
 
-	trip := func(id uint32) string {
-		return fmt.Sprintf("block_%d_trip_%d_service_%d", id&0xFFFF, id>>16&0xFF, id>>24)
-	}
-
 	for u, d := range d.updates {
 		if slices.Contains(stopIds, u.stopId) {
-			log.Printf("stopid %d\ttripid %x \ttrip %s\tdelay %f", u.stopId, u.tripId, trip(u.tripId), float64(d)/60)
+			log.Printf("stopid %d\ttripid %d\tdelay %f", u.stopId, u.tripId, float64(d)/60)
 		}
 	}
 
 	log := func(departures []Departure, headsigns []RouteHeadsign) {
 		for _, dep := range departures {
-			t.Logf("%v %s", dep, trip(dep.TripId))
+			t.Logf("%v", dep)
 		}
 		for _, h := range headsigns {
 			t.Logf("%v", h)

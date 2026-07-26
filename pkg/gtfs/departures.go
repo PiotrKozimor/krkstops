@@ -18,7 +18,7 @@ type departure struct {
 func (d departure) String() string {
 	minutes := d.PlannedMinutesInDay % 60
 	hours := (d.PlannedMinutesInDay - minutes) / 60
-	return fmt.Sprintf("%d %d %x %02d:%02d %d", d.RouteName, d.DirectionId, d.TripId, hours, minutes, d.PlannedMinutesInDay)
+	return fmt.Sprintf("%d %d %d %02d:%02d %d", d.RouteName, d.DirectionId, d.TripId, hours, minutes, d.PlannedMinutesInDay)
 }
 
 type Departure struct {
@@ -83,8 +83,7 @@ func (d *Departures) Init(retrieve func(file string) (*csv.Reader, error)) error
 	d.serviceIds = make(map[string]uint32, 20)
 	d.tripIds = make(map[string]uint32, d.estimatedTripSize)
 	d.stopIds = make(map[string]uint32, 1000)
-	d.routeIds = make(map[string]uint32, 100)
-	d.routeHeadSigns = make(map[uint32][]string, 100)
+	d.routeHeadSigns = make(map[string][]string, 100)
 
 	exceptions, err1 := retrieve("calendar_dates.txt")
 	service, err2 := retrieve("calendar.txt")

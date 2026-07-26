@@ -10,8 +10,8 @@ import (
 
 type Trip struct {
 	Headsign  string
+	RouteId   string
 	ServiceId uint32
-	RouteId   uint32
 }
 
 type Trips map[uint32]Trip
@@ -49,10 +49,7 @@ func (u *Unmarshaler) UnmarshalTrips(r *csv.Reader) (Trips, error) {
 			return fmt.Errorf("reduce service id: %w", err)
 		}
 
-		trip.RouteId, err = u.routeId(record[routeIdIndex])
-		if err != nil {
-			return fmt.Errorf("reduce route id: %w", err)
-		}
+		trip.RouteId = record[routeIdIndex]
 
 		headsigns := u.routeHeadSigns[trip.RouteId]
 		i, found := slices.BinarySearch(headsigns, trip.Headsign)
