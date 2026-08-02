@@ -21,144 +21,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type Transit int32
-
-const (
-	Transit_BUS  Transit = 0
-	Transit_TRAM Transit = 1
-	Transit_ALL  Transit = 2
-)
-
-// Enum value maps for Transit.
-var (
-	Transit_name = map[int32]string{
-		0: "BUS",
-		1: "TRAM",
-		2: "ALL",
-	}
-	Transit_value = map[string]int32{
-		"BUS":  0,
-		"TRAM": 1,
-		"ALL":  2,
-	}
-)
-
-func (x Transit) Enum() *Transit {
-	p := new(Transit)
-	*p = x
-	return p
-}
-
-func (x Transit) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (Transit) Descriptor() protoreflect.EnumDescriptor {
-	return file_pb_krk_stops_proto_enumTypes[0].Descriptor()
-}
-
-func (Transit) Type() protoreflect.EnumType {
-	return &file_pb_krk_stops_proto_enumTypes[0]
-}
-
-func (x Transit) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use Transit.Descriptor instead.
-func (Transit) EnumDescriptor() ([]byte, []int) {
-	return file_pb_krk_stops_proto_rawDescGZIP(), []int{0}
-}
-
-type GetDepartures2Request struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            uint32                 `protobuf:"varint,3,opt,name=id,proto3" json:"id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetDepartures2Request) Reset() {
-	*x = GetDepartures2Request{}
-	mi := &file_pb_krk_stops_proto_msgTypes[0]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetDepartures2Request) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetDepartures2Request) ProtoMessage() {}
-
-func (x *GetDepartures2Request) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_krk_stops_proto_msgTypes[0]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetDepartures2Request.ProtoReflect.Descriptor instead.
-func (*GetDepartures2Request) Descriptor() ([]byte, []int) {
-	return file_pb_krk_stops_proto_rawDescGZIP(), []int{0}
-}
-
-func (x *GetDepartures2Request) GetId() uint32 {
-	if x != nil {
-		return x.Id
-	}
-	return 0
-}
-
-type GetDepartures2Response struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Departures    []*Departure           `protobuf:"bytes,1,rep,name=departures,proto3" json:"departures,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetDepartures2Response) Reset() {
-	*x = GetDepartures2Response{}
-	mi := &file_pb_krk_stops_proto_msgTypes[1]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetDepartures2Response) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetDepartures2Response) ProtoMessage() {}
-
-func (x *GetDepartures2Response) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_krk_stops_proto_msgTypes[1]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetDepartures2Response.ProtoReflect.Descriptor instead.
-func (*GetDepartures2Response) Descriptor() ([]byte, []int) {
-	return file_pb_krk_stops_proto_rawDescGZIP(), []int{1}
-}
-
-func (x *GetDepartures2Response) GetDepartures() []*Departure {
-	if x != nil {
-		return x.Departures
-	}
-	return nil
-}
-
-type GetDepartures3Request struct {
+type GetDeparturesRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	StopName      string                 `protobuf:"bytes,1,opt,name=stop_name,json=stopName,proto3" json:"stop_name,omitempty"`
 	Filters       []*DirectedRoute       `protobuf:"bytes,2,rep,name=filters,proto3" json:"filters,omitempty"`
@@ -166,21 +29,21 @@ type GetDepartures3Request struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *GetDepartures3Request) Reset() {
-	*x = GetDepartures3Request{}
-	mi := &file_pb_krk_stops_proto_msgTypes[2]
+func (x *GetDeparturesRequest) Reset() {
+	*x = GetDeparturesRequest{}
+	mi := &file_pb_krk_stops_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GetDepartures3Request) String() string {
+func (x *GetDeparturesRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GetDepartures3Request) ProtoMessage() {}
+func (*GetDeparturesRequest) ProtoMessage() {}
 
-func (x *GetDepartures3Request) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_krk_stops_proto_msgTypes[2]
+func (x *GetDeparturesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_krk_stops_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -191,26 +54,26 @@ func (x *GetDepartures3Request) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GetDepartures3Request.ProtoReflect.Descriptor instead.
-func (*GetDepartures3Request) Descriptor() ([]byte, []int) {
-	return file_pb_krk_stops_proto_rawDescGZIP(), []int{2}
+// Deprecated: Use GetDeparturesRequest.ProtoReflect.Descriptor instead.
+func (*GetDeparturesRequest) Descriptor() ([]byte, []int) {
+	return file_pb_krk_stops_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *GetDepartures3Request) GetStopName() string {
+func (x *GetDeparturesRequest) GetStopName() string {
 	if x != nil {
 		return x.StopName
 	}
 	return ""
 }
 
-func (x *GetDepartures3Request) GetFilters() []*DirectedRoute {
+func (x *GetDeparturesRequest) GetFilters() []*DirectedRoute {
 	if x != nil {
 		return x.Filters
 	}
 	return nil
 }
 
-type GetDepartures3Response struct {
+type GetDeparturesResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Departures    []*Departure3          `protobuf:"bytes,1,rep,name=departures,proto3" json:"departures,omitempty"`
 	Headsigns     []*RouteHeadsign       `protobuf:"bytes,2,rep,name=headsigns,proto3" json:"headsigns,omitempty"`
@@ -218,21 +81,21 @@ type GetDepartures3Response struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *GetDepartures3Response) Reset() {
-	*x = GetDepartures3Response{}
-	mi := &file_pb_krk_stops_proto_msgTypes[3]
+func (x *GetDeparturesResponse) Reset() {
+	*x = GetDeparturesResponse{}
+	mi := &file_pb_krk_stops_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GetDepartures3Response) String() string {
+func (x *GetDeparturesResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GetDepartures3Response) ProtoMessage() {}
+func (*GetDeparturesResponse) ProtoMessage() {}
 
-func (x *GetDepartures3Response) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_krk_stops_proto_msgTypes[3]
+func (x *GetDeparturesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_krk_stops_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -243,47 +106,47 @@ func (x *GetDepartures3Response) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GetDepartures3Response.ProtoReflect.Descriptor instead.
-func (*GetDepartures3Response) Descriptor() ([]byte, []int) {
-	return file_pb_krk_stops_proto_rawDescGZIP(), []int{3}
+// Deprecated: Use GetDeparturesResponse.ProtoReflect.Descriptor instead.
+func (*GetDeparturesResponse) Descriptor() ([]byte, []int) {
+	return file_pb_krk_stops_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *GetDepartures3Response) GetDepartures() []*Departure3 {
+func (x *GetDeparturesResponse) GetDepartures() []*Departure3 {
 	if x != nil {
 		return x.Departures
 	}
 	return nil
 }
 
-func (x *GetDepartures3Response) GetHeadsigns() []*RouteHeadsign {
+func (x *GetDeparturesResponse) GetHeadsigns() []*RouteHeadsign {
 	if x != nil {
 		return x.Headsigns
 	}
 	return nil
 }
 
-type SearchStops2Request struct {
+type SearchStopsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Query         string                 `protobuf:"bytes,1,opt,name=query,proto3" json:"query,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *SearchStops2Request) Reset() {
-	*x = SearchStops2Request{}
-	mi := &file_pb_krk_stops_proto_msgTypes[4]
+func (x *SearchStopsRequest) Reset() {
+	*x = SearchStopsRequest{}
+	mi := &file_pb_krk_stops_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *SearchStops2Request) String() string {
+func (x *SearchStopsRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*SearchStops2Request) ProtoMessage() {}
+func (*SearchStopsRequest) ProtoMessage() {}
 
-func (x *SearchStops2Request) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_krk_stops_proto_msgTypes[4]
+func (x *SearchStopsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_krk_stops_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -294,128 +157,40 @@ func (x *SearchStops2Request) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use SearchStops2Request.ProtoReflect.Descriptor instead.
-func (*SearchStops2Request) Descriptor() ([]byte, []int) {
-	return file_pb_krk_stops_proto_rawDescGZIP(), []int{4}
+// Deprecated: Use SearchStopsRequest.ProtoReflect.Descriptor instead.
+func (*SearchStopsRequest) Descriptor() ([]byte, []int) {
+	return file_pb_krk_stops_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *SearchStops2Request) GetQuery() string {
+func (x *SearchStopsRequest) GetQuery() string {
 	if x != nil {
 		return x.Query
 	}
 	return ""
 }
 
-type SearchStops2Response struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Stops         []*Stop                `protobuf:"bytes,1,rep,name=stops,proto3" json:"stops,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *SearchStops2Response) Reset() {
-	*x = SearchStops2Response{}
-	mi := &file_pb_krk_stops_proto_msgTypes[5]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *SearchStops2Response) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*SearchStops2Response) ProtoMessage() {}
-
-func (x *SearchStops2Response) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_krk_stops_proto_msgTypes[5]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use SearchStops2Response.ProtoReflect.Descriptor instead.
-func (*SearchStops2Response) Descriptor() ([]byte, []int) {
-	return file_pb_krk_stops_proto_rawDescGZIP(), []int{5}
-}
-
-func (x *SearchStops2Response) GetStops() []*Stop {
-	if x != nil {
-		return x.Stops
-	}
-	return nil
-}
-
-type SearchStops3Request struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Query         string                 `protobuf:"bytes,1,opt,name=query,proto3" json:"query,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *SearchStops3Request) Reset() {
-	*x = SearchStops3Request{}
-	mi := &file_pb_krk_stops_proto_msgTypes[6]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *SearchStops3Request) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*SearchStops3Request) ProtoMessage() {}
-
-func (x *SearchStops3Request) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_krk_stops_proto_msgTypes[6]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use SearchStops3Request.ProtoReflect.Descriptor instead.
-func (*SearchStops3Request) Descriptor() ([]byte, []int) {
-	return file_pb_krk_stops_proto_rawDescGZIP(), []int{6}
-}
-
-func (x *SearchStops3Request) GetQuery() string {
-	if x != nil {
-		return x.Query
-	}
-	return ""
-}
-
-type SearchStops3Response struct {
+type SearchStopsResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Stops         []string               `protobuf:"bytes,1,rep,name=stops,proto3" json:"stops,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *SearchStops3Response) Reset() {
-	*x = SearchStops3Response{}
-	mi := &file_pb_krk_stops_proto_msgTypes[7]
+func (x *SearchStopsResponse) Reset() {
+	*x = SearchStopsResponse{}
+	mi := &file_pb_krk_stops_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *SearchStops3Response) String() string {
+func (x *SearchStopsResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*SearchStops3Response) ProtoMessage() {}
+func (*SearchStopsResponse) ProtoMessage() {}
 
-func (x *SearchStops3Response) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_krk_stops_proto_msgTypes[7]
+func (x *SearchStopsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_krk_stops_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -426,176 +201,16 @@ func (x *SearchStops3Response) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use SearchStops3Response.ProtoReflect.Descriptor instead.
-func (*SearchStops3Response) Descriptor() ([]byte, []int) {
-	return file_pb_krk_stops_proto_rawDescGZIP(), []int{7}
+// Deprecated: Use SearchStopsResponse.ProtoReflect.Descriptor instead.
+func (*SearchStopsResponse) Descriptor() ([]byte, []int) {
+	return file_pb_krk_stops_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *SearchStops3Response) GetStops() []string {
+func (x *SearchStopsResponse) GetStops() []string {
 	if x != nil {
 		return x.Stops
 	}
 	return nil
-}
-
-type Departure struct {
-	state              protoimpl.MessageState `protogen:"open.v1"`
-	RelativeTime       int32                  `protobuf:"varint,1,opt,name=relativeTime,proto3" json:"relativeTime,omitempty"`
-	PlannedTime        string                 `protobuf:"bytes,2,opt,name=plannedTime,proto3" json:"plannedTime,omitempty"`
-	Direction          string                 `protobuf:"bytes,3,opt,name=direction,proto3" json:"direction,omitempty"`
-	PatternText        string                 `protobuf:"bytes,4,opt,name=patternText,proto3" json:"patternText,omitempty"`
-	Color              uint32                 `protobuf:"varint,5,opt,name=color,proto3" json:"color,omitempty"`
-	RelativeTimeParsed string                 `protobuf:"bytes,6,opt,name=relativeTimeParsed,proto3" json:"relativeTimeParsed,omitempty"`
-	Predicted          bool                   `protobuf:"varint,7,opt,name=predicted,proto3" json:"predicted,omitempty"`
-	Type               Transit                `protobuf:"varint,8,opt,name=type,proto3,enum=Transit" json:"type,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
-}
-
-func (x *Departure) Reset() {
-	*x = Departure{}
-	mi := &file_pb_krk_stops_proto_msgTypes[8]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *Departure) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*Departure) ProtoMessage() {}
-
-func (x *Departure) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_krk_stops_proto_msgTypes[8]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use Departure.ProtoReflect.Descriptor instead.
-func (*Departure) Descriptor() ([]byte, []int) {
-	return file_pb_krk_stops_proto_rawDescGZIP(), []int{8}
-}
-
-func (x *Departure) GetRelativeTime() int32 {
-	if x != nil {
-		return x.RelativeTime
-	}
-	return 0
-}
-
-func (x *Departure) GetPlannedTime() string {
-	if x != nil {
-		return x.PlannedTime
-	}
-	return ""
-}
-
-func (x *Departure) GetDirection() string {
-	if x != nil {
-		return x.Direction
-	}
-	return ""
-}
-
-func (x *Departure) GetPatternText() string {
-	if x != nil {
-		return x.PatternText
-	}
-	return ""
-}
-
-func (x *Departure) GetColor() uint32 {
-	if x != nil {
-		return x.Color
-	}
-	return 0
-}
-
-func (x *Departure) GetRelativeTimeParsed() string {
-	if x != nil {
-		return x.RelativeTimeParsed
-	}
-	return ""
-}
-
-func (x *Departure) GetPredicted() bool {
-	if x != nil {
-		return x.Predicted
-	}
-	return false
-}
-
-func (x *Departure) GetType() Transit {
-	if x != nil {
-		return x.Type
-	}
-	return Transit_BUS
-}
-
-type Stop struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	Id            uint32                 `protobuf:"varint,3,opt,name=id,proto3" json:"id,omitempty"`
-	Type          Transit                `protobuf:"varint,4,opt,name=type,proto3,enum=Transit" json:"type,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *Stop) Reset() {
-	*x = Stop{}
-	mi := &file_pb_krk_stops_proto_msgTypes[9]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *Stop) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*Stop) ProtoMessage() {}
-
-func (x *Stop) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_krk_stops_proto_msgTypes[9]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use Stop.ProtoReflect.Descriptor instead.
-func (*Stop) Descriptor() ([]byte, []int) {
-	return file_pb_krk_stops_proto_rawDescGZIP(), []int{9}
-}
-
-func (x *Stop) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
-}
-
-func (x *Stop) GetId() uint32 {
-	if x != nil {
-		return x.Id
-	}
-	return 0
-}
-
-func (x *Stop) GetType() Transit {
-	if x != nil {
-		return x.Type
-	}
-	return Transit_BUS
 }
 
 type Filter struct {
@@ -608,7 +223,7 @@ type Filter struct {
 
 func (x *Filter) Reset() {
 	*x = Filter{}
-	mi := &file_pb_krk_stops_proto_msgTypes[10]
+	mi := &file_pb_krk_stops_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -620,7 +235,7 @@ func (x *Filter) String() string {
 func (*Filter) ProtoMessage() {}
 
 func (x *Filter) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_krk_stops_proto_msgTypes[10]
+	mi := &file_pb_krk_stops_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -633,7 +248,7 @@ func (x *Filter) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Filter.ProtoReflect.Descriptor instead.
 func (*Filter) Descriptor() ([]byte, []int) {
-	return file_pb_krk_stops_proto_rawDescGZIP(), []int{10}
+	return file_pb_krk_stops_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *Filter) GetRouteId() string {
@@ -663,7 +278,7 @@ type Departure3 struct {
 
 func (x *Departure3) Reset() {
 	*x = Departure3{}
-	mi := &file_pb_krk_stops_proto_msgTypes[11]
+	mi := &file_pb_krk_stops_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -675,7 +290,7 @@ func (x *Departure3) String() string {
 func (*Departure3) ProtoMessage() {}
 
 func (x *Departure3) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_krk_stops_proto_msgTypes[11]
+	mi := &file_pb_krk_stops_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -688,7 +303,7 @@ func (x *Departure3) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Departure3.ProtoReflect.Descriptor instead.
 func (*Departure3) Descriptor() ([]byte, []int) {
-	return file_pb_krk_stops_proto_rawDescGZIP(), []int{11}
+	return file_pb_krk_stops_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *Departure3) GetPlannedMinutesInDay() uint32 {
@@ -736,7 +351,7 @@ type DirectedRoute struct {
 
 func (x *DirectedRoute) Reset() {
 	*x = DirectedRoute{}
-	mi := &file_pb_krk_stops_proto_msgTypes[12]
+	mi := &file_pb_krk_stops_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -748,7 +363,7 @@ func (x *DirectedRoute) String() string {
 func (*DirectedRoute) ProtoMessage() {}
 
 func (x *DirectedRoute) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_krk_stops_proto_msgTypes[12]
+	mi := &file_pb_krk_stops_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -761,7 +376,7 @@ func (x *DirectedRoute) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DirectedRoute.ProtoReflect.Descriptor instead.
 func (*DirectedRoute) Descriptor() ([]byte, []int) {
-	return file_pb_krk_stops_proto_rawDescGZIP(), []int{12}
+	return file_pb_krk_stops_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *DirectedRoute) GetRouteName() uint32 {
@@ -788,7 +403,7 @@ type RouteHeadsign struct {
 
 func (x *RouteHeadsign) Reset() {
 	*x = RouteHeadsign{}
-	mi := &file_pb_krk_stops_proto_msgTypes[13]
+	mi := &file_pb_krk_stops_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -800,7 +415,7 @@ func (x *RouteHeadsign) String() string {
 func (*RouteHeadsign) ProtoMessage() {}
 
 func (x *RouteHeadsign) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_krk_stops_proto_msgTypes[13]
+	mi := &file_pb_krk_stops_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -813,7 +428,7 @@ func (x *RouteHeadsign) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RouteHeadsign.ProtoReflect.Descriptor instead.
 func (*RouteHeadsign) Descriptor() ([]byte, []int) {
-	return file_pb_krk_stops_proto_rawDescGZIP(), []int{13}
+	return file_pb_krk_stops_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *RouteHeadsign) GetRoutes() []*DirectedRoute {
@@ -834,43 +449,19 @@ var File_pb_krk_stops_proto protoreflect.FileDescriptor
 
 const file_pb_krk_stops_proto_rawDesc = "" +
 	"\n" +
-	"\x12pb/krk-stops.proto\"'\n" +
-	"\x15GetDepartures2Request\x12\x0e\n" +
-	"\x02id\x18\x03 \x01(\rR\x02id\"D\n" +
-	"\x16GetDepartures2Response\x12*\n" +
-	"\n" +
-	"departures\x18\x01 \x03(\v2\n" +
-	".DepartureR\n" +
-	"departures\"^\n" +
-	"\x15GetDepartures3Request\x12\x1b\n" +
+	"\x12pb/krk-stops.proto\"]\n" +
+	"\x14GetDeparturesRequest\x12\x1b\n" +
 	"\tstop_name\x18\x01 \x01(\tR\bstopName\x12(\n" +
-	"\afilters\x18\x02 \x03(\v2\x0e.DirectedRouteR\afilters\"s\n" +
-	"\x16GetDepartures3Response\x12+\n" +
+	"\afilters\x18\x02 \x03(\v2\x0e.DirectedRouteR\afilters\"r\n" +
+	"\x15GetDeparturesResponse\x12+\n" +
 	"\n" +
 	"departures\x18\x01 \x03(\v2\v.Departure3R\n" +
 	"departures\x12,\n" +
-	"\theadsigns\x18\x02 \x03(\v2\x0e.RouteHeadsignR\theadsigns\"+\n" +
-	"\x13SearchStops2Request\x12\x14\n" +
-	"\x05query\x18\x01 \x01(\tR\x05query\"3\n" +
-	"\x14SearchStops2Response\x12\x1b\n" +
-	"\x05stops\x18\x01 \x03(\v2\x05.StopR\x05stops\"+\n" +
-	"\x13SearchStops3Request\x12\x14\n" +
-	"\x05query\x18\x01 \x01(\tR\x05query\",\n" +
-	"\x14SearchStops3Response\x12\x14\n" +
-	"\x05stops\x18\x01 \x03(\tR\x05stops\"\x93\x02\n" +
-	"\tDeparture\x12\"\n" +
-	"\frelativeTime\x18\x01 \x01(\x05R\frelativeTime\x12 \n" +
-	"\vplannedTime\x18\x02 \x01(\tR\vplannedTime\x12\x1c\n" +
-	"\tdirection\x18\x03 \x01(\tR\tdirection\x12 \n" +
-	"\vpatternText\x18\x04 \x01(\tR\vpatternText\x12\x14\n" +
-	"\x05color\x18\x05 \x01(\rR\x05color\x12.\n" +
-	"\x12relativeTimeParsed\x18\x06 \x01(\tR\x12relativeTimeParsed\x12\x1c\n" +
-	"\tpredicted\x18\a \x01(\bR\tpredicted\x12\x1c\n" +
-	"\x04type\x18\b \x01(\x0e2\b.TransitR\x04type\"N\n" +
-	"\x04Stop\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\x12\x0e\n" +
-	"\x02id\x18\x03 \x01(\rR\x02id\x12\x1c\n" +
-	"\x04type\x18\x04 \x01(\x0e2\b.TransitR\x04typeJ\x04\b\x01\x10\x02\"F\n" +
+	"\theadsigns\x18\x02 \x03(\v2\x0e.RouteHeadsignR\theadsigns\"*\n" +
+	"\x12SearchStopsRequest\x12\x14\n" +
+	"\x05query\x18\x01 \x01(\tR\x05query\"+\n" +
+	"\x13SearchStopsResponse\x12\x14\n" +
+	"\x05stops\x18\x01 \x03(\tR\x05stops\"F\n" +
 	"\x06Filter\x12\x19\n" +
 	"\broute_id\x18\x01 \x01(\tR\arouteId\x12!\n" +
 	"\fdirection_id\x18\x02 \x01(\rR\vdirectionId\"\xd1\x01\n" +
@@ -888,16 +479,7 @@ const file_pb_krk_stops_proto_rawDesc = "" +
 	"\fdirection_id\x18\x02 \x01(\rR\vdirectionId\"S\n" +
 	"\rRouteHeadsign\x12&\n" +
 	"\x06routes\x18\x01 \x03(\v2\x0e.DirectedRouteR\x06routes\x12\x1a\n" +
-	"\bheadsign\x18\x02 \x01(\tR\bheadsign*%\n" +
-	"\aTransit\x12\a\n" +
-	"\x03BUS\x10\x00\x12\b\n" +
-	"\x04TRAM\x10\x01\x12\a\n" +
-	"\x03ALL\x10\x022\x92\x02\n" +
-	"\bKrkStops\x12C\n" +
-	"\x0eGetDepartures2\x12\x16.GetDepartures2Request\x1a\x17.GetDepartures2Response\"\x00\x12=\n" +
-	"\fSearchStops2\x12\x14.SearchStops2Request\x1a\x15.SearchStops2Response\"\x00\x12C\n" +
-	"\x0eGetDepartures3\x12\x16.GetDepartures3Request\x1a\x17.GetDepartures3Response\"\x00\x12=\n" +
-	"\fSearchStops3\x12\x14.SearchStops3Request\x1a\x15.SearchStops3Response\"\x00B\x06Z\x04./pbb\x06proto3"
+	"\bheadsign\x18\x02 \x01(\tR\bheadsignB\x06Z\x04./pbb\x06proto3"
 
 var (
 	file_pb_krk_stops_proto_rawDescOnce sync.Once
@@ -911,47 +493,27 @@ func file_pb_krk_stops_proto_rawDescGZIP() []byte {
 	return file_pb_krk_stops_proto_rawDescData
 }
 
-var file_pb_krk_stops_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_pb_krk_stops_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
+var file_pb_krk_stops_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_pb_krk_stops_proto_goTypes = []any{
-	(Transit)(0),                   // 0: Transit
-	(*GetDepartures2Request)(nil),  // 1: GetDepartures2Request
-	(*GetDepartures2Response)(nil), // 2: GetDepartures2Response
-	(*GetDepartures3Request)(nil),  // 3: GetDepartures3Request
-	(*GetDepartures3Response)(nil), // 4: GetDepartures3Response
-	(*SearchStops2Request)(nil),    // 5: SearchStops2Request
-	(*SearchStops2Response)(nil),   // 6: SearchStops2Response
-	(*SearchStops3Request)(nil),    // 7: SearchStops3Request
-	(*SearchStops3Response)(nil),   // 8: SearchStops3Response
-	(*Departure)(nil),              // 9: Departure
-	(*Stop)(nil),                   // 10: Stop
-	(*Filter)(nil),                 // 11: Filter
-	(*Departure3)(nil),             // 12: Departure3
-	(*DirectedRoute)(nil),          // 13: DirectedRoute
-	(*RouteHeadsign)(nil),          // 14: RouteHeadsign
+	(*GetDeparturesRequest)(nil),  // 0: GetDeparturesRequest
+	(*GetDeparturesResponse)(nil), // 1: GetDeparturesResponse
+	(*SearchStopsRequest)(nil),    // 2: SearchStopsRequest
+	(*SearchStopsResponse)(nil),   // 3: SearchStopsResponse
+	(*Filter)(nil),                // 4: Filter
+	(*Departure3)(nil),            // 5: Departure3
+	(*DirectedRoute)(nil),         // 6: DirectedRoute
+	(*RouteHeadsign)(nil),         // 7: RouteHeadsign
 }
 var file_pb_krk_stops_proto_depIdxs = []int32{
-	9,  // 0: GetDepartures2Response.departures:type_name -> Departure
-	13, // 1: GetDepartures3Request.filters:type_name -> DirectedRoute
-	12, // 2: GetDepartures3Response.departures:type_name -> Departure3
-	14, // 3: GetDepartures3Response.headsigns:type_name -> RouteHeadsign
-	10, // 4: SearchStops2Response.stops:type_name -> Stop
-	0,  // 5: Departure.type:type_name -> Transit
-	0,  // 6: Stop.type:type_name -> Transit
-	13, // 7: RouteHeadsign.routes:type_name -> DirectedRoute
-	1,  // 8: KrkStops.GetDepartures2:input_type -> GetDepartures2Request
-	5,  // 9: KrkStops.SearchStops2:input_type -> SearchStops2Request
-	3,  // 10: KrkStops.GetDepartures3:input_type -> GetDepartures3Request
-	7,  // 11: KrkStops.SearchStops3:input_type -> SearchStops3Request
-	2,  // 12: KrkStops.GetDepartures2:output_type -> GetDepartures2Response
-	6,  // 13: KrkStops.SearchStops2:output_type -> SearchStops2Response
-	4,  // 14: KrkStops.GetDepartures3:output_type -> GetDepartures3Response
-	8,  // 15: KrkStops.SearchStops3:output_type -> SearchStops3Response
-	12, // [12:16] is the sub-list for method output_type
-	8,  // [8:12] is the sub-list for method input_type
-	8,  // [8:8] is the sub-list for extension type_name
-	8,  // [8:8] is the sub-list for extension extendee
-	0,  // [0:8] is the sub-list for field type_name
+	6, // 0: GetDeparturesRequest.filters:type_name -> DirectedRoute
+	5, // 1: GetDeparturesResponse.departures:type_name -> Departure3
+	7, // 2: GetDeparturesResponse.headsigns:type_name -> RouteHeadsign
+	6, // 3: RouteHeadsign.routes:type_name -> DirectedRoute
+	4, // [4:4] is the sub-list for method output_type
+	4, // [4:4] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_pb_krk_stops_proto_init() }
@@ -964,14 +526,13 @@ func file_pb_krk_stops_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_pb_krk_stops_proto_rawDesc), len(file_pb_krk_stops_proto_rawDesc)),
-			NumEnums:      1,
-			NumMessages:   14,
+			NumEnums:      0,
+			NumMessages:   8,
 			NumExtensions: 0,
-			NumServices:   1,
+			NumServices:   0,
 		},
 		GoTypes:           file_pb_krk_stops_proto_goTypes,
 		DependencyIndexes: file_pb_krk_stops_proto_depIdxs,
-		EnumInfos:         file_pb_krk_stops_proto_enumTypes,
 		MessageInfos:      file_pb_krk_stops_proto_msgTypes,
 	}.Build()
 	File_pb_krk_stops_proto = out.File

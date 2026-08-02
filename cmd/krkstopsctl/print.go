@@ -26,25 +26,8 @@ func (p *PrettyPrint) Stops(stops []string) {
 	p.Flush()
 }
 
-func (p *PrettyPrint) Stops3(stops []*pb.Stop) {
-	fmt.Fprintf(p, "NO\tID\tNAME\n")
-	for i := range stops {
-		fmt.Fprintf(p, "%d\t%d\t%s\t\n", i, stops[i].Id, stops[i].Name)
-	}
-	p.Flush()
-}
-
 // PrettyPrint departures
-func (p *PrettyPrint) Departures(deps []*pb.Departure) {
-	fmt.Fprintf(p, "NO\tID\tDIRECTION\tPLANNED\tRELATIVE\n")
-	for i, dep := range deps {
-		fmt.Fprintf(p, "%d\t%s\t%s\t%s\t%d\n", i, dep.PatternText, dep.Direction, dep.PlannedTime, dep.RelativeTime)
-	}
-	p.Flush()
-}
-
-// PrettyPrint departures
-func (p *PrettyPrint) Departures3(deps *pb.GetDepartures3Response) {
+func (p *PrettyPrint) Departures3(deps *pb.GetDeparturesResponse) {
 	fmt.Fprintf(p, "DIR\tNAME\tPLAN\tUPDATE\n")
 	for _, d := range deps.Departures {
 		minutes := d.PlannedMinutesInDay % 60

@@ -23,17 +23,11 @@ func (s *KrkStopsServer) serveHTTP(rw http.ResponseWriter, r *http.Request) erro
 		alloc func() proto.Message
 		call  func(context.Context, any) (proto.Message, error)
 	}{
-		"/1": {func() proto.Message { return &pb.SearchStops2Request{} }, func(ctx context.Context, a any) (proto.Message, error) {
-			return s.SearchStops2(ctx, a.(*pb.SearchStops2Request))
+		"/3": {func() proto.Message { return &pb.SearchStopsRequest{} }, func(ctx context.Context, a any) (proto.Message, error) {
+			return s.SearchStops(ctx, a.(*pb.SearchStopsRequest))
 		}},
-		"/2": {func() proto.Message { return &pb.GetDepartures2Request{} }, func(ctx context.Context, a any) (proto.Message, error) {
-			return s.GetDepartures2(ctx, a.(*pb.GetDepartures2Request))
-		}},
-		"/3": {func() proto.Message { return &pb.SearchStops3Request{} }, func(ctx context.Context, a any) (proto.Message, error) {
-			return s.SearchStops3(ctx, a.(*pb.SearchStops3Request))
-		}},
-		"/4": {func() proto.Message { return &pb.GetDepartures3Request{} }, func(ctx context.Context, a any) (proto.Message, error) {
-			return s.GetDepartures3(ctx, a.(*pb.GetDepartures3Request))
+		"/4": {func() proto.Message { return &pb.GetDeparturesRequest{} }, func(ctx context.Context, a any) (proto.Message, error) {
+			return s.GetDepartures(ctx, a.(*pb.GetDeparturesRequest))
 		}},
 	}
 

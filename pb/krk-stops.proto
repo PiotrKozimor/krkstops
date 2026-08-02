@@ -2,76 +2,28 @@ syntax = "proto3";
 
 option go_package = "./pb";
 
-service KrkStops {
-    rpc GetDepartures2(GetDepartures2Request) returns (GetDepartures2Response) {}
-    rpc SearchStops2(SearchStops2Request) returns (SearchStops2Response) {}
-    rpc GetDepartures3(GetDepartures3Request) returns (GetDepartures3Response) {}
-    rpc SearchStops3(SearchStops3Request) returns (SearchStops3Response) {}
-}
-
-enum Transit {
-    BUS=0;
-    TRAM=1;
-    ALL=2;
-}
-
-message GetDepartures2Request {
-    uint32 id = 3;
-}
-
-message GetDepartures2Response {
-    repeated Departure departures = 1;
-}
-
-message GetDepartures3Request {
+message GetDeparturesRequest {
     string stop_name = 1;
     repeated DirectedRoute filters = 2;
 }
 
-message GetDepartures3Response {
+message GetDeparturesResponse {
     repeated Departure3 departures = 1;
     repeated RouteHeadsign headsigns = 2;
 }
 
-message SearchStops2Request {
+message SearchStopsRequest {
     string query = 1;
 }
 
-message SearchStops2Response {
-    repeated Stop stops = 1;
-}
-
-message SearchStops3Request {
-    string query = 1;
-}
-
-message SearchStops3Response {
+message SearchStopsResponse {
     repeated string stops = 1;
-}
-
-message Departure {
-    int32 relativeTime = 1;
-    string plannedTime = 2;
-    string direction = 3;
-    string patternText = 4;
-    uint32 color = 5;
-    string relativeTimeParsed = 6;
-    bool predicted = 7;
-    Transit type = 8;
-}
-
-message Stop {
-    reserved 1;
-    string name = 2;
-    uint32 id = 3;
-    Transit type = 4;
 }
 
 message Filter {
     string route_id = 1;
     uint32 direction_id = 2;
 }
-
 
 message Departure3 {
     uint32 planned_minutes_in_day = 1;
