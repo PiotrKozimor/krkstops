@@ -1,1 +1,1 @@
-Backend powering [KrkStops mobile app](https://play.google.com/store/apps/details?id=krkstops.app), implemented in Go.
+A backend powering [KrkStops mobile app](https://krkstops.cozymore.dev).
