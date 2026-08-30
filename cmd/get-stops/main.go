@@ -5,8 +5,8 @@ import (
 	"log"
 	"strings"
 
-	"github.com/PiotrKozimor/krkstops/pkg/store"
-	"github.com/PiotrKozimor/krkstops/pkg/ttss"
+	"go.cozymore.dev/krkstops/pkg/store"
+	"go.cozymore.dev/krkstops/pkg/ttss"
 )
 
 const (

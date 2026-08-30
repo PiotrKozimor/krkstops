@@ -5,9 +5,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/PiotrKozimor/krkstops/pkg/gtfs/realtimepb"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"go.cozymore.dev/krkstops/pkg/gtfs/realtimepb"
 )
 
 func TestFeed(t *testing.T) {

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/PiotrKozimor/krkstops/pkg/gtfs/realtimepb"
 	"github.com/prometheus/client_golang/prometheus"
+	"go.cozymore.dev/krkstops/pkg/gtfs/realtimepb"
 	"google.golang.org/protobuf/proto"
 )
 

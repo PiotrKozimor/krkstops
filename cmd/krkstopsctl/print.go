@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"text/tabwriter"
 
-	"github.com/PiotrKozimor/krkstops/pb"
 	"github.com/spf13/cobra"
+	"go.cozymore.dev/krkstops/pb"
 )
 
 type PrettyPrint struct {

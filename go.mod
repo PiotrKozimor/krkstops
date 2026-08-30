@@ -1,4 +1,4 @@
-module github.com/PiotrKozimor/krkstops
+module go.cozymore.dev/krkstops
 
 go 1.25.0
 

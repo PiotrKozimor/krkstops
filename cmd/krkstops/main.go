@@ -6,9 +6,9 @@ import (
 	_ "net/http/pprof"
 	_ "time/tzdata"
 
-	"github.com/PiotrKozimor/krkstops"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"go.cozymore.dev/krkstops"
 )
 
 func handle(err error) {

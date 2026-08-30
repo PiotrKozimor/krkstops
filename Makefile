@@ -4,4 +4,4 @@ deps:
 
 protos: deps
 	protoc pb/krk-stops.proto --go_out=.
-	protoc pkg/gtfs/realtimepb/gtfs-realtime.proto --go_out=. --go_opt paths=source_relative --go_opt=Mpkg/gtfs/realtimepb/gtfs-realtime.proto=github.com/PiotrKozimor/krkstops/gtfs/realtimepb
+	protoc pkg/gtfs/realtimepb/gtfs-realtime.proto --go_out=. --go_opt paths=source_relative --go_opt=Mpkg/gtfs/realtimepb/gtfs-realtime.proto=go.cozymore.dev/krkstops/gtfs/realtimepb

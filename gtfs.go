@@ -12,9 +12,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/PiotrKozimor/krkstops/pkg/gtfs"
-	"github.com/PiotrKozimor/krkstops/pkg/trie"
 	"github.com/prometheus/client_golang/prometheus"
+	"go.cozymore.dev/krkstops/pkg/gtfs"
+	"go.cozymore.dev/krkstops/pkg/trie"
 )
 
 type scoredStop struct {

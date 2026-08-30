@@ -12,8 +12,8 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/PiotrKozimor/krkstops/pb"
 	"github.com/prometheus/client_golang/prometheus"
+	"go.cozymore.dev/krkstops/pb"
 	"google.golang.org/protobuf/proto"
 )
 

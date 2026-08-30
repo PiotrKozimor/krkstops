@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/PiotrKozimor/krkstops/pb"
-	"github.com/PiotrKozimor/krkstops/pkg/gtfs"
+	"go.cozymore.dev/krkstops/pb"
+	"go.cozymore.dev/krkstops/pkg/gtfs"
 )
 
 func (s *KrkStopsServer) GetDepartures(ctx context.Context, req *pb.GetDeparturesRequest) (*pb.GetDeparturesResponse, error) {

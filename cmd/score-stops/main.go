@@ -6,8 +6,8 @@ import (
 
 	_ "embed"
 
-	"github.com/PiotrKozimor/krkstops/pkg/store"
-	"github.com/PiotrKozimor/krkstops/pkg/ttss"
+	"go.cozymore.dev/krkstops/pkg/store"
+	"go.cozymore.dev/krkstops/pkg/ttss"
 )
 
 func handle(err error) {

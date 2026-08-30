@@ -5,8 +5,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/PiotrKozimor/krkstops/pkg/trie"
-	"github.com/PiotrKozimor/krkstops/pkg/ttss"
+	"go.cozymore.dev/krkstops/pkg/trie"
+	"go.cozymore.dev/krkstops/pkg/ttss"
 )
 
 type KrkStopsServer struct {

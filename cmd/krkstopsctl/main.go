@@ -6,8 +6,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/PiotrKozimor/krkstops/pb"
 	"github.com/spf13/cobra"
+	"go.cozymore.dev/krkstops/pb"
 	"google.golang.org/protobuf/proto"
 )
 
